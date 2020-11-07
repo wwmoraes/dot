@@ -15,14 +15,14 @@ type Graph struct {
 	isCluster bool
 	graphType string
 	seq       int
-	nodes     map[string]Node
-	edgesFrom map[string][]Edge
+	nodes     map[string]*Node
+	edgesFrom map[string][]*Edge
 	subgraphs map[string]*Graph
 	parent    *Graph
-	sameRank  map[string][]Node
+	sameRank  map[string][]*Node
 	//
-	nodeInitializer func(Node)
-	edgeInitializer func(Edge)
+	nodeInitializer func(*Node)
+	edgeInitializer func(*Edge)
 }
 
 // NewGraph return a new initialized Graph.
@@ -30,10 +30,10 @@ func NewGraph(options ...GraphOption) *Graph {
 	graph := &Graph{
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
 		graphType:     Directed.Name,
-		nodes:         map[string]Node{},
-		edgesFrom:     map[string][]Edge{},
+		nodes:         map[string]*Node{},
+		edgesFrom:     map[string][]*Edge{},
 		subgraphs:     map[string]*Graph{},
-		sameRank:      map[string][]Node{},
+		sameRank:      map[string][]*Node{},
 	}
 	for _, each := range options {
 		each.Apply(graph)
@@ -99,12 +99,12 @@ func (g *Graph) Subgraph(id string, options ...GraphOption) *Graph {
 	return sub
 }
 
-func (g *Graph) findNode(id string) (Node, bool) {
+func (g *Graph) findNode(id string) (*Node, bool) {
 	if n, ok := g.nodes[id]; ok {
 		return n, ok
 	}
 	if g.parent == nil {
-		return Node{id: "void"}, false
+		return &Node{id: "void"}, false
 	}
 	return g.parent.findNode(id)
 }
@@ -117,12 +117,12 @@ func (g *Graph) nextSeq() int {
 }
 
 // NodeInitializer sets a function that is called (if not nil) when a Node is implicitly created.
-func (g *Graph) NodeInitializer(callback func(n Node)) {
+func (g *Graph) NodeInitializer(callback func(n *Node)) {
 	g.nodeInitializer = callback
 }
 
 // EdgeInitializer sets a function that is called (if not nil) when an Edge is implicitly created.
-func (g *Graph) EdgeInitializer(callback func(e Edge)) {
+func (g *Graph) EdgeInitializer(callback func(e *Edge)) {
 	g.edgeInitializer = callback
 }
 
@@ -130,11 +130,11 @@ func (g *Graph) EdgeInitializer(callback func(e Edge)) {
 // The node will have a label attribute with the id as its value. Use Label() to overwrite this.
 // This method can be used as both a constructor and accessor.
 // not thread safe!
-func (g *Graph) Node(id string) Node {
+func (g *Graph) Node(id string) *Node {
 	if n, ok := g.findNode(id); ok {
 		return n
 	}
-	n := Node{
+	n := &Node{
 		id:  id,
 		seq: g.nextSeq(), // create a new, use root sequence
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{
@@ -152,13 +152,13 @@ func (g *Graph) Node(id string) Node {
 // Edge creates a new edge between two nodes.
 // Nodes can be have multiple edges to the same other node (or itself).
 // If one or more labels are given then the "label" attribute is set to the edge.
-func (g *Graph) Edge(fromNode, toNode Node, labels ...string) Edge {
+func (g *Graph) Edge(fromNode, toNode *Node, labels ...string) *Edge {
 	// assume fromNode owner == toNode owner
 	edgeOwner := g
 	if fromNode.graph != toNode.graph { // 1 or 2 are subgraphs
 		edgeOwner = commonParentOf(fromNode.graph, toNode.graph)
 	}
-	e := Edge{
+	e := &Edge{
 		from:          fromNode,
 		to:            toNode,
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
@@ -175,8 +175,8 @@ func (g *Graph) Edge(fromNode, toNode Node, labels ...string) Edge {
 
 // FindEdges finds all edges in the graph that go from the fromNode to the toNode.
 // Otherwise, returns an empty slice.
-func (g *Graph) FindEdges(fromNode, toNode Node) (found []Edge) {
-	found = make([]Edge, 0)
+func (g *Graph) FindEdges(fromNode, toNode *Node) (found []*Edge) {
+	found = make([]*Edge, 0)
 	edgeOwner := g
 	if fromNode.graph != toNode.graph {
 		edgeOwner = commonParentOf(fromNode.graph, toNode.graph)
@@ -197,23 +197,23 @@ func commonParentOf(one *Graph, two *Graph) *Graph {
 }
 
 // AddToSameRank adds the given nodes to the specified rank group, forcing them to be rendered in the same row
-func (g *Graph) AddToSameRank(group string, nodes ...Node) {
+func (g *Graph) AddToSameRank(group string, nodes ...*Node) {
 	g.sameRank[group] = append(g.sameRank[group], nodes...)
 }
 
 // String returns the source in dot notation.
-func (g Graph) String() string {
+func (g *Graph) String() string {
 	b := new(bytes.Buffer)
 	g.Write(b)
 	return b.String()
 }
 
-func (g Graph) Write(w io.Writer) {
+func (g *Graph) Write(w io.Writer) {
 	g.IndentedWrite(NewIndentWriter(w))
 }
 
 // IndentedWrite write the graph to a writer using simple TAB indentation.
-func (g Graph) IndentedWrite(w *IndentWriter) {
+func (g *Graph) IndentedWrite(w *IndentWriter) {
 	fmt.Fprintf(w, "%s %s {", g.graphType, g.id)
 	w.NewLineIndentWhile(func() {
 		// subgraphs
@@ -299,7 +299,7 @@ func appendSortedMap(m map[string]interface{}, mustBracket bool, b io.Writer) {
 }
 
 // VisitNodes visits all nodes recursively
-func (g Graph) VisitNodes(callback func(node Node) (done bool)) {
+func (g *Graph) VisitNodes(callback func(node *Node) (done bool)) {
 	for _, node := range g.nodes {
 		done := callback(node)
 		if done {
@@ -313,8 +313,8 @@ func (g Graph) VisitNodes(callback func(node Node) (done bool)) {
 }
 
 // FindNodeById return node by id
-func (g Graph) FindNodeById(id string) (foundNode Node, found bool) {
-	g.VisitNodes(func(node Node) (done bool) {
+func (g *Graph) FindNodeById(id string) (foundNode *Node, found bool) {
+	g.VisitNodes(func(node *Node) (done bool) {
 		if node.id == id {
 			found = true
 			foundNode = node
@@ -326,9 +326,9 @@ func (g Graph) FindNodeById(id string) (foundNode Node, found bool) {
 }
 
 // FindNodes returns all nodes recursively
-func (g Graph) FindNodes() (nodes []Node) {
-	var foundNodes []Node
-	g.VisitNodes(func(node Node) (done bool) {
+func (g *Graph) FindNodes() (nodes []*Node) {
+	var foundNodes []*Node
+	g.VisitNodes(func(node *Node) (done bool) {
 		foundNodes = append(foundNodes, node)
 		return false
 	})

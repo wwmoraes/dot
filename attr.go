@@ -20,7 +20,7 @@ type AttributesMap struct {
 
 // Attrs sets multiple values for attributes (unless empty) taking a label,value list
 // E.g  Attrs("style","filled","fillcolor","red")
-func (a AttributesMap) Attrs(labelvalues ...interface{}) {
+func (a *AttributesMap) Attrs(labelvalues ...interface{}) {
 	if len(labelvalues)%2 != 0 {
 		panic("missing label or value ; must provide pairs")
 	}
@@ -32,7 +32,7 @@ func (a AttributesMap) Attrs(labelvalues ...interface{}) {
 }
 
 // Attr sets the value for an attribute (unless empty).
-func (a AttributesMap) Attr(label string, value interface{}) {
+func (a *AttributesMap) Attr(label string, value interface{}) {
 	if len(label) == 0 || value == nil {
 		return
 	}
@@ -46,11 +46,11 @@ func (a AttributesMap) Attr(label string, value interface{}) {
 }
 
 // Value return the value added for this label.
-func (a AttributesMap) Value(label string) interface{} {
+func (a *AttributesMap) Value(label string) interface{} {
 	return a.attributes[label]
 }
 
 // Delete removes the attribute value at key, if any
-func (a AttributesMap) Delete(key string) {
+func (a *AttributesMap) Delete(key string) {
 	delete(a.attributes, key)
 }

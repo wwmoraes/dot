@@ -57,7 +57,7 @@ func TestGraph_FindEdges(t *testing.T) {
 	di := NewGraph(Directed)
 	n1 := di.Node("A")
 	n2 := di.Node("B")
-	want := []Edge{di.Edge(n1, n2)}
+	want := []*Edge{di.Edge(n1, n2)}
 	got := di.FindEdges(n1, n2)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("TestGraph.FindEdges() = %v, want %v", got, want)
@@ -89,7 +89,7 @@ func TestSubgraph(t *testing.T) {
 
 func TestSubgraphClusterOption(t *testing.T) {
 	di := NewGraph(Directed)
-	sub := di.Subgraph("test", ClusterOption{})
+	sub := di.Subgraph("test", &ClusterOption{})
 	if got, want := sub.id, "cluster_s1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -122,10 +122,10 @@ func TestSameRank(t *testing.T) {
 func TestCluster(t *testing.T) {
 	di := NewGraph(Directed)
 	outside := di.Node("Outside")
-	clusterA := di.Subgraph("Cluster A", ClusterOption{})
+	clusterA := di.Subgraph("Cluster A", &ClusterOption{})
 	insideOne := clusterA.Node("one")
 	insideTwo := clusterA.Node("two")
-	clusterB := di.Subgraph("Cluster B", ClusterOption{})
+	clusterB := di.Subgraph("Cluster B", &ClusterOption{})
 	insideThree := clusterB.Node("three")
 	insideFour := clusterB.Node("four")
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
@@ -215,7 +215,7 @@ func TestLabelWithEscaping(t *testing.T) {
 
 func TestGraphNodeInitializer(t *testing.T) {
 	di := NewGraph(Directed)
-	di.NodeInitializer(func(n Node) {
+	di.NodeInitializer(func(n *Node) {
 		n.Attr("test", "test")
 	})
 	n := di.Node("A")
@@ -226,7 +226,7 @@ func TestGraphNodeInitializer(t *testing.T) {
 
 func TestGraphEdgeInitializer(t *testing.T) {
 	di := NewGraph(Directed)
-	di.EdgeInitializer(func(e Edge) {
+	di.EdgeInitializer(func(e *Edge) {
 		e.Attr("test", "test")
 	})
 	e := di.Node("A").Edge(di.Node("B"))

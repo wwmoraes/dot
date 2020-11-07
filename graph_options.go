@@ -6,21 +6,21 @@ type GraphOption interface {
 
 type ClusterOption struct{}
 
-func (o ClusterOption) Apply(g *Graph) {
+func (o *ClusterOption) Apply(g *Graph) {
 	g.beCluster()
 }
 
 var (
-	Strict     = GraphTypeOption{"strict"}
-	Undirected = GraphTypeOption{"graph"}
-	Directed   = GraphTypeOption{"digraph"}
-	Sub        = GraphTypeOption{"subgraph"}
+	Strict     = &GraphTypeOption{"strict"}
+	Undirected = &GraphTypeOption{"graph"}
+	Directed   = &GraphTypeOption{"digraph"}
+	Sub        = &GraphTypeOption{"subgraph"}
 )
 
 type GraphTypeOption struct {
 	Name string
 }
 
-func (o GraphTypeOption) Apply(g *Graph) {
+func (o *GraphTypeOption) Apply(g *Graph) {
 	g.graphType = o.Name
 }
