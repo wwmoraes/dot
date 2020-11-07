@@ -8,6 +8,11 @@ type Node struct {
 	seq   int
 }
 
+// ID returns the node immutable id
+func (n *Node) ID() string {
+	return n.id
+}
+
 // Attr sets label=value and return the Node
 func (n *Node) Attr(label string, value interface{}) *Node {
 	n.AttributesMap.Attr(label, value)
