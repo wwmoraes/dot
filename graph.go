@@ -30,11 +30,11 @@ func NewGraph(options ...GraphOption) *Graph {
 	graph := &Graph{
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
 		graphType:     Directed.Name,
-		generator:     NewUIDGenerator(),
 		nodes:         map[string]*Node{},
 		edgesFrom:     map[string][]*Edge{},
 		subgraphs:     map[string]*Graph{},
 		sameRank:      map[string][]*Node{},
+		generator:  NewUIDGenerator(24),
 	}
 	for _, each := range options {
 		each.Apply(graph)
