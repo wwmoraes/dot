@@ -13,7 +13,7 @@ type Graph struct {
 	AttributesMap
 	id        string
 	graphType string
-	seq       int
+	generator *UIDGenerator
 	nodes     map[string]*Node
 	edgesFrom map[string][]*Edge
 	subgraphs map[string]*Graph
@@ -29,6 +29,7 @@ func NewGraph(options ...GraphOption) *Graph {
 	graph := &Graph{
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
 		graphType:     Directed.Name,
+		generator:     NewUIDGenerator(),
 		nodes:         map[string]*Node{},
 		edgesFrom:     map[string][]*Edge{},
 		subgraphs:     map[string]*Graph{},
@@ -87,7 +88,7 @@ func (g *Graph) Subgraph(id string, options ...GraphOption) *Graph {
 	}
 	sub = NewGraph(Sub)
 	sub.Attr("label", id) // for consistency with Node creation behavior.
-	sub.id = fmt.Sprintf("s%d", g.nextSeq())
+	sub.id = fmt.Sprintf("s%s", g.generator.String(24))
 	for _, each := range options {
 		each.Apply(sub)
 	}
@@ -106,13 +107,6 @@ func (g *Graph) findNode(id string) (*Node, bool) {
 		return &Node{id: "void"}, false
 	}
 	return g.parent.findNode(id)
-}
-
-// nextSeq takes the next sequence number from the root graph
-func (g *Graph) nextSeq() int {
-	root := g.Root()
-	root.seq++
-	return root.seq
 }
 
 // NodeInitializer sets a function that is called (if not nil) when a Node is implicitly created.
@@ -134,8 +128,8 @@ func (g *Graph) Node(id string) *Node {
 		return n
 	}
 	n := &Node{
-		id:  id,
-		seq: g.nextSeq(), // create a new, use root sequence
+		id:         id,
+		internalID: g.generator.String(24),
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{
 			"label": id}},
 		graph: g,
@@ -160,6 +154,7 @@ func (g *Graph) Edge(fromNode, toNode *Node, labels ...string) *Edge {
 	e := &Edge{
 		from:          fromNode,
 		to:            toNode,
+		internalID:    g.generator.String(24),
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
 		graph:         edgeOwner}
 	if len(labels) > 0 {
@@ -226,7 +221,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		// graph nodes
 		for _, key := range g.sortedNodesKeys() {
 			each := g.nodes[key]
-			fmt.Fprintf(w, "n%d", each.seq)
+			fmt.Fprintf(w, "n%s", each.internalID)
 			appendSortedMap(each.attributes, true, w)
 			fmt.Fprintf(w, ";")
 			w.NewLine()
@@ -239,7 +234,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, each := range g.sortedEdgesFromKeys() {
 			all := g.edgesFrom[each]
 			for _, each := range all {
-				fmt.Fprintf(w, "n%d%sn%d", each.from.seq, denoteEdge, each.to.seq)
+				fmt.Fprintf(w, "n%s%sn%s", each.from.internalID, denoteEdge, each.to.internalID)
 				appendSortedMap(each.attributes, true, w)
 				fmt.Fprint(w, ";")
 				w.NewLine()
@@ -248,7 +243,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, nodes := range g.sameRank {
 			str := ""
 			for _, n := range nodes {
-				str += fmt.Sprintf("n%d;", n.seq)
+				str += fmt.Sprintf("n%s;", n.internalID)
 			}
 			fmt.Fprintf(w, "{rank=same; %s};", str)
 			w.NewLine()
