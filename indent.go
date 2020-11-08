@@ -37,9 +37,7 @@ func (i *IndentWriter) IndentWhile(block func()) {
 // NewLineIndentWhile executes a block on a indented and newline separared section
 func (i *IndentWriter) NewLineIndentWhile(block func()) {
 	i.NewLine()
-	i.Indent()
-	block()
-	i.BackIndent()
+	i.IndentWhile(block)
 	i.NewLine()
 }
 
