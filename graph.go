@@ -25,7 +25,9 @@ type Graph struct {
 	edgeInitializer func(*Edge)
 }
 
-// NewGraph return a new initialized Graph.
+// NewGraph return a new initialized Graph
+//
+// if id is "-", a randonly generated ID will be set
 func NewGraph(options ...GraphOption) *Graph {
 	graph := &Graph{
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
@@ -39,16 +41,12 @@ func NewGraph(options ...GraphOption) *Graph {
 	for _, each := range options {
 		each.Apply(graph)
 	}
-	return graph
-}
 
-// ID sets the identifier of the graph.
-func (g *Graph) ID(newID string) *Graph {
-	if len(g.id) > 0 {
-		panic("cannot overwrite non-empty id ; both the old and the new could be in use and we cannot tell")
+	if graph.id == "-" {
+		graph.id = graph.generator.String()
 	}
-	g.id = newID
-	return g
+
+	return graph
 }
 
 // Label sets the "label" attribute value.
@@ -82,14 +80,15 @@ func (g *Graph) FindSubgraph(id string) (*Graph, bool) {
 
 // Subgraph returns the Graph with the given id ; creates one if absent.
 // The label attribute is also set to the id ; use Label() to overwrite it.
+//
+// if id is "-", a randonly generated ID will be set
 func (g *Graph) Subgraph(id string, options ...GraphOption) *Graph {
 	sub, ok := g.subgraphs[id]
 	if ok {
 		return sub
 	}
-	sub = NewGraph(Sub)
 	sub.Attr("label", id) // for consistency with Node creation behavior.
-	sub.id = fmt.Sprintf("s%s", g.generator.String(24))
+	sub = NewGraph(Sub, &GraphIDOption{id})
 	for _, each := range options {
 		each.Apply(sub)
 	}
@@ -128,9 +127,11 @@ func (g *Graph) Node(id string) *Node {
 	if n, ok := g.findNode(id); ok {
 		return n
 	}
+	if len(id) == 0 {
+		id = g.generator.String()
+	}
 	n := &Node{
 		id:         id,
-		internalID: g.generator.String(24),
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{
 			"label": id}},
 		graph: g,
@@ -155,9 +156,9 @@ func (g *Graph) Edge(fromNode, toNode *Node, labels ...string) *Edge {
 	e := &Edge{
 		from:          fromNode,
 		to:            toNode,
-		internalID:    g.generator.String(24),
 		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
 		graph:         edgeOwner}
+		id:         g.generator.String(),
 	if len(labels) > 0 {
 		e.Attr("label", strings.Join(labels, ","))
 	}
@@ -225,8 +226,8 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		// graph nodes
 		for _, key := range g.sortedNodesKeys() {
 			each := g.nodes[key]
-			fmt.Fprintf(w, "n%s", each.internalID)
 			appendSortedMap(each.attributes, true, w)
+			fmt.Fprintf(w, "%s", each.id)
 			fmt.Fprintf(w, ";")
 			w.NewLine()
 		}
@@ -238,8 +239,8 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, each := range g.sortedEdgesFromKeys() {
 			all := g.edgesFrom[each]
 			for _, each := range all {
-				fmt.Fprintf(w, "n%s%sn%s", each.from.internalID, denoteEdge, each.to.internalID)
 				appendSortedMap(each.attributes, true, w)
+				fmt.Fprintf(w, "%s%s%s", each.from.id, denoteEdge, each.to.id)
 				fmt.Fprint(w, ";")
 				w.NewLine()
 			}
@@ -247,7 +248,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, nodes := range g.sameRank {
 			str := ""
 			for _, n := range nodes {
-				str += fmt.Sprintf("n%s;", n.internalID)
+				str += fmt.Sprintf("%s;", n.id)
 			}
 			fmt.Fprintf(w, "{rank=same; %s};", str)
 			w.NewLine()

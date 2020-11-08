@@ -5,13 +5,13 @@ type Edge struct {
 	AttributesMap
 	graph      *Graph
 	from, to   *Node
-	internalID string
 }
 
 // Attr sets key=value and returns the Egde.
 func (e *Edge) Attr(key string, value interface{}) *Edge {
 	e.AttributesMap.Attr(key, value)
 	return e
+	id       string
 }
 
 // Label sets "label"=value and returns the Edge.

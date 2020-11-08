@@ -3,9 +3,8 @@ package dot
 // Node represents a dot Node.
 type Node struct {
 	AttributesMap
-	graph      *Graph
-	id         string
-	internalID string
+	graph *Graph
+	id    string
 }
 
 // ID returns the node immutable id
