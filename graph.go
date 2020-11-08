@@ -214,7 +214,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 	if g.strict {
 		fmt.Fprint(w, "strict ")
 	}
-	fmt.Fprintf(w, "%s %s {", g.graphType, g.id)
+	fmt.Fprintf(w, `%s "%s" {`, g.graphType, g.id)
 	w.NewLineIndentWhile(func() {
 		// subgraphs
 		for _, key := range g.sortedSubgraphsKeys() {
@@ -227,7 +227,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		// graph nodes
 		for _, key := range g.sortedNodesKeys() {
 			each := g.nodes[key]
-			fmt.Fprintf(w, "%s", each.id)
+			fmt.Fprintf(w, `"%s"`, each.id)
 			each.Write(w, true)
 			fmt.Fprintf(w, ";")
 			w.NewLine()
@@ -240,7 +240,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, each := range g.sortedEdgesFromKeys() {
 			all := g.edgesFrom[each]
 			for _, each := range all {
-				fmt.Fprintf(w, "%s%s%s", each.from.id, denoteEdge, each.to.id)
+				fmt.Fprintf(w, `"%s"%s"%s"`, each.from.id, denoteEdge, each.to.id)
 				each.Write(w, true)
 				fmt.Fprint(w, ";")
 				w.NewLine()
@@ -249,7 +249,7 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, nodes := range g.sameRank {
 			str := ""
 			for _, n := range nodes {
-				str += fmt.Sprintf("%s;", n.id)
+				str += fmt.Sprintf(`"%s";`, n.id)
 			}
 			fmt.Fprintf(w, "{rank=same; %s};", str)
 			w.NewLine()

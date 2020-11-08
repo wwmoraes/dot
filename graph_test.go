@@ -13,18 +13,18 @@ import (
 
 func TestEmpty(t *testing.T) {
 	di := NewGraph(Directed)
-	if got, want := flatten(di.String()), `digraph  {}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	di2 := NewGraph(Directed, &GraphIDOption{"test"})
-	if got, want := flatten(di2.String()), `digraph test {}`; got != want {
+	if got, want := flatten(di2.String()), `digraph "test" {}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 	di3 := NewGraph(Directed, &GraphIDOption{"-"})
 	if di3.id == "-" {
 		t.Error("got dash id instead of randomly generated one")
 	}
-	if got, want := flatten(di3.String()), fmt.Sprintf(`digraph %s {}`, di3.id); got != want {
+	if got, want := flatten(di3.String()), fmt.Sprintf(`digraph "%s" {}`, di3.id); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -33,14 +33,14 @@ func TestStrict(t *testing.T) {
 	// test strict directed
 	{
 		graph := NewGraph(StrictDirected)
-		if got, want := flatten(graph.String()), `strict digraph  {}`; got != want {
+		if got, want := flatten(graph.String()), `strict digraph "" {}`; got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	}
 	// test strict undirected
 	{
 		graph := NewGraph(StrictUndirected)
-		if got, want := flatten(graph.String()), `strict graph  {}`; got != want {
+		if got, want := flatten(graph.String()), `strict graph "" {}`; got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	}
@@ -50,7 +50,7 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 	di := NewGraph(Directed)
 	di.SetAttribute(attributes.AttributeStyle, attributes.NewString("filled"))
 	di.SetAttribute(attributes.AttributeColor, attributes.NewString("lightgrey"))
-	if got, want := flatten(di.String()), `digraph  {color="lightgrey";style="filled";}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {color="lightgrey";style="filled";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -58,7 +58,7 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 func TestEmptyWithHTMLLabel(t *testing.T) {
 	di := NewGraph(Directed)
 	di.SetAttribute(attributes.AttributeLabel, attributes.NewHTML("<B>Hi</B>"))
-	if got, want := flatten(di.String()), `digraph  {label=<<B>Hi</B>>;}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {label=<<B>Hi</B>>;}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -66,7 +66,7 @@ func TestEmptyWithHTMLLabel(t *testing.T) {
 func TestEmptyWithLiteralValueLabel(t *testing.T) {
 	di := NewGraph(Directed)
 	di.SetAttribute(attributes.AttributeLabel, attributes.NewLiteral(`"left-justified text\l"`))
-	if got, want := flatten(di.String()), `digraph  {label="left-justified text\l";}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {label="left-justified text\l";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -76,7 +76,7 @@ func TestTwoConnectedNodes(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s->%[2]s;}`, n1.id, n2.id); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s";}`, n1.id, n2.id); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -115,7 +115,7 @@ func TestUndirectedTwoConnectedNodes(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`graph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s--%[2]s;}`, n1.id, n2.id); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`graph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"--"%[2]s";}`, n1.id, n2.id); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -135,11 +135,11 @@ func TestSubgraph(t *testing.T) {
 	di := NewGraph(Directed)
 	sub := di.Subgraph("test-id")
 	sub.SetAttribute(attributes.AttributeStyle, attributes.NewString("filled"))
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph  {subgraph %s {label="test-id";style="filled";}}`, sub.id); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="test-id";style="filled";}}`, sub.id); got != want {
 		t.Errorf("got\n[%v] want\n[%v]", got, want)
 	}
 	sub.Label("new-label")
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph  {subgraph %s {label="new-label";style="filled";}}`, sub.id); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="new-label";style="filled";}}`, sub.id); got != want {
 		t.Errorf("got\n[%v] want\n[%v]", got, want)
 	}
 	found, _ := di.FindSubgraph("test-id")
@@ -178,7 +178,7 @@ func TestNode(t *testing.T) {
 		return
 	}
 
-	if got, want := flatten(graph.String()), fmt.Sprintf(`digraph %s {%s[label="test",shape="box"];}`, graph.id, node.ID()); got != want {
+	if got, want := flatten(graph.String()), fmt.Sprintf(`digraph "%s" {"%s"[label="test",shape="box"];}`, graph.id, node.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 
@@ -200,7 +200,7 @@ func TestEdgeLabel(t *testing.T) {
 	n1 := di.Node("e1")
 	n2 := di.Node("e2")
 	n1.Edge(n2, "what")
-	if got, want := flatten(di.String()), `digraph  {e1[label="e1"];e2[label="e2"];e1->e2[label="what"];}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {"e1"[label="e1"];"e2"[label="e2"];"e1"->"e2"[label="what"];}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -213,7 +213,7 @@ func TestSameRank(t *testing.T) {
 	foo1.Edge(foo2)
 	foo1.Edge(bar)
 	di.AddToSameRank("top-row", foo1, foo2)
-	if got, want := flatten(di.String()), `digraph  {bar[label="bar"];foo1[label="foo1"];foo2[label="foo2"];foo1->foo2;foo1->bar;{rank=same; foo1;foo2;};}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {"bar"[label="bar"];"foo1"[label="foo1"];"foo2"[label="foo2"];"foo1"->"foo2";"foo1"->"bar";{rank=same; "foo1";"foo2";};}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -243,7 +243,7 @@ func TestDeleteLabel(t *testing.T) {
 	g := NewGraph()
 	n := g.Node("my-id")
 	n.DeleteAttribute(attributes.AttributeLabel)
-	if got, want := flatten(g.String()), `digraph  {my-id;}`; got != want {
+	if got, want := flatten(g.String()), `digraph "" {"my-id";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -310,7 +310,7 @@ func TestLabelWithEscaping(t *testing.T) {
 	di := NewGraph(Directed)
 	n := di.Node("without-linefeed")
 	n.SetAttribute(attributes.AttributeLabel, attributes.NewLiteral(`"with \l linefeed"`))
-	if got, want := flatten(di.String()), `digraph  {without-linefeed[label="with \l linefeed"];}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {"without-linefeed"[label="with \l linefeed"];}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

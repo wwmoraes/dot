@@ -13,10 +13,10 @@ func TestEdgeStyleHelpers(t *testing.T) {
 	}
 
 	tests := []test{
-		{input: "solid", want: `digraph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s->%[2]s[style="solid"];}`},
-		{input: "bold", want: `digraph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s->%[2]s[style="bold"];}`},
-		{input: "dashed", want: `digraph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s->%[2]s[style="dashed"];}`},
-		{input: "dotted", want: `digraph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s->%[2]s[style="dotted"];}`},
+		{input: "solid", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="solid"];}`},
+		{input: "bold", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="bold"];}`},
+		{input: "dashed", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="dashed"];}`},
+		{input: "dotted", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="dotted"];}`},
 	}
 
 	for _, tc := range tests {
