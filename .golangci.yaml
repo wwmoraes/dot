@@ -1,0 +1,15 @@
+output:
+  format: colored-line-number
+linters-settings:
+  enable:
+  - stylecheck
+  - unconvert
+  - gosec
+  - errorlint
+  - maligned
+  - interfacer
+  - unparam
+  - whitespace
+  - wrapcheck
+  - prealloc
+  - nolintlint
