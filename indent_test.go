@@ -3,6 +3,7 @@ package dot
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -28,12 +29,9 @@ func TestIndentWriter(t *testing.T) {
 		return
 	}
 	got := b.String()
-	want := `doc {
-	chapter {
-		chapter text
-	}
-}`
-	if got != want {
+	want := "doc {\n\tchapter {\n\t\tchapter text\n\t}\n}"
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		t.Fail()
 	}
 }

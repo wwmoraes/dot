@@ -20,6 +20,30 @@ func TestEmpty(t *testing.T) {
 	if got, want := flatten(di2.String()), `digraph test {}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
+	di3 := NewGraph(Directed, &GraphIDOption{"-"})
+	if di3.id == "-" {
+		t.Error("got dash id instead of randomly generated one")
+	}
+	if got, want := flatten(di3.String()), fmt.Sprintf(`digraph %s {}`, di3.id); got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestStrict(t *testing.T) {
+	// test strict directed
+	{
+		graph := NewGraph(StrictDirected)
+		if got, want := flatten(graph.String()), `strict digraph  {}`; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	}
+	// test strict undirected
+	{
+		graph := NewGraph(StrictUndirected)
+		if got, want := flatten(graph.String()), `strict graph  {}`; got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	}
 }
 
 func TestEmptyWithIDAndAttributes(t *testing.T) {
@@ -57,6 +81,45 @@ func TestTwoConnectedNodes(t *testing.T) {
 	}
 }
 
+func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
+	di := NewGraph(Directed)
+	n1 := di.Node("A")
+	sub := di.Subgraph("my-sub")
+	n2 := sub.Node("B")
+	edge := di.Edge(n1, n2)
+	edge.Label(attributes.NewString("cross-graph"))
+
+	// test graph-level edge finding
+	{
+		want := []*Edge{edge}
+		got := sub.FindEdges(n1, n2)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	}
+
+	// test finding target edges
+	{
+		n3 := sub.Node("C")
+		newEdge := di.Edge(n2, n3)
+		want := []*Edge{newEdge}
+		got := edge.EdgesTo(n3)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	}
+}
+
+func TestUndirectedTwoConnectedNodes(t *testing.T) {
+	di := NewGraph(Undirected)
+	n1 := di.Node("A")
+	n2 := di.Node("B")
+	di.Edge(n1, n2)
+	if got, want := flatten(di.String()), fmt.Sprintf(`graph  {%[1]s[label="A"];%[2]s[label="B"];%[1]s--%[2]s;}`, n1.id, n2.id); got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
 func TestGraph_FindEdges(t *testing.T) {
 	di := NewGraph(Directed)
 	n1 := di.Node("A")
@@ -86,9 +149,14 @@ func TestSubgraph(t *testing.T) {
 	subsub := sub.Subgraph("sub-test-id")
 	found, _ = subsub.FindSubgraph("test-id")
 	if got, want := found, sub; got != want {
-		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 
+	// test getting an existing subgraph
+	gotGraph := sub.Subgraph("sub-test-id")
+	if gotGraph != subsub {
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", gotGraph, subsub)
+	}
 }
 
 func TestSubgraphClusterOption(t *testing.T) {
@@ -96,6 +164,34 @@ func TestSubgraphClusterOption(t *testing.T) {
 	sub := di.Subgraph("s1", &ClusterOption{})
 	if got, want := sub.id, "cluster_s1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestNode(t *testing.T) {
+	graph := NewGraph(Directed)
+	node := graph.Node("")
+	node.Label("test")
+	node.Box()
+
+	if node.ID() == "" {
+		t.Error("got blank node id, expected a randonly generated")
+		return
+	}
+
+	if got, want := flatten(graph.String()), fmt.Sprintf(`digraph %s {%s[label="test",shape="box"];}`, graph.id, node.ID()); got != want {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+
+	// test extra node + finding inexistent edge
+	{
+		node2 := graph.Node("")
+		node.EdgesTo(node2)
+
+		want := []*Edge{}
+		got := node.EdgesTo(node2)
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
 	}
 }
 
@@ -169,7 +265,7 @@ func TestGraph_FindNodeById_multiNodeGraph(t *testing.T) {
 
 	node, found := di.FindNodeByID("A")
 
-	if got, want := node.id, "A"; got != want {
+	if got, want := node.ID(), "A"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 
@@ -187,7 +283,7 @@ func TestGraph_FindNodeById_multiNodesInSubGraphs(t *testing.T) {
 
 	node, found := di.FindNodeByID("C")
 
-	if got, want := node.id, "C"; got != want {
+	if got, want := node.ID(), "C"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 
