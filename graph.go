@@ -313,8 +313,8 @@ func (g *Graph) VisitNodes(callback func(node *Node) (done bool)) {
 	}
 }
 
-// FindNodeById return node by id
-func (g *Graph) FindNodeById(id string) (foundNode *Node, found bool) {
+// FindNodeByID return node by id
+func (g *Graph) FindNodeByID(id string) (foundNode *Node, found bool) {
 	g.VisitNodes(func(node *Node) (done bool) {
 		if node.id == id {
 			found = true

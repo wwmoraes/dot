@@ -155,7 +155,7 @@ func TestDeleteLabel(t *testing.T) {
 func TestGraph_FindNodeById_emptyGraph(t *testing.T) {
 	di := NewGraph(Directed)
 
-	_, found := di.FindNodeById("F")
+	_, found := di.FindNodeByID("F")
 
 	if got, want := found, false; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -167,7 +167,7 @@ func TestGraph_FindNodeById_multiNodeGraph(t *testing.T) {
 	di.Node("A")
 	di.Node("B")
 
-	node, found := di.FindNodeById("A")
+	node, found := di.FindNodeByID("A")
 
 	if got, want := node.id, "A"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -185,7 +185,7 @@ func TestGraph_FindNodeById_multiNodesInSubGraphs(t *testing.T) {
 	sub := di.Subgraph("new subgraph")
 	sub.Node("C")
 
-	node, found := di.FindNodeById("C")
+	node, found := di.FindNodeByID("C")
 
 	if got, want := node.id, "C"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
