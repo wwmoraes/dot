@@ -15,7 +15,7 @@ type Edge struct {
 }
 
 // Label sets "label"=value and returns the Edge.
-// Same as Attr("label",value)
+// Same as SetAttribute(attributes.AttributeLabel, value)
 func (e *Edge) Label(value fmt.Stringer) *Edge {
 	e.SetAttribute(attributes.AttributeLabel, value)
 	return e

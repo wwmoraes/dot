@@ -14,20 +14,16 @@ func (n *Node) ID() string {
 	return n.id
 }
 
-// Attr sets key=value and return the Node
-func (n *Node) Attr(key attributes.Key, value string) *Node {
-	n.SetAttribute(key, attributes.NewString(value))
-	return n
-}
-
 // Label sets the attribute "label" to the given label
 func (n *Node) Label(label string) *Node {
-	return n.Attr("label", label)
+	n.SetAttribute(attributes.AttributeLabel, attributes.NewString(label))
+	return n
 }
 
 // Box sets the attribute "shape" to "box"
 func (n *Node) Box() *Node {
-	return n.Attr("shape", "box")
+	n.SetAttribute(attributes.AttributeShape, *attributes.ShapeBox)
+	return n
 }
 
 // Edge sets label=value and returns the Edge for chaining.
