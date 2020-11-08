@@ -1,8 +1,10 @@
 package dot
 
+import "github.com/emicklei/dot/attributes"
+
 // Node represents a dot Node.
 type Node struct {
-	AttributesMap
+	*attributes.Attributes
 	graph *Graph
 	id    string
 }
@@ -12,9 +14,9 @@ func (n *Node) ID() string {
 	return n.id
 }
 
-// Attr sets label=value and return the Node
-func (n *Node) Attr(label string, value interface{}) *Node {
-	n.AttributesMap.Attr(label, value)
+// Attr sets key=value and return the Node
+func (n *Node) Attr(key attributes.Key, value string) *Node {
+	n.SetAttribute(key, attributes.NewString(value))
 	return n
 }
 

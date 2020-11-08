@@ -1,45 +1,49 @@
 package dot
 
+import (
+	"fmt"
+
+	"github.com/emicklei/dot/attributes"
+)
+
 // Edge represents a graph edge between two Nodes.
 type Edge struct {
-	AttributesMap
-	graph      *Graph
-	from, to   *Node
-}
-
-// Attr sets key=value and returns the Egde.
-func (e *Edge) Attr(key string, value interface{}) *Edge {
-	e.AttributesMap.Attr(key, value)
-	return e
+	*attributes.Attributes
+	graph    *Graph
+	from, to *Node
 	id       string
 }
 
 // Label sets "label"=value and returns the Edge.
 // Same as Attr("label",value)
-func (e *Edge) Label(value interface{}) *Edge {
-	e.AttributesMap.Attr("label", value)
+func (e *Edge) Label(value fmt.Stringer) *Edge {
+	e.SetAttribute(attributes.AttributeLabel, value)
 	return e
 }
 
 // Solid sets the edge attribute "style" to "solid"
 // Default style
 func (e *Edge) Solid() *Edge {
-	return e.Attr("style", "solid")
+	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("solid"))
+	return e
 }
 
 // Bold sets the edge attribute "style" to "bold"
 func (e *Edge) Bold() *Edge {
-	return e.Attr("style", "bold")
+	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("bold"))
+	return e
 }
 
 // Dashed sets the edge attribute "style" to "dashed"
 func (e *Edge) Dashed() *Edge {
-	return e.Attr("style", "dashed")
+	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("dashed"))
+	return e
 }
 
 // Dotted sets the edge attribute "style" to "dotted"
 func (e *Edge) Dotted() *Edge {
-	return e.Attr("style", "dotted")
+	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("dotted"))
+	return e
 }
 
 // Edge returns a new Edge between the "to" node of this Edge and the argument Node.

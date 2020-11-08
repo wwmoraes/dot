@@ -6,11 +6,13 @@ import (
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/emicklei/dot/attributes"
 )
 
 // Graph represents a dot graph with nodes and edges.
 type Graph struct {
-	AttributesMap
+	*attributes.Attributes
 	id        string
 	graphType string
 	strict    bool
@@ -30,13 +32,13 @@ type Graph struct {
 // if id is "-", a randonly generated ID will be set
 func NewGraph(options ...GraphOption) *Graph {
 	graph := &Graph{
-		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
-		graphType:     Directed.Name,
-		nodes:         map[string]*Node{},
-		edgesFrom:     map[string][]*Edge{},
-		subgraphs:     map[string]*Graph{},
-		sameRank:      map[string][]*Node{},
+		Attributes: attributes.NewAttributes(),
+		graphType:  Directed.Name,
 		generator:  NewUIDGenerator(24),
+		nodes:      map[string]*Node{},
+		edgesFrom:  map[string][]*Edge{},
+		subgraphs:  map[string]*Graph{},
+		sameRank:   map[string][]*Node{},
 	}
 	for _, each := range options {
 		each.Apply(graph)
@@ -51,7 +53,7 @@ func NewGraph(options ...GraphOption) *Graph {
 
 // Label sets the "label" attribute value.
 func (g *Graph) Label(label string) *Graph {
-	g.AttributesMap.Attr("label", label)
+	g.SetAttribute("label", attributes.NewString(label))
 	return g
 }
 
@@ -87,8 +89,8 @@ func (g *Graph) Subgraph(id string, options ...GraphOption) *Graph {
 	if ok {
 		return sub
 	}
-	sub.Attr("label", id) // for consistency with Node creation behavior.
 	sub = NewGraph(Sub, &GraphIDOption{id})
+	sub.SetAttribute("label", attributes.NewString(id)) // for consistency with Node creation behavior.
 	for _, each := range options {
 		each.Apply(sub)
 	}
@@ -132,10 +134,10 @@ func (g *Graph) Node(id string) *Node {
 	}
 	n := &Node{
 		id:         id,
-		AttributesMap: AttributesMap{attributes: map[string]interface{}{
-			"label": id}},
-		graph: g,
+		Attributes: attributes.NewAttributes(),
+		graph:      g,
 	}
+	n.SetAttribute(attributes.AttributeLabel, attributes.NewString(id))
 	if g.nodeInitializer != nil {
 		g.nodeInitializer(n)
 	}
@@ -154,13 +156,13 @@ func (g *Graph) Edge(fromNode, toNode *Node, labels ...string) *Edge {
 		edgeOwner = commonParentOf(fromNode.graph, toNode.graph)
 	}
 	e := &Edge{
-		from:          fromNode,
-		to:            toNode,
-		AttributesMap: AttributesMap{attributes: map[string]interface{}{}},
-		graph:         edgeOwner}
+		from:       fromNode,
+		to:         toNode,
 		id:         g.generator.String(),
+		Attributes: attributes.NewAttributes(),
+		graph:      edgeOwner}
 	if len(labels) > 0 {
-		e.Attr("label", strings.Join(labels, ","))
+		e.SetAttribute("label", attributes.NewString(strings.Join(labels, ",")))
 	}
 	if g.edgeInitializer != nil {
 		g.edgeInitializer(e)
