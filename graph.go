@@ -13,6 +13,7 @@ type Graph struct {
 	AttributesMap
 	id        string
 	graphType string
+	strict    bool
 	generator *UIDGenerator
 	nodes     map[string]*Node
 	edgesFrom map[string][]*Edge
@@ -208,6 +209,9 @@ func (g *Graph) Write(w io.Writer) {
 
 // IndentedWrite write the graph to a writer using simple TAB indentation.
 func (g *Graph) IndentedWrite(w *IndentWriter) {
+	if g.strict {
+		fmt.Fprint(w, "strict ")
+	}
 	fmt.Fprintf(w, "%s %s {", g.graphType, g.id)
 	w.NewLineIndentWhile(func() {
 		// subgraphs
