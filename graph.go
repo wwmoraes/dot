@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"sort"
 	"strings"
 
 	"github.com/emicklei/dot/attributes"
@@ -223,13 +222,13 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 			each.IndentedWrite(w)
 		}
 		// graph attributes
-		appendSortedMap(g.AttributesMap.attributes, false, w)
+		g.Attributes.Write(w, false)
 		w.NewLine()
 		// graph nodes
 		for _, key := range g.sortedNodesKeys() {
 			each := g.nodes[key]
-			appendSortedMap(each.attributes, true, w)
 			fmt.Fprintf(w, "%s", each.id)
+			each.Write(w, true)
 			fmt.Fprintf(w, ";")
 			w.NewLine()
 		}
@@ -241,8 +240,8 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 		for _, each := range g.sortedEdgesFromKeys() {
 			all := g.edgesFrom[each]
 			for _, each := range all {
-				appendSortedMap(each.attributes, true, w)
 				fmt.Fprintf(w, "%s%s%s", each.from.id, denoteEdge, each.to.id)
+				each.Write(w, true)
 				fmt.Fprint(w, ";")
 				w.NewLine()
 			}
@@ -258,45 +257,6 @@ func (g *Graph) IndentedWrite(w *IndentWriter) {
 	})
 	fmt.Fprintf(w, "}")
 	w.NewLine()
-}
-
-func appendSortedMap(m map[string]interface{}, mustBracket bool, b io.Writer) {
-	if len(m) == 0 {
-		return
-	}
-	if mustBracket {
-		fmt.Fprint(b, "[")
-	}
-	first := true
-	// first collect keys
-	keys := []string{}
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.StringSlice(keys).Sort()
-
-	for _, k := range keys {
-		if !first {
-			if mustBracket {
-				fmt.Fprint(b, ",")
-			} else {
-				fmt.Fprintf(b, ";")
-			}
-		}
-		if html, isHTML := m[k].(HTML); isHTML {
-			fmt.Fprintf(b, "%s=<%s>", k, html)
-		} else if literal, isLiteral := m[k].(Literal); isLiteral {
-			fmt.Fprintf(b, "%s=%s", k, literal)
-		} else {
-			fmt.Fprintf(b, "%s=%q", k, m[k])
-		}
-		first = false
-	}
-	if mustBracket {
-		fmt.Fprint(b, "]")
-	} else {
-		fmt.Fprint(b, ";")
-	}
 }
 
 // VisitNodes visits all nodes recursively
