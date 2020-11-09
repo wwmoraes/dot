@@ -117,27 +117,6 @@ func (g *GraphData) FindSubgraph(id string) (Graph, bool) {
 	return sub, ok
 }
 
-// Subgraph returns the Graph with the given id ; creates one if absent.
-// The label attribute is also set to the id ; use Label() to overwrite it.
-//
-// if id is "-", a randonly generated ID will be set
-func (g *GraphData) SubgraphOld(id string, options ...GraphOption) Graph {
-	sub, ok := g.subgraphs[id]
-	if ok {
-		return sub
-	}
-
-	sub = g.Subgraph(&GraphOptions{
-		ID:              id,
-		NodeInitializer: g.nodeInitializer,
-		EdgeInitializer: g.edgeInitializer,
-	})
-
-	// for consistency with Node creation behavior.
-	sub.SetAttributeString("label", id)
-	return sub
-}
-
 func (g *GraphData) FindNode(id string) (Node, bool) {
 	if n, ok := g.nodes[id]; ok {
 		return n, ok

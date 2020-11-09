@@ -35,7 +35,6 @@ type Graph interface {
 	Root() Graph
 	FindSubgraph(id string) (Graph, bool)
 	Subgraph(options *GraphOptions) Graph
-	// SubgraphOld(id string, options ...GraphOption) Graph
 	Node(id string) Node
 	Edge(n1, n2 Node) Edge
 	EdgeWithAttributes(n1, n2 Node, attributes attributes.Reader) Edge
