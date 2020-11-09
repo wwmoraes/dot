@@ -12,7 +12,7 @@ import (
 type GraphData struct {
 	*attributes.Attributes
 	id        string
-	graphType GraphType
+	graphType attributes.GraphType
 	strict    bool
 	generator *UIDGenerator
 	nodes     map[string]Node
@@ -43,12 +43,12 @@ func NewGraph(options *GraphOptions) Graph {
 	}
 
 	if options.Type == "" {
-		options.Type = GraphTypeDirected
+		options.Type = attributes.GraphTypeDirected
 	}
 
-	if options.Type == GraphTypeSub && options.parent == nil {
+	if options.Type == attributes.GraphTypeSub && options.parent == nil {
 		panic("cannot create subgraph without parent")
-	} else if options.Type != GraphTypeSub && options.parent != nil {
+	} else if options.Type != attributes.GraphTypeSub && options.parent != nil {
 		panic("cannot create graph with parent")
 	}
 
@@ -80,7 +80,7 @@ func (g *GraphData) Subgraph(options *GraphOptions) Graph {
 	}
 
 	// enforce subgraph type
-	options.Type = GraphTypeSub
+	options.Type = attributes.GraphTypeSub
 
 	// set parent
 	options.parent = g

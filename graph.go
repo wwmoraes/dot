@@ -6,6 +6,28 @@ import (
 	"github.com/emicklei/dot/attributes"
 )
 
+// GraphOptions parameters used for graph creation
+type GraphOptions struct {
+	parent Graph
+	// ID returns the immutable id
+	ID string
+	// Type the graph type (directed, undirected or sub)
+	Type attributes.GraphType
+	// Cluster forbids the creation of multi-edges i.e.:
+	//
+	// on directed graphs, only one one edge between a given pair of head and tail nodes is allowed
+	//
+	// on undirected graphs, only one edge between the same two nodes is allowed
+	Strict bool
+	// Cluster denotes if the graph is the special cluster subgraph, whose name
+	// starts with "cluster_"
+	Cluster bool
+	// NodeInitializer applies defaults to newly created nodes
+	NodeInitializer func(Node)
+	// EdgeInitializer applies defaults to newly created edges
+	EdgeInitializer func(Edge)
+}
+
 // Graph context/area that contains nodes and edges
 type Graph interface {
 	attributes.Object
