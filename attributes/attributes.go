@@ -10,6 +10,9 @@ import (
 // Map attribute map of graph component attributes
 type Map map[Key]fmt.Stringer
 
+// MapString map of graph component attributes as primitive strings
+type MapString map[Key]string
+
 // Attributes graph component attributes data
 type Attributes struct {
 	attributes Map
@@ -90,10 +93,46 @@ func (dotObjectData *Attributes) SetAttribute(key Key, value fmt.Stringer) {
 	dotObjectData.attributes[key] = value
 }
 
+// SetAttributeString defines a attribute value as plain string
+func (dotObjectData *Attributes) SetAttributeString(key Key, value string) {
+	dotObjectData.attributes[key] = NewString(value)
+}
+
+// SetAttributeLiteral defines a attribute value as literal string
+func (dotObjectData *Attributes) SetAttributeLiteral(key Key, value string) {
+	dotObjectData.attributes[key] = NewLiteral(value)
+}
+
+// SetAttributeHTML defines a attribute value as HTML string
+func (dotObjectData *Attributes) SetAttributeHTML(key Key, value string) {
+	dotObjectData.attributes[key] = NewHTML(value)
+}
+
 // SetAttributes sets multiple attribute values
 func (dotObjectData *Attributes) SetAttributes(attributeMap Map) {
 	for k, v := range attributeMap {
 		dotObjectData.attributes[k] = v
+	}
+}
+
+// SetAttributesString sets multiple attribute values as plain string
+func (dotObjectData *Attributes) SetAttributesString(attributeMap MapString) {
+	for k, v := range attributeMap {
+		dotObjectData.attributes[k] = NewString(v)
+	}
+}
+
+// SetAttributesLiteral sets multiple attribute values as literal string
+func (dotObjectData *Attributes) SetAttributesLiteral(attributeMap MapString) {
+	for k, v := range attributeMap {
+		dotObjectData.attributes[k] = NewLiteral(v)
+	}
+}
+
+// SetAttributesHTML sets multiple attribute values as HTML string
+func (dotObjectData *Attributes) SetAttributesHTML(attributeMap MapString) {
+	for k, v := range attributeMap {
+		dotObjectData.attributes[k] = NewHTML(v)
 	}
 }
 

@@ -215,3 +215,43 @@ func TestMutability(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
+
+func TestAttributes_SetAttribute(t *testing.T) {
+	t.Run("using SetAttribute* helpers", func(t *testing.T) {
+		attributes := NewAttributes()
+		attributes.SetAttributeString(AttributeClass, "my-class")
+		attributes.SetAttributeHTML(AttributeLabel, "<b>my-label</b>")
+		attributes.SetAttributeLiteral(AttributeXlabel, `"left text\l"`)
+
+		expectedString := `class="my-class";label=<<b>my-label</b>>;xlabel="left text\l";`
+		var gotStringBuilder strings.Builder
+		attributes.Write(&gotStringBuilder, false)
+		gotString := gotStringBuilder.String()
+
+		if !reflect.DeepEqual(gotString, expectedString) {
+			t.Errorf("got [%v] want [%v]", gotString, expectedString)
+		}
+	})
+
+	t.Run("using SetAttributes* helpers", func(t *testing.T) {
+		attributes := NewAttributes()
+		attributes.SetAttributesString(MapString{
+			AttributeClass: "my-class",
+		})
+		attributes.SetAttributesHTML(MapString{
+			AttributeLabel: "<b>my-label</b>",
+		})
+		attributes.SetAttributesLiteral(MapString{
+			AttributeXlabel: `"left text\l"`,
+		})
+
+		expectedString := `class="my-class";label=<<b>my-label</b>>;xlabel="left text\l";`
+		var gotStringBuilder strings.Builder
+		attributes.Write(&gotStringBuilder, false)
+		gotString := gotStringBuilder.String()
+
+		if !reflect.DeepEqual(gotString, expectedString) {
+			t.Errorf("got [%v] want [%v]", gotString, expectedString)
+		}
+	})
+}

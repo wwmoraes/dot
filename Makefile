@@ -1,4 +1,4 @@
-SOURCES := $(wildcard *.go)
+SOURCES := $(wildcard *.go) $(wildcard */*.go)
 
 .PHONY: build
 build: $(SOURCES)
