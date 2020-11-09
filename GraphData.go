@@ -8,8 +8,8 @@ import (
 	"github.com/emicklei/dot/attributes"
 )
 
-// GraphData represents a dot graph with nodes and edges.
-type GraphData struct {
+// graph represents a dot graph with nodes and edges.
+type graph struct {
 	*attributes.Attributes
 	id        string
 	graphType attributes.GraphType
@@ -52,7 +52,7 @@ func NewGraph(options *GraphOptions) Graph {
 		panic("cannot create graph with parent")
 	}
 
-	graph := &GraphData{
+	newGraph := &graph{
 		id:              options.ID,
 		Attributes:      attributes.NewAttributes(),
 		graphType:       options.Type,
@@ -66,15 +66,15 @@ func NewGraph(options *GraphOptions) Graph {
 		edgeInitializer: options.EdgeInitializer,
 	}
 
-	return graph
+	return newGraph
 }
 
 // ID returns the immutable id
-func (g *GraphData) ID() string {
-	return g.id
+func (thisGraph *graph) ID() string {
+	return thisGraph.id
 }
 
-func (g *GraphData) Subgraph(options *GraphOptions) Graph {
+func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
 	if options == nil {
 		options = &GraphOptions{}
 	}
@@ -83,92 +83,92 @@ func (g *GraphData) Subgraph(options *GraphOptions) Graph {
 	options.Type = attributes.GraphTypeSub
 
 	// set parent
-	options.parent = g
+	options.parent = thisGraph
 
 	sub := NewGraph(options)
 	sub.SetAttributeString(attributes.KeyLabel, sub.ID())
 
 	// save on parent with the generated ID
-	g.subgraphs[sub.ID()] = sub
+	thisGraph.subgraphs[sub.ID()] = sub
 
 	return sub
 }
 
 // Label sets the "label" attribute value.
-func (g *GraphData) Label(label string) Graph {
-	g.SetAttribute("label", attributes.NewString(label))
-	return g
+func (thisGraph *graph) Label(label string) Graph {
+	thisGraph.SetAttribute("label", attributes.NewString(label))
+	return thisGraph
 }
 
 // Root returns the top-level graph if this was a subgraph.
-func (g *GraphData) Root() Graph {
-	if g.parent == nil {
-		return g
+func (thisGraph *graph) Root() Graph {
+	if thisGraph.parent == nil {
+		return thisGraph
 	}
-	return g.parent.Root()
+	return thisGraph.parent.Root()
 }
 
 // FindSubgraph returns the subgraph of the graph or one from its parents.
-func (g *GraphData) FindSubgraph(id string) (Graph, bool) {
-	sub, ok := g.subgraphs[id]
-	if !ok && g.parent != nil {
-		return g.parent.FindSubgraph(id)
+func (thisGraph *graph) FindSubgraph(id string) (Graph, bool) {
+	sub, ok := thisGraph.subgraphs[id]
+	if !ok && thisGraph.parent != nil {
+		return thisGraph.parent.FindSubgraph(id)
 	}
 	return sub, ok
 }
 
-func (g *GraphData) FindNode(id string) (Node, bool) {
-	if n, ok := g.nodes[id]; ok {
+func (thisGraph *graph) FindNode(id string) (Node, bool) {
+	if n, ok := thisGraph.nodes[id]; ok {
 		return n, ok
 	}
-	if g.parent == nil {
-		return &NodeData{id: "void"}, false
+	if thisGraph.parent == nil {
+		return &node{id: "void"}, false
 	}
-	return g.parent.FindNode(id)
+	return thisGraph.parent.FindNode(id)
 }
 
 // NodeInitializer sets a function that is called (if not nil) when a Node is implicitly created.
-func (g *GraphData) NodeInitializer(callback func(n Node)) {
-	g.nodeInitializer = callback
+func (thisGraph *graph) NodeInitializer(callback func(n Node)) {
+	thisGraph.nodeInitializer = callback
 }
 
 // EdgeInitializer sets a function that is called (if not nil) when an Edge is implicitly created.
-func (g *GraphData) EdgeInitializer(callback func(e Edge)) {
-	g.edgeInitializer = callback
+func (thisGraph *graph) EdgeInitializer(callback func(e Edge)) {
+	thisGraph.edgeInitializer = callback
 }
 
 // Node returns the node created with this id or creates a new node if absent.
 // The node will have a label attribute with the id as its value. Use Label() to overwrite this.
 // This method can be used as both a constructor and accessor.
 // not thread safe!
-func (g *GraphData) Node(id string) Node {
-	if n, ok := g.FindNode(id); ok {
+func (thisGraph *graph) Node(id string) Node {
+	if n, ok := thisGraph.FindNode(id); ok {
 		return n
 	}
 	if len(id) == 0 {
-		id = g.generator.String()
+		id = thisGraph.generator.String()
 	}
-	n := &NodeData{
+	n := &node{
 		id:         id,
 		Attributes: attributes.NewAttributes(),
-		graph:      g,
+		graph:      thisGraph,
 	}
 	n.SetAttribute(attributes.KeyLabel, attributes.NewString(id))
-	if g.nodeInitializer != nil {
-		g.nodeInitializer(n)
+	if thisGraph.nodeInitializer != nil {
+		thisGraph.nodeInitializer(n)
 	}
 	// store local
-	g.nodes[id] = n
+	thisGraph.nodes[id] = n
 	return n
 }
 
 // Edge creates a new edge between two nodes
-func (g *GraphData) Edge(fromNode, toNode Node) Edge {
-	return g.EdgeWithAttributes(fromNode, toNode, nil)
+func (thisGraph *graph) Edge(fromNode, toNode Node) Edge {
+	return thisGraph.EdgeWithAttributes(fromNode, toNode, nil)
 }
 
 // Edge creates a new edge between two nodes, and set the given attributes
-func (g *GraphData) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) Edge {
+func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) Edge {
 	// assume fromNode owner == toNode owner
 	// if fromNode.Graph() != toNode.Graph() { // 1 or 2 are subgraphs
 	// 	edgeOwner := commonParentOf(fromNode.Graph(), toNode.Graph())
@@ -177,31 +177,31 @@ func (g *GraphData) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Re
 	// 	}
 	// }
 
-	e := &EdgeData{
+	e := &edge{
 		from:       fromNode,
 		to:         toNode,
-		id:         g.generator.String(),
+		id:         thisGraph.generator.String(),
 		Attributes: attributes.NewAttributesFrom(attr),
-		graph:      g}
+		graph:      thisGraph}
 
-	if g.edgeInitializer != nil {
-		g.edgeInitializer(e)
+	if thisGraph.edgeInitializer != nil {
+		thisGraph.edgeInitializer(e)
 	}
 
-	g.edgesFrom[fromNode.ID()] = append(g.edgesFrom[fromNode.ID()], e)
+	thisGraph.edgesFrom[fromNode.ID()] = append(thisGraph.edgesFrom[fromNode.ID()], e)
 
 	return e
 }
 
 // FindEdges finds all edges in the graph that go from the fromNode to the toNode.
 // Otherwise, returns an empty slice.
-func (g *GraphData) FindEdges(fromNode, toNode Node) (found []Edge) {
+func (thisGraph *graph) FindEdges(fromNode, toNode Node) (found []Edge) {
 	// if fromNode.Graph() != toNode.Graph() {
 	// 	edgeOwner := commonParentOf(fromNode.Graph(), toNode.Graph())
 	// 	return edgeOwner.FindEdges(fromNode, toNode)
 	// }
 	found = make([]Edge, 0)
-	if edges, ok := g.edgesFrom[fromNode.ID()]; ok {
+	if edges, ok := thisGraph.edgesFrom[fromNode.ID()]; ok {
 		for _, e := range edges {
 			if e.To().ID() == toNode.ID() {
 				found = append(found, e)
@@ -217,39 +217,39 @@ func (g *GraphData) FindEdges(fromNode, toNode Node) (found []Edge) {
 // }
 
 // AddToSameRank adds the given nodes to the specified rank group, forcing them to be rendered in the same row
-func (g *GraphData) AddToSameRank(group string, nodes ...Node) {
-	g.sameRank[group] = append(g.sameRank[group], nodes...)
+func (thisGraph *graph) AddToSameRank(group string, nodes ...Node) {
+	thisGraph.sameRank[group] = append(thisGraph.sameRank[group], nodes...)
 }
 
 // String returns the source in dot notation.
-func (g *GraphData) String() string {
+func (thisGraph *graph) String() string {
 	b := new(bytes.Buffer)
-	g.Write(b)
+	thisGraph.Write(b)
 	return b.String()
 }
 
-func (g *GraphData) Write(w io.Writer) {
-	g.IndentedWrite(NewIndentWriter(w))
+func (thisGraph *graph) Write(w io.Writer) {
+	thisGraph.IndentedWrite(NewIndentWriter(w))
 }
 
 // IndentedWrite write the graph to a writer using simple TAB indentation.
-func (g *GraphData) IndentedWrite(w *IndentWriter) {
-	if g.strict {
+func (thisGraph *graph) IndentedWrite(w *IndentWriter) {
+	if thisGraph.strict {
 		fmt.Fprint(w, "strict ")
 	}
-	fmt.Fprintf(w, `%s "%s" {`, g.graphType, g.id)
+	fmt.Fprintf(w, `%s "%s" {`, thisGraph.graphType, thisGraph.id)
 	w.NewLineIndentWhile(func() {
 		// subgraphs
-		for _, key := range g.sortedSubgraphsKeys() {
-			each := g.subgraphs[key]
+		for _, key := range thisGraph.sortedSubgraphsKeys() {
+			each := thisGraph.subgraphs[key]
 			each.IndentedWrite(w)
 		}
 		// graph attributes
-		g.Attributes.Write(w, false)
+		thisGraph.Attributes.Write(w, false)
 		w.NewLine()
 		// graph nodes
-		for _, key := range g.sortedNodesKeys() {
-			each := g.nodes[key]
+		for _, key := range thisGraph.sortedNodesKeys() {
+			each := thisGraph.nodes[key]
 			fmt.Fprintf(w, `"%s"`, each.ID())
 			each.Write(w, true)
 			fmt.Fprintf(w, ";")
@@ -257,11 +257,11 @@ func (g *GraphData) IndentedWrite(w *IndentWriter) {
 		}
 		// graph edges
 		denoteEdge := "->"
-		if g.graphType == "graph" {
+		if thisGraph.graphType == "graph" {
 			denoteEdge = "--"
 		}
-		for _, each := range g.sortedEdgesFromKeys() {
-			all := g.edgesFrom[each]
+		for _, each := range thisGraph.sortedEdgesFromKeys() {
+			all := thisGraph.edgesFrom[each]
 			for _, each := range all {
 				fmt.Fprintf(w, `"%s"%s"%s"`, each.From().ID(), denoteEdge, each.To().ID())
 				each.Write(w, true)
@@ -269,7 +269,7 @@ func (g *GraphData) IndentedWrite(w *IndentWriter) {
 				w.NewLine()
 			}
 		}
-		for _, nodes := range g.sameRank {
+		for _, nodes := range thisGraph.sameRank {
 			str := ""
 			for _, n := range nodes {
 				str += fmt.Sprintf(`"%s";`, n.ID())
@@ -283,22 +283,22 @@ func (g *GraphData) IndentedWrite(w *IndentWriter) {
 }
 
 // VisitNodes visits all nodes recursively
-func (g *GraphData) VisitNodes(callback func(node Node) (done bool)) {
-	for _, node := range g.nodes {
+func (thisGraph *graph) VisitNodes(callback func(node Node) (done bool)) {
+	for _, node := range thisGraph.nodes {
 		done := callback(node)
 		if done {
 			return
 		}
 	}
 
-	for _, subGraph := range g.subgraphs {
+	for _, subGraph := range thisGraph.subgraphs {
 		subGraph.VisitNodes(callback)
 	}
 }
 
 // FindNodeByID return node by id
-func (g *GraphData) FindNodeByID(id string) (foundNode Node, found bool) {
-	g.VisitNodes(func(node Node) (done bool) {
+func (thisGraph *graph) FindNodeByID(id string) (foundNode Node, found bool) {
+	thisGraph.VisitNodes(func(node Node) (done bool) {
 		if node.ID() == id {
 			found = true
 			foundNode = node
@@ -310,9 +310,9 @@ func (g *GraphData) FindNodeByID(id string) (foundNode Node, found bool) {
 }
 
 // FindNodes returns all nodes recursively
-func (g *GraphData) FindNodes() (nodes []Node) {
+func (thisGraph *graph) FindNodes() (nodes []Node) {
 	var foundNodes []Node
-	g.VisitNodes(func(node Node) (done bool) {
+	thisGraph.VisitNodes(func(node Node) (done bool) {
 		foundNodes = append(foundNodes, node)
 		return false
 	})
