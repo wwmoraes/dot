@@ -2,6 +2,7 @@ package dot
 
 import "github.com/emicklei/dot/attributes"
 
+// Edge represents a graph edge between two Nodes
 type Edge interface {
 	attributes.Object
 	attributes.Serializable

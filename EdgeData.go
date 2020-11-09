@@ -6,8 +6,7 @@ import (
 	"github.com/emicklei/dot/attributes"
 )
 
-// EdgeData represents a graph edge between two Nodes.
-type EdgeData struct {
+type edge struct {
 	*attributes.Attributes
 	graph    Graph
 	from, to Node
@@ -15,66 +14,66 @@ type EdgeData struct {
 }
 
 // ID returns the immutable id
-func (e *EdgeData) ID() string {
-	return e.id
+func (thisEdge *edge) ID() string {
+	return thisEdge.id
 }
 
-func (e *EdgeData) String() string {
+func (thisEdge *edge) String() string {
 	// TODO
-	return e.id
+	return thisEdge.id
 }
 
-func (e *EdgeData) From() Node {
-	return e.from
+func (thisEdge *edge) From() Node {
+	return thisEdge.from
 }
 
-func (e *EdgeData) To() Node {
-	return e.to
+func (thisEdge *edge) To() Node {
+	return thisEdge.to
 }
 
 // Label sets "label"=value and returns the Edge.
 // Same as SetAttribute(attributes.KeyLabel, value)
-func (e *EdgeData) Label(value fmt.Stringer) Edge {
-	e.SetAttribute(attributes.KeyLabel, value)
-	return e
+func (thisEdge *edge) Label(value fmt.Stringer) Edge {
+	thisEdge.SetAttribute(attributes.KeyLabel, value)
+	return thisEdge
 }
 
 // Solid sets the edge attribute "style" to "solid"
 // Default style
-func (e *EdgeData) Solid() Edge {
-	e.SetAttribute(attributes.KeyStyle, attributes.NewString("solid"))
-	return e
+func (thisEdge *edge) Solid() Edge {
+	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("solid"))
+	return thisEdge
 }
 
 // Bold sets the edge attribute "style" to "bold"
-func (e *EdgeData) Bold() Edge {
-	e.SetAttribute(attributes.KeyStyle, attributes.NewString("bold"))
-	return e
+func (thisEdge *edge) Bold() Edge {
+	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("bold"))
+	return thisEdge
 }
 
 // Dashed sets the edge attribute "style" to "dashed"
-func (e *EdgeData) Dashed() Edge {
-	e.SetAttribute(attributes.KeyStyle, attributes.NewString("dashed"))
-	return e
+func (thisEdge *edge) Dashed() Edge {
+	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("dashed"))
+	return thisEdge
 }
 
 // Dotted sets the edge attribute "style" to "dotted"
-func (e *EdgeData) Dotted() Edge {
-	e.SetAttribute(attributes.KeyStyle, attributes.NewString("dotted"))
-	return e
+func (thisEdge *edge) Dotted() Edge {
+	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("dotted"))
+	return thisEdge
 }
 
 // Edge returns a new Edge between the "to" node of this Edge and the argument Node
-func (e *EdgeData) Edge(to Node) Edge {
-	return e.EdgeWithAttributes(to, nil)
+func (thisEdge *edge) Edge(to Node) Edge {
+	return thisEdge.EdgeWithAttributes(to, nil)
 }
 
 // EdgeWithAttributes returns a new Edge between the "to" node of this Edge and the argument Node
-func (e *EdgeData) EdgeWithAttributes(to Node, attributes attributes.Reader) Edge {
-	return e.graph.EdgeWithAttributes(e.to, to, attributes)
+func (thisEdge *edge) EdgeWithAttributes(to Node, attributes attributes.Reader) Edge {
+	return thisEdge.graph.EdgeWithAttributes(thisEdge.to, to, attributes)
 }
 
 // EdgesTo returns all existing edges between the "to" Node of this Edge and the argument Node.
-func (e *EdgeData) EdgesTo(to Node) []Edge {
-	return e.graph.FindEdges(e.to, to)
+func (thisEdge *edge) EdgesTo(to Node) []Edge {
+	return thisEdge.graph.FindEdges(thisEdge.to, to)
 }
