@@ -15,34 +15,34 @@ type Edge struct {
 }
 
 // Label sets "label"=value and returns the Edge.
-// Same as SetAttribute(attributes.AttributeLabel, value)
+// Same as SetAttribute(attributes.KeyLabel, value)
 func (e *Edge) Label(value fmt.Stringer) *Edge {
-	e.SetAttribute(attributes.AttributeLabel, value)
+	e.SetAttribute(attributes.KeyLabel, value)
 	return e
 }
 
 // Solid sets the edge attribute "style" to "solid"
 // Default style
 func (e *Edge) Solid() *Edge {
-	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("solid"))
+	e.SetAttribute(attributes.KeyStyle, attributes.NewString("solid"))
 	return e
 }
 
 // Bold sets the edge attribute "style" to "bold"
 func (e *Edge) Bold() *Edge {
-	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("bold"))
+	e.SetAttribute(attributes.KeyStyle, attributes.NewString("bold"))
 	return e
 }
 
 // Dashed sets the edge attribute "style" to "dashed"
 func (e *Edge) Dashed() *Edge {
-	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("dashed"))
+	e.SetAttribute(attributes.KeyStyle, attributes.NewString("dashed"))
 	return e
 }
 
 // Dotted sets the edge attribute "style" to "dotted"
 func (e *Edge) Dotted() *Edge {
-	e.SetAttribute(attributes.AttributeStyle, attributes.NewString("dotted"))
+	e.SetAttribute(attributes.KeyStyle, attributes.NewString("dotted"))
 	return e
 }
 

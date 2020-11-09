@@ -136,7 +136,7 @@ func (g *Graph) Node(id string) *Node {
 		Attributes: attributes.NewAttributes(),
 		graph:      g,
 	}
-	n.SetAttribute(attributes.AttributeLabel, attributes.NewString(id))
+	n.SetAttribute(attributes.KeyLabel, attributes.NewString(id))
 	if g.nodeInitializer != nil {
 		g.nodeInitializer(n)
 	}

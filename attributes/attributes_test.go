@@ -9,11 +9,11 @@ import (
 func TestAttributes(t *testing.T) {
 	t.Run("equal on attribute re-set with same value", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(AttributeLabel, NewString("test"))
+		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		gotMap := attributes.GetAttributes()
 		expectedMap := Map{
-			AttributeLabel: NewString("test"),
+			KeyLabel: NewString("test"),
 		}
 
 		if !reflect.DeepEqual(gotMap, expectedMap) {
@@ -22,11 +22,11 @@ func TestAttributes(t *testing.T) {
 	})
 	t.Run("get attribute previously set", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(AttributeLabel, NewString("test"))
+		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		expectedLabelValue := NewString("test")
 
-		gotValue := attributes.GetAttribute(AttributeLabel)
+		gotValue := attributes.GetAttribute(KeyLabel)
 		if !reflect.DeepEqual(gotValue, expectedLabelValue) {
 			t.Errorf("got [%v] want [%v]", gotValue, expectedLabelValue)
 		}
@@ -58,14 +58,14 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	t.Run("does not mutate using GetAttributes copy map", func(t *testing.T) {
 		attributes := NewAttributes()
 		value := NewString("test")
-		attributes.SetAttribute(AttributeLabel, value)
+		attributes.SetAttribute(KeyLabel, value)
 
 		indirectAttributes := attributes.GetAttributes()
-		indirectAttributes[AttributeClass] = NewString("my-class")
+		indirectAttributes[KeyClass] = NewString("my-class")
 
 		got := attributes.GetAttributes()
 		want := Map{
-			AttributeLabel: value,
+			KeyLabel: value,
 		}
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -75,18 +75,18 @@ func TestAttributes_GetAttributes(t *testing.T) {
 		attributes := NewAttributes()
 
 		labelValue := NewString("test")
-		attributes.SetAttribute(AttributeLabel, labelValue)
+		attributes.SetAttribute(KeyLabel, labelValue)
 
 		// mutate the map using the reference returned with the internal func
 		indirectAttributes := attributes.getAttributes()
 		classValue := NewString("my-class")
-		indirectAttributes[AttributeClass] = classValue
+		indirectAttributes[KeyClass] = classValue
 
 		// get a copy of the map using the public func
 		got := attributes.GetAttributes()
 		want := Map{
-			AttributeLabel: labelValue,
-			AttributeClass: classValue,
+			KeyLabel: labelValue,
+			KeyClass: classValue,
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -95,9 +95,9 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	})
 	t.Run("get single attribute as string", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(AttributeLabel, NewHTML("<b>html label</b>"))
+		attributes.SetAttribute(KeyLabel, NewHTML("<b>html label</b>"))
 
-		got := attributes.GetAttributeString(AttributeLabel)
+		got := attributes.GetAttributeString(KeyLabel)
 		want := "<b>html label</b>"
 
 		if !reflect.DeepEqual(got, want) {
@@ -109,7 +109,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 func TestAttributes_Write(t *testing.T) {
 	t.Run("writes single string attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(AttributeLabel, NewString("test"))
+		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
 		attributes.Write(&gotStringBuilder, false)
@@ -122,7 +122,7 @@ func TestAttributes_Write(t *testing.T) {
 	})
 	t.Run("writes single string attribute with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(AttributeLabel, NewString("test"))
+		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
 		attributes.Write(&gotStringBuilder, true)
@@ -135,7 +135,7 @@ func TestAttributes_Write(t *testing.T) {
 	})
 	t.Run("writes single HTML attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeHTML(AttributeLabel, "<B>Hi</B>")
+		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
 		attributes.Write(&gotStringBuilder, false)
@@ -149,7 +149,7 @@ func TestAttributes_Write(t *testing.T) {
 	})
 	t.Run("writes single HTML attribute with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeHTML(AttributeLabel, "<B>Hi</B>")
+		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
 		attributes.Write(&gotStringBuilder, true)
@@ -163,7 +163,7 @@ func TestAttributes_Write(t *testing.T) {
 	})
 	t.Run("writes single Literal attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeLiteral(AttributeLabel, `"left text\l"`)
+		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
 		attributes.Write(&gotStringBuilder, false)
@@ -177,7 +177,7 @@ func TestAttributes_Write(t *testing.T) {
 	})
 	t.Run("writes single Literal attribute with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeLiteral(AttributeLabel, `"left text\l"`)
+		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
 		attributes.Write(&gotStringBuilder, true)
@@ -192,8 +192,8 @@ func TestAttributes_Write(t *testing.T) {
 	t.Run("writes multi attributes without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttributesString(MapString{
-			AttributeClass: "my-class",
-			AttributeLabel: "my-label",
+			KeyClass: "my-class",
+			KeyLabel: "my-label",
 		})
 
 		var gotStringBuilder strings.Builder
@@ -209,8 +209,8 @@ func TestAttributes_Write(t *testing.T) {
 	t.Run("writes multi attributes with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttributesString(MapString{
-			AttributeClass: "my-class",
-			AttributeLabel: "my-label",
+			KeyClass: "my-class",
+			KeyLabel: "my-label",
 		})
 
 		var gotStringBuilder strings.Builder
@@ -228,10 +228,10 @@ func TestAttributes_Write(t *testing.T) {
 func TestAttributes_SetAttribute(t *testing.T) {
 	t.Run("set attribute using single attribute set methods", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeString(AttributeClass, "my-class")
-		attributes.SetAttributeHTML(AttributeLabel, "<b>my-label</b>")
-		attributes.SetAttributeLiteral(AttributeXlabel, `"left text\l"`)
-		attributes.SetAttribute(AttributeColor, NewString("black"))
+		attributes.SetAttributeString(KeyClass, "my-class")
+		attributes.SetAttributeHTML(KeyLabel, "<b>my-label</b>")
+		attributes.SetAttributeLiteral(KeyXlabel, `"left text\l"`)
+		attributes.SetAttribute(KeyColor, NewString("black"))
 
 		expectedString := `class="my-class";color="black";label=<<b>my-label</b>>;xlabel="left text\l";`
 		var gotStringBuilder strings.Builder
@@ -245,16 +245,16 @@ func TestAttributes_SetAttribute(t *testing.T) {
 	t.Run("set attribute using multi attribute set methods", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttributesString(MapString{
-			AttributeClass: "my-class",
+			KeyClass: "my-class",
 		})
 		attributes.SetAttributesHTML(MapString{
-			AttributeLabel: "<b>my-label</b>",
+			KeyLabel: "<b>my-label</b>",
 		})
 		attributes.SetAttributesLiteral(MapString{
-			AttributeXlabel: `"left text\l"`,
+			KeyXlabel: `"left text\l"`,
 		})
 		attributes.SetAttributes(Map{
-			AttributeColor: NewString("black"),
+			KeyColor: NewString("black"),
 		})
 
 		expectedString := `class="my-class";color="black";label=<<b>my-label</b>>;xlabel="left text\l";`
@@ -271,7 +271,7 @@ func TestAttributes_SetAttribute(t *testing.T) {
 func TestAttributes_DeleteAttribute(t *testing.T) {
 	t.Run("try to delete un-existant attribute", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.DeleteAttribute(AttributeClass)
+		attributes.DeleteAttribute(KeyClass)
 
 		gotMap := attributes.GetAttributes()
 		expectedMap := Map{}
@@ -282,8 +282,8 @@ func TestAttributes_DeleteAttribute(t *testing.T) {
 	})
 	t.Run("delete a set attribute", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(AttributeLabel, NewString("test"))
-		attributes.DeleteAttribute(AttributeLabel)
+		attributes.SetAttribute(KeyLabel, NewString("test"))
+		attributes.DeleteAttribute(KeyLabel)
 
 		gotMap := attributes.GetAttributes()
 		expectedMap := Map{}

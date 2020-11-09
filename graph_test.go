@@ -48,8 +48,8 @@ func TestStrict(t *testing.T) {
 
 func TestEmptyWithIDAndAttributes(t *testing.T) {
 	di := NewGraph(Directed)
-	di.SetAttribute(attributes.AttributeStyle, attributes.NewString("filled"))
-	di.SetAttribute(attributes.AttributeColor, attributes.NewString("lightgrey"))
+	di.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
+	di.SetAttribute(attributes.KeyColor, attributes.NewString("lightgrey"))
 	if got, want := flatten(di.String()), `digraph "" {color="lightgrey";style="filled";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -57,7 +57,7 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 
 func TestEmptyWithHTMLLabel(t *testing.T) {
 	di := NewGraph(Directed)
-	di.SetAttribute(attributes.AttributeLabel, attributes.NewHTML("<B>Hi</B>"))
+	di.SetAttribute(attributes.KeyLabel, attributes.NewHTML("<B>Hi</B>"))
 	if got, want := flatten(di.String()), `digraph "" {label=<<B>Hi</B>>;}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -65,7 +65,7 @@ func TestEmptyWithHTMLLabel(t *testing.T) {
 
 func TestEmptyWithLiteralValueLabel(t *testing.T) {
 	di := NewGraph(Directed)
-	di.SetAttribute(attributes.AttributeLabel, attributes.NewLiteral(`"left-justified text\l"`))
+	di.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"left-justified text\l"`))
 	if got, want := flatten(di.String()), `digraph "" {label="left-justified text\l";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -134,7 +134,7 @@ func TestGraph_FindEdges(t *testing.T) {
 func TestSubgraph(t *testing.T) {
 	di := NewGraph(Directed)
 	sub := di.Subgraph("test-id")
-	sub.SetAttribute(attributes.AttributeStyle, attributes.NewString("filled"))
+	sub.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
 	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="test-id";style="filled";}}`, sub.id); got != want {
 		t.Errorf("got\n[%v] want\n[%v]", got, want)
 	}
@@ -242,7 +242,7 @@ func flatten(s string) string {
 func TestDeleteLabel(t *testing.T) {
 	g := NewGraph()
 	n := g.Node("my-id")
-	n.DeleteAttribute(attributes.AttributeLabel)
+	n.DeleteAttribute(attributes.KeyLabel)
 	if got, want := flatten(g.String()), `digraph "" {"my-id";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -309,7 +309,7 @@ func TestGraph_FindNodes_multiNodesInSubGraphs(t *testing.T) {
 func TestLabelWithEscaping(t *testing.T) {
 	di := NewGraph(Directed)
 	n := di.Node("without-linefeed")
-	n.SetAttribute(attributes.AttributeLabel, attributes.NewLiteral(`"with \l linefeed"`))
+	n.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"with \l linefeed"`))
 	if got, want := flatten(di.String()), `digraph "" {"without-linefeed"[label="with \l linefeed"];}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
@@ -318,10 +318,10 @@ func TestLabelWithEscaping(t *testing.T) {
 func TestGraphNodeInitializer(t *testing.T) {
 	di := NewGraph(Directed)
 	di.NodeInitializer(func(n *Node) {
-		n.SetAttribute(attributes.AttributeLabel, attributes.NewString("test"))
+		n.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
 	})
 	n := di.Node("A")
-	if got, want := n.GetAttribute(attributes.AttributeLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
+	if got, want := n.GetAttribute(attributes.KeyLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 }
@@ -329,10 +329,10 @@ func TestGraphNodeInitializer(t *testing.T) {
 func TestGraphEdgeInitializer(t *testing.T) {
 	di := NewGraph(Directed)
 	di.EdgeInitializer(func(e *Edge) {
-		e.SetAttribute(attributes.AttributeLabel, attributes.NewString("test"))
+		e.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
 	})
 	e := di.Node("A").Edge(di.Node("B"))
-	if got, want := e.GetAttribute(attributes.AttributeLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
+	if got, want := e.GetAttribute(attributes.KeyLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 }

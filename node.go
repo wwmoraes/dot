@@ -16,13 +16,13 @@ func (n *Node) ID() string {
 
 // Label sets the attribute "label" to the given label
 func (n *Node) Label(label string) *Node {
-	n.SetAttribute(attributes.AttributeLabel, attributes.NewString(label))
+	n.SetAttribute(attributes.KeyLabel, attributes.NewString(label))
 	return n
 }
 
 // Box sets the attribute "shape" to "box"
 func (n *Node) Box() *Node {
-	n.SetAttribute(attributes.AttributeShape, *attributes.ShapeBox)
+	n.SetAttribute(attributes.KeyShape, *attributes.ShapeBox)
 	return n
 }
 
