@@ -2,6 +2,7 @@ package dot
 
 import "github.com/emicklei/dot/attributes"
 
+// Node represents a graph node
 type Node interface {
 	attributes.Object
 	attributes.Serializable
