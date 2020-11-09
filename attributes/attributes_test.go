@@ -175,3 +175,43 @@ func TestLiteral(t *testing.T) {
 		t.Errorf("got [%v] want [%v]", gotValue, expectedValue)
 	}
 }
+
+func TestImmutability(t *testing.T) {
+	attributes := NewAttributes()
+	value := NewString("test")
+	attributes.SetAttribute(AttributeLabel, value)
+
+	indirectAttributes := attributes.GetAttributes()
+	indirectAttributes[AttributeClass] = NewString("my-class")
+
+	got := attributes.GetAttributes()
+	want := Map{
+		AttributeLabel: value,
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}
+
+func TestMutability(t *testing.T) {
+	attributes := NewAttributes()
+
+	labelValue := NewString("test")
+	attributes.SetAttribute(AttributeLabel, labelValue)
+
+	// mutate the map using the reference returned with the internal func
+	indirectAttributes := attributes.getAttributes()
+	classValue := NewString("my-class")
+	indirectAttributes[AttributeClass] = classValue
+
+	// get a copy of the map using the public func
+	got := attributes.GetAttributes()
+	want := Map{
+		AttributeLabel: labelValue,
+		AttributeClass: classValue,
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got [%v] want [%v]", got, want)
+	}
+}

@@ -15,6 +15,11 @@ type Attributes struct {
 	attributes Map
 }
 
+// getAttributes returns a reference to the internal attributes map
+func (dotObjectData *Attributes) getAttributes() Map {
+	return dotObjectData.attributes
+}
+
 // NewAttributes creates an empty attributes map
 func NewAttributes() *Attributes {
 	return &Attributes{
@@ -27,9 +32,13 @@ func (dotObjectData *Attributes) GetAttribute(key Key) fmt.Stringer {
 	return dotObjectData.attributes[key]
 }
 
-// GetAttributes returns all current attributes
+// GetAttributes returns a copy of all current attributes for this object
 func (dotObjectData *Attributes) GetAttributes() Map {
-	return dotObjectData.attributes
+	newMap := make(Map, len(dotObjectData.attributes))
+	for key, value := range dotObjectData.attributes {
+		newMap[key] = value
+	}
+	return newMap
 }
 
 // Write transforms attributes into dot notation and writes on the given writer
