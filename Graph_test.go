@@ -47,7 +47,7 @@ func TestStrict(t *testing.T) {
 	{
 		graph := NewGraph(&GraphOptions{
 			Strict: true,
-			Type:   GraphTypeUndirected,
+			Type:   attributes.GraphTypeUndirected,
 		})
 		if got, want := flatten(graph.String()), `strict graph "" {}`; got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -123,7 +123,7 @@ func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
 
 func TestUndirectedTwoConnectedNodes(t *testing.T) {
 	di := NewGraph(&GraphOptions{
-		Type: GraphTypeUndirected,
+		Type: attributes.GraphTypeUndirected,
 	})
 	n1 := di.Node("A")
 	n2 := di.Node("B")
@@ -381,7 +381,7 @@ func TestGraphEdgeInitializer(t *testing.T) {
 
 func TestGraphCreateNodeOnce(t *testing.T) {
 	di := NewGraph(&GraphOptions{
-		Type: GraphTypeUndirected,
+		Type: attributes.GraphTypeUndirected,
 	})
 	n1 := di.Node("A")
 	n2 := di.Node("A")
