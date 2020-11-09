@@ -18,16 +18,16 @@ type Attributes struct {
 	attributes Map
 }
 
-// getAttributes returns a reference to the internal attributes map
-func (dotObjectData *Attributes) getAttributes() Map {
-	return dotObjectData.attributes
-}
-
 // NewAttributes creates an empty attributes map
 func NewAttributes() *Attributes {
 	return &Attributes{
 		attributes: make(Map),
 	}
+}
+
+// getAttributes returns a reference to the internal attributes map
+func (dotObjectData *Attributes) getAttributes() Map {
+	return dotObjectData.attributes
 }
 
 // GetAttribute returns a given attribute by its key
