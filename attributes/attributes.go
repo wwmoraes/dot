@@ -25,6 +25,16 @@ func NewAttributes() *Attributes {
 	}
 }
 
+func NewAttributesFrom(attr Reader) *Attributes {
+	if attr == nil {
+		return NewAttributes()
+	}
+
+	return &Attributes{
+		attributes: attr.GetAttributes(),
+	}
+}
+
 // getAttributes returns a reference to the internal attributes map
 func (dotObjectData *Attributes) getAttributes() Map {
 	return dotObjectData.attributes

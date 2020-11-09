@@ -21,7 +21,7 @@ func TestEdgeStyleHelpers(t *testing.T) {
 
 	for _, tc := range tests {
 
-		di := NewGraph(Directed)
+		di := NewGraph(nil)
 		n1 := di.Node("A")
 		n2 := di.Node("B")
 
@@ -36,7 +36,7 @@ func TestEdgeStyleHelpers(t *testing.T) {
 			di.Edge(n1, n2).Dotted()
 		}
 
-		if got, want := flatten(di.String()), fmt.Sprintf(tc.want, n1.id, n2.id); got != want {
+		if got, want := flatten(di.String()), fmt.Sprintf(tc.want, n1.ID(), n2.ID()); got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	}

@@ -2,16 +2,16 @@ package dot
 
 // GraphOption functor to apply an option to a graph
 type GraphOption interface {
-	Apply(*Graph)
+	Apply(Graph)
 }
 
 // ClusterOption preffixes a graph ID with cluster
 type ClusterOption struct{}
 
 // Apply applies options to a graph instance
-func (o *ClusterOption) Apply(g *Graph) {
-	g.beCluster()
-}
+// func (o *ClusterOption) Apply(g Graph) {
+// 	g.beCluster()
+// }
 
 // GraphIDOption sets the graph internal ID
 type GraphIDOption struct {
@@ -20,8 +20,26 @@ type GraphIDOption struct {
 }
 
 // Apply applies options to a graph instance
-func (o *GraphIDOption) Apply(g *Graph) {
-	g.id = o.ID
+// func (o *GraphIDOption) Apply(g Graph) {
+// 	g.id = o.ID
+// }
+
+type GraphType string
+
+var (
+	GraphTypeUndirected GraphType = "graph"
+	GraphTypeDirected   GraphType = "digraph"
+	GraphTypeSub        GraphType = "subgraph"
+)
+
+type GraphOptions struct {
+	ID              string
+	Type            GraphType
+	parent          Graph
+	Strict          bool
+	Cluster         bool
+	NodeInitializer func(Node)
+	EdgeInitializer func(Edge)
 }
 
 var (
@@ -49,7 +67,7 @@ type GraphTypeOption struct {
 }
 
 // Apply applies options to a graph instance
-func (o *GraphTypeOption) Apply(g *Graph) {
-	g.strict = o.Strict
-	g.graphType = o.Name
-}
+// func (o *GraphTypeOption) Apply(g *GraphData) {
+// 	g.strict = o.Strict
+// 	g.graphType = o.Name
+// }

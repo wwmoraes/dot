@@ -6,7 +6,6 @@ import (
 
 // Writer graph object attribute read-write access
 type Writer interface {
-	Reader
 	SetAttribute(key Key, value fmt.Stringer)
 	SetAttributeString(key Key, value string)
 	SetAttributeLiteral(key Key, value string)

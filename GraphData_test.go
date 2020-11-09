@@ -12,19 +12,23 @@ import (
 )
 
 func TestEmpty(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	if got, want := flatten(di.String()), `digraph "" {}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	di2 := NewGraph(Directed, &GraphIDOption{"test"})
+	di2 := NewGraph(&GraphOptions{
+		ID: "test",
+	})
 	if got, want := flatten(di2.String()), `digraph "test" {}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
-	di3 := NewGraph(Directed, &GraphIDOption{"-"})
-	if di3.id == "-" {
+	di3 := NewGraph(&GraphOptions{
+		ID: "-",
+	})
+	if di3.ID() == "-" {
 		t.Error("got dash id instead of randomly generated one")
 	}
-	if got, want := flatten(di3.String()), fmt.Sprintf(`digraph "%s" {}`, di3.id); got != want {
+	if got, want := flatten(di3.String()), fmt.Sprintf(`digraph "%s" {}`, di3.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -32,14 +36,19 @@ func TestEmpty(t *testing.T) {
 func TestStrict(t *testing.T) {
 	// test strict directed
 	{
-		graph := NewGraph(StrictDirected)
+		graph := NewGraph(&GraphOptions{
+			Strict: true,
+		})
 		if got, want := flatten(graph.String()), `strict digraph "" {}`; got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	}
 	// test strict undirected
 	{
-		graph := NewGraph(StrictUndirected)
+		graph := NewGraph(&GraphOptions{
+			Strict: true,
+			Type:   GraphTypeUndirected,
+		})
 		if got, want := flatten(graph.String()), `strict graph "" {}`; got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
@@ -47,7 +56,7 @@ func TestStrict(t *testing.T) {
 }
 
 func TestEmptyWithIDAndAttributes(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	di.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
 	di.SetAttribute(attributes.KeyColor, attributes.NewString("lightgrey"))
 	if got, want := flatten(di.String()), `digraph "" {color="lightgrey";style="filled";}`; got != want {
@@ -56,7 +65,7 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 }
 
 func TestEmptyWithHTMLLabel(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	di.SetAttribute(attributes.KeyLabel, attributes.NewHTML("<B>Hi</B>"))
 	if got, want := flatten(di.String()), `digraph "" {label=<<B>Hi</B>>;}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -64,7 +73,7 @@ func TestEmptyWithHTMLLabel(t *testing.T) {
 }
 
 func TestEmptyWithLiteralValueLabel(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	di.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"left-justified text\l"`))
 	if got, want := flatten(di.String()), `digraph "" {label="left-justified text\l";}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
@@ -72,27 +81,29 @@ func TestEmptyWithLiteralValueLabel(t *testing.T) {
 }
 
 func TestTwoConnectedNodes(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s";}`, n1.id, n2.id); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s";}`, n1.ID(), n2.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
 func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	n1 := di.Node("A")
-	sub := di.Subgraph("my-sub")
+	sub := di.Subgraph(&GraphOptions{
+		ID: "my-sub",
+	})
 	n2 := sub.Node("B")
 	edge := di.Edge(n1, n2)
-	edge.Label(attributes.NewString("cross-graph"))
+	edge.SetAttributeString(attributes.KeyLabel, "cross-graph")
 
 	// test graph-level edge finding
 	{
-		want := []*Edge{edge}
-		got := sub.FindEdges(n1, n2)
+		want := []Edge{edge}
+		got := di.FindEdges(n1, n2)
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
@@ -102,7 +113,7 @@ func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
 	{
 		n3 := sub.Node("C")
 		newEdge := di.Edge(n2, n3)
-		want := []*Edge{newEdge}
+		want := []Edge{newEdge}
 		got := edge.EdgesTo(n3)
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -111,20 +122,22 @@ func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
 }
 
 func TestUndirectedTwoConnectedNodes(t *testing.T) {
-	di := NewGraph(Undirected)
+	di := NewGraph(&GraphOptions{
+		Type: GraphTypeUndirected,
+	})
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`graph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"--"%[2]s";}`, n1.id, n2.id); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`graph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"--"%[2]s";}`, n1.ID(), n2.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
 func TestGraph_FindEdges(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	n1 := di.Node("A")
 	n2 := di.Node("B")
-	want := []*Edge{di.Edge(n1, n2)}
+	want := []Edge{di.Edge(n1, n2)}
 	got := di.FindEdges(n1, n2)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("TestGraph.FindEdges() = %v, want %v", got, want)
@@ -132,53 +145,66 @@ func TestGraph_FindEdges(t *testing.T) {
 }
 
 func TestSubgraph(t *testing.T) {
-	di := NewGraph(Directed)
-	sub := di.Subgraph("test-id")
-	sub.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="test-id";style="filled";}}`, sub.id); got != want {
+	di := NewGraph(nil)
+	sub := di.Subgraph(&GraphOptions{
+		ID: "test-id",
+	})
+	sub.SetAttributeString(attributes.KeyStyle, "filled")
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="test-id";style="filled";}}`, sub.ID()); got != want {
 		t.Errorf("got\n[%v] want\n[%v]", got, want)
 	}
-	sub.Label("new-label")
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="new-label";style="filled";}}`, sub.id); got != want {
+	sub.SetAttributeString(attributes.KeyLabel, "new-label")
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="new-label";style="filled";}}`, sub.ID()); got != want {
 		t.Errorf("got\n[%v] want\n[%v]", got, want)
 	}
-	found, _ := di.FindSubgraph("test-id")
-	if got, want := found, sub; got != want {
+	foundGraph, _ := di.FindSubgraph("test-id")
+	if got, want := foundGraph, sub; got != want {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
-	subsub := sub.Subgraph("sub-test-id")
-	found, _ = subsub.FindSubgraph("test-id")
-	if got, want := found, sub; got != want {
+	subsub := sub.Subgraph(&GraphOptions{
+		ID: "sub-test-id",
+	})
+	foundGraph, _ = di.FindSubgraph("test-id")
+	if got, want := foundGraph, sub; got != want {
 		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 
 	// test getting an existing subgraph
-	gotGraph := sub.Subgraph("sub-test-id")
+
+	gotGraph, found := sub.FindSubgraph(subsub.ID())
+	if !found {
+		t.Errorf("%s not found, it was expected to be found", subsub.ID())
+	}
 	if gotGraph != subsub {
 		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", gotGraph, subsub)
 	}
 }
 
 func TestSubgraphClusterOption(t *testing.T) {
-	di := NewGraph(Directed)
-	sub := di.Subgraph("s1", &ClusterOption{})
-	if got, want := sub.id, "cluster_s1"; got != want {
+	di := NewGraph(nil)
+	sub := di.Subgraph(&GraphOptions{
+		ID:      "s1",
+		Cluster: true,
+	})
+	if got, want := sub.ID(), "cluster_s1"; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
 func TestNode(t *testing.T) {
-	graph := NewGraph(Directed)
+	graph := NewGraph(nil)
 	node := graph.Node("")
-	node.Label("test")
-	node.Box()
+	node.SetAttributesString(attributes.MapString{
+		attributes.KeyLabel: "test",
+		attributes.KeyShape: "box",
+	})
 
 	if node.ID() == "" {
 		t.Error("got blank node id, expected a randonly generated")
 		return
 	}
 
-	if got, want := flatten(graph.String()), fmt.Sprintf(`digraph "%s" {"%s"[label="test",shape="box"];}`, graph.id, node.ID()); got != want {
+	if got, want := flatten(graph.String()), fmt.Sprintf(`digraph "%s" {"%s"[label="test",shape="box"];}`, graph.ID(), node.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 
@@ -187,7 +213,7 @@ func TestNode(t *testing.T) {
 		node2 := graph.Node("")
 		node.EdgesTo(node2)
 
-		want := []*Edge{}
+		want := []Edge{}
 		got := node.EdgesTo(node2)
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -196,17 +222,19 @@ func TestNode(t *testing.T) {
 }
 
 func TestEdgeLabel(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	n1 := di.Node("e1")
 	n2 := di.Node("e2")
-	n1.Edge(n2, "what")
+	attr := attributes.NewAttributes()
+	attr.SetAttributeString(attributes.KeyLabel, "what")
+	n1.EdgeWithAttributes(n2, attr)
 	if got, want := flatten(di.String()), `digraph "" {"e1"[label="e1"];"e2"[label="e2"];"e1"->"e2"[label="what"];}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
 
 func TestSameRank(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	foo1 := di.Node("foo1")
 	foo2 := di.Node("foo2")
 	bar := di.Node("bar")
@@ -220,12 +248,20 @@ func TestSameRank(t *testing.T) {
 
 // dot -Tpng cluster.dot > cluster.png && open cluster.png
 func TestCluster(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	outside := di.Node("Outside")
-	clusterA := di.Subgraph("Cluster A", &ClusterOption{})
+	clusterA := di.Subgraph(&GraphOptions{
+		ID:      "Cluster A",
+		Cluster: true,
+	})
+	clusterA.SetAttributeString(attributes.KeyLabel, "Cluster A")
 	insideOne := clusterA.Node("one")
 	insideTwo := clusterA.Node("two")
-	clusterB := di.Subgraph("Cluster B", &ClusterOption{})
+	clusterB := di.Subgraph(&GraphOptions{
+		ID:      "Cluster B",
+		Cluster: true,
+	})
+	clusterB.SetAttributeString(attributes.KeyLabel, "Cluster B")
 	insideThree := clusterB.Node("three")
 	insideFour := clusterB.Node("four")
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
@@ -240,7 +276,7 @@ func flatten(s string) string {
 }
 
 func TestDeleteLabel(t *testing.T) {
-	g := NewGraph()
+	g := NewGraph(nil)
 	n := g.Node("my-id")
 	n.DeleteAttribute(attributes.KeyLabel)
 	if got, want := flatten(g.String()), `digraph "" {"my-id";}`; got != want {
@@ -249,7 +285,7 @@ func TestDeleteLabel(t *testing.T) {
 }
 
 func TestGraph_FindNodeById_emptyGraph(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 
 	_, found := di.FindNodeByID("F")
 
@@ -259,7 +295,7 @@ func TestGraph_FindNodeById_emptyGraph(t *testing.T) {
 }
 
 func TestGraph_FindNodeById_multiNodeGraph(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	di.Node("A")
 	di.Node("B")
 
@@ -275,10 +311,12 @@ func TestGraph_FindNodeById_multiNodeGraph(t *testing.T) {
 }
 
 func TestGraph_FindNodeById_multiNodesInSubGraphs(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	di.Node("A")
 	di.Node("B")
-	sub := di.Subgraph("new subgraph")
+	sub := di.Subgraph(&GraphOptions{
+		ID: "new subgraph",
+	})
 	sub.Node("C")
 
 	node, found := di.FindNodeByID("C")
@@ -293,10 +331,12 @@ func TestGraph_FindNodeById_multiNodesInSubGraphs(t *testing.T) {
 }
 
 func TestGraph_FindNodes_multiNodesInSubGraphs(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	di.Node("A")
 	di.Node("B")
-	sub := di.Subgraph("new subgraph")
+	sub := di.Subgraph(&GraphOptions{
+		ID: "new subgraph",
+	})
 	sub.Node("C")
 
 	nodes := di.FindNodes()
@@ -307,7 +347,7 @@ func TestGraph_FindNodes_multiNodesInSubGraphs(t *testing.T) {
 }
 
 func TestLabelWithEscaping(t *testing.T) {
-	di := NewGraph(Directed)
+	di := NewGraph(nil)
 	n := di.Node("without-linefeed")
 	n.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"with \l linefeed"`))
 	if got, want := flatten(di.String()), `digraph "" {"without-linefeed"[label="with \l linefeed"];}`; got != want {
@@ -316,9 +356,10 @@ func TestLabelWithEscaping(t *testing.T) {
 }
 
 func TestGraphNodeInitializer(t *testing.T) {
-	di := NewGraph(Directed)
-	di.NodeInitializer(func(n *Node) {
-		n.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
+	di := NewGraph(&GraphOptions{
+		NodeInitializer: func(n Node) {
+			n.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
+		},
 	})
 	n := di.Node("A")
 	if got, want := n.GetAttribute(attributes.KeyLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
@@ -327,9 +368,10 @@ func TestGraphNodeInitializer(t *testing.T) {
 }
 
 func TestGraphEdgeInitializer(t *testing.T) {
-	di := NewGraph(Directed)
-	di.EdgeInitializer(func(e *Edge) {
-		e.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
+	di := NewGraph(&GraphOptions{
+		EdgeInitializer: func(e Edge) {
+			e.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
+		},
 	})
 	e := di.Node("A").Edge(di.Node("B"))
 	if got, want := e.GetAttribute(attributes.KeyLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
@@ -338,7 +380,9 @@ func TestGraphEdgeInitializer(t *testing.T) {
 }
 
 func TestGraphCreateNodeOnce(t *testing.T) {
-	di := NewGraph(Undirected)
+	di := NewGraph(&GraphOptions{
+		Type: GraphTypeUndirected,
+	})
 	n1 := di.Node("A")
 	n2 := di.Node("A")
 	if got, want := n1, n2; &n1 == &n2 {
