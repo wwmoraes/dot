@@ -35,6 +35,11 @@ func (dotObjectData *Attributes) GetAttribute(key Key) fmt.Stringer {
 	return dotObjectData.attributes[key]
 }
 
+// GetAttributeString returns the string value of an attribute, if set
+func (dotObjectData *Attributes) GetAttributeString(key Key) string {
+	return dotObjectData.attributes[key].String()
+}
+
 // GetAttributes returns a copy of all current attributes for this object
 func (dotObjectData *Attributes) GetAttributes() Map {
 	newMap := make(Map, len(dotObjectData.attributes))
