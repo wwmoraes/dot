@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/emicklei/dot/attributes"
+	"github.com/wwmoraes/dot/attributes"
 )
 
 // TestGraphBehavior tests all components with real use cases

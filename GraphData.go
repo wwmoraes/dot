@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/emicklei/dot/attributes"
+	"github.com/wwmoraes/dot/attributes"
 )
 
 // graph represents a dot graph with nodes and edges.

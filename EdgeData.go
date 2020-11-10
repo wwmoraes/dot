@@ -1,7 +1,7 @@
 package dot
 
 import (
-	"github.com/emicklei/dot/attributes"
+	"github.com/wwmoraes/dot/attributes"
 )
 
 type edge struct {

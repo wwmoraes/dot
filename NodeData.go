@@ -1,6 +1,6 @@
 package dot
 
-import "github.com/emicklei/dot/attributes"
+import "github.com/wwmoraes/dot/attributes"
 
 // node represents a dot node.
 type node struct {

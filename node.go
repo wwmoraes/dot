@@ -1,6 +1,6 @@
 package dot
 
-import "github.com/emicklei/dot/attributes"
+import "github.com/wwmoraes/dot/attributes"
 
 // Node is implemented by dot-compatible node values
 type Node interface {

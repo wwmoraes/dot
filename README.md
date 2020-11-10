@@ -1,99 +1,118 @@
-## dot - little helper package in Go for the graphviz dot language
+<h1 align="center">dot</h1>
 
-[![Build Status](https://travis-ci.org/emicklei/proto.png)](https://travis-ci.org/emicklei/dot)
-[![Go Report Card](https://goreportcard.com/badge/github.com/emicklei/dot)](https://goreportcard.com/report/github.com/emicklei/dot)
-[![GoDoc](https://godoc.org/github.com/emicklei/dot?status.svg)](https://pkg.go.dev/github.com/emicklei/dot)
+<blockquote align="center">
+a lightweight, pure golang graphviz-compatible dot language implementation
+</blockquote>
 
-[DOT language](http://www.graphviz.org/doc/info/lang.html)
+<div align="center">
 
-	package main
-	
-	import (
-		"fmt"	
-		"github.com/emicklei/dot"
-	)
-	
-	// go run main.go | dot -Tpng  > test.png && open test.png
-	
-	func main() {
-		g := dot.NewGraph(dot.Directed)
-		n1 := g.Node("coding")
-		n2 := g.Node("testing a little").Box()
-	
-		g.Edge(n1, n2)
-		g.Edge(n2, n1, "back").Attr("color", "red")
-	
-		fmt.Println(g.String())
-	}
+[![Go Report Card](https://goreportcard.com/badge/github.com/wwmoraes/dot)](https://goreportcard.com/report/github.com/wwmoraes/dot)
+[![GoDoc](https://godoc.org/github.com/wwmoraes/dot?status.svg)](https://pkg.go.dev/github.com/wwmoraes/dot)
 
-Output
+</div>
 
-	digraph {
-		node [label="coding"]; n1;
-		node [label="testing a little",shape="box"]; n2;
-		n1 -> n2;
-		n2 -> n1 [color="red", label="back"];
-	}
+## 📝 Table of Contents
 
-Chaining edges
+- [About](#about)
+- [Getting Started](#getting_started)
+- [Usage](#usage)
+- [Contributing](../CONTRIBUTING.md)
+- [Authors](#authors)
+- [Acknowledgments](#acknowledgement)
 
-	g.Node("A").Edge(g.Node("B")).Edge(g.Node("C"))
-	
-	A -> B -> C
+## 🧐 About <a name = "about"></a>
 
-Subgraphs
+> WARNING: this package is a WIP and will introduce breaking changes while on
+> major version zero.
 
-	s := g.Subgraph("cluster")
-	s.Attr("style","filled")
+Dot provides interfaces and ready-to-use concrete types to create
+[graphviz](graphviz)-compatible graphs using its [dot language](dotlanguage).
 
+This package was inspired/initially forked from [emicklei/dot](emicklei-dot),
+but has too many breaking changes compared to the original - namely interface
+usage and other distinct design decisions - that I decided to maintain it
+separately. If you need a simpler, no-brainy option, use
+[emicklei's dot package](emicklei-dot).
 
-Initializers
+## 🏁 Getting Started <a name = "getting_started"></a>
 
-	g := dot.NewGraph(dot.Directed)
-	g.NodeInitializer(func(n dot.Node) {
-		n.Attr("shape", "rectangle")
-		n.Attr("fontname", "arial")
-		n.Attr("style", "rounded,filled")
-	})
+Clone the repository and then run `make` to build, test, generate coverage and
+lint the code.
 
-	g.EdgeInitializer(func(e dot.Edge) {
-		e.Attr("fontname", "arial")
-		e.Attr("fontsize", "9")
-		e.Attr("arrowsize", "0.8")
-		e.Attr("arrowhead", "open")
-	})
+### Prerequisites
 
-HTML and Literal values
+Golang 1.15 as of now, but should work with older golang versions.
 
-	node.Attr("label", Literal(`"left-justified text\l"`))
-	graph.Attr("label", HTML("<B>Hi</B>"))
+No packages are needed.
 
-## cluster example
+## 🎈 Usage <a name = "usage"></a>
 
-![](./doc/cluster.png)
+Add it to your modules with
 
-	di := dot.NewGraph(dot.Directed)
-	outside := di.Node("Outside")
+```shell
+go get -u github.com/wwmoraes/dot
+```
 
-	// A
-	clusterA := di.Subgraph("Cluster A", dot.ClusterOption{})
-	insideOne := clusterA.Node("one")
-	insideTwo := clusterA.Node("two")
-	
-	// B
-	clusterB := di.Subgraph("Cluster B", dot.ClusterOption{})
-	insideThree := clusterB.Node("three")
-	insideFour := clusterB.Node("four")
+And then:
 
-	// edges
-	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
+```go
+package main
 
-## About dot attributes
+import (
+  "os"
+  "github.com/wwmoraes/dot"
+  "github.com/wwmoraes/dot/attributes"
+)
 
-https://graphviz.gitlab.io/_pages/doc/info/attrs.html
+func main() {
+  graph := dot.NewGraph(nil)
+  clusterA := graph.Subgraph(&attributes.GraphOptions{ ID: "Cluster A", Cluster: true })
+  clusterA.SetAttributeString("label", "Cluster A")
+  clusterB := graph.Subgraph(&attributes.GraphOptions{ ID: "Cluster B", Cluster: true })
+  clusterB.SetAttributeString("label", "Cluster B")
 
-## display your graph
+  clusterA.
+    Node("one").
+    Edge(clusterA.Node("two")).
+    Edge(clusterB.Node("three")).
+    Edge(graph.Node("Outside")).
+    Edge(clusterB.Node("four")).
+    Edge(clusterA.Node("one"))
 
-	go run main.go | dot -Tpng  > test.png && open test.png
+  graph.Write(os.Create("sample.dot"))
+}
+```
 
-(c) 2015-2020, http://ernestmicklei.com. MIT License
+The attributes sub-package has all supported keys defined as variables, and can
+be used instead of plain strings to avoid both duplication and errors:
+
+```go
+graph := dot.NewGraph(nil)
+graph.Node("n1").SetAttributeString(attributes.KeyLabel, "my label")
+```
+
+You can also set literals and HTML values using the helper functions:
+
+```go
+graph := dot.NewGraph(nil)
+graph.Node("n1").SetAttributeLiteral(attributes.KeyLabel, `my left label\l`)
+graph.Node("n2").SetAttributeHTML(attributes.KeyLabel, `<b>a bold label</b>`)
+```
+
+## ✍️ Authors <a name = "authors"></a>
+
+- [@emicklei](https://github.com/emicklei) - Original package
+- [@wwmoraes](https://github.com/wwmoraes) - Modified version
+
+## 🎉 Acknowledgements <a name = "acknowledgement"></a>
+
+- [@emicklei](https://github.com/emicklei) for the amazing original package,
+which initially helped me [get rid of a graphviz cgo package](goccy-go-graphviz)
+I used on the [kubegraph project](https://github.com/wwmoraes/kubegraph)
+- [@damianopetrungaro](https://github.com/damianopetrungaro) for the reviews and
+discussion about golang ways - my personal master Yoda!
+
+[graphviz]: https://graphviz.org
+[dotlanguage]: http://www.graphviz.org/doc/info/lang.html
+[emicklei-dot]: https://github.com/emicklei/dot
+[goccy-go-graphviz]: https://github.com/goccy/go-graphviz

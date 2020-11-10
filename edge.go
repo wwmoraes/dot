@@ -1,6 +1,6 @@
 package dot
 
-import "github.com/emicklei/dot/attributes"
+import "github.com/wwmoraes/dot/attributes"
 
 // Edge is implemented by dot-compatible edge values
 type Edge interface {

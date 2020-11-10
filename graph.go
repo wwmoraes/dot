@@ -3,7 +3,7 @@ package dot
 import (
 	"fmt"
 
-	"github.com/emicklei/dot/attributes"
+	"github.com/wwmoraes/dot/attributes"
 )
 
 // GraphOptions contains the parameters used for graph creation
