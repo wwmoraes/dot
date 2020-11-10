@@ -322,7 +322,7 @@ func TestAttributes_SetAttribute(t *testing.T) {
 }
 
 func TestAttributes_DeleteAttribute(t *testing.T) {
-	t.Run("try to delete un-existant attribute", func(t *testing.T) {
+	t.Run("try to delete un-existent attribute", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.DeleteAttribute(KeyClass)
 

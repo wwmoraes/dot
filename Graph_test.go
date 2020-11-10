@@ -206,7 +206,7 @@ func TestGraph_FindSubgraph(t *testing.T) {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	})
-	t.Run("find no un-existant subgraph from another subgraph", func(t *testing.T) {
+	t.Run("find no un-existent subgraph from another subgraph", func(t *testing.T) {
 		graph := NewGraph(&GraphOptions{
 			ID: "root-graph",
 		})
