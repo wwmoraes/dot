@@ -1,5 +1,5 @@
 /*.dot
 /*.png
 .idea
-coverage.out
-coverage.html
+coverage*.out
+coverage*.html

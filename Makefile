@@ -7,7 +7,7 @@ build: $(SOURCES)
 .PHONY: clean
 clean:
 	go clean -cache -testcache ./...
-	rm -f coverage.out coverage.html
+	rm -f coverage*.out coverage*.html
 
 .PHONY: test
 test: $(SOURCES)
@@ -16,8 +16,14 @@ test: $(SOURCES)
 .PHONY: coverage
 coverage: coverage.html
 
-coverage.html: coverage.out
-	go tool cover -html=$< -o $@
-
 coverage.out: $(SOURCES)
 	go test -cover -coverprofile=$@ -v ./...
+
+.PHONY: test-behavior
+test-behavior: coverage-behavior.html
+
+coverage-behavior.out: $(SOURCES)
+	go test -race -v -run ".*Behavior" -cover -coverprofile=$@ ./...
+
+%.html: %.out
+	go tool cover -html=$< -o $@
