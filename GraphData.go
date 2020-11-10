@@ -122,7 +122,7 @@ func (thisGraph *graph) FindNode(id string) (Node, bool) {
 		return n, ok
 	}
 	if thisGraph.parent == nil {
-		return &node{id: "void"}, false
+		return nil, false
 	}
 	return thisGraph.parent.FindNode(id)
 }
