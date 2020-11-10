@@ -1,5 +1,12 @@
 /*.dot
 /*.png
 .idea
+
+# SonarQube
+.scannerwork/
+
+# lint, test and coverage reports
+golangci-lint-report.xml
+test-report.json
 coverage*.out
 coverage*.html

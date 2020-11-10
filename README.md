@@ -6,8 +6,24 @@ a lightweight, pure golang graphviz-compatible dot language implementation
 
 <div align="center">
 
+[![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![GitHub Issues](https://img.shields.io/github/issues/wwmoraes/dot.svg)](https://github.com/wwmoraes/dot/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/wwmoraes/dot.svg)](https://github.com/wwmoraes/dot/pulls)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/wwmoraes/dot)](https://goreportcard.com/report/github.com/wwmoraes/dot)
 [![GoDoc](https://godoc.org/github.com/wwmoraes/dot?status.svg)](https://pkg.go.dev/github.com/wwmoraes/dot)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=alert_status)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=bugs)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=security_rating)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=coverage)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=code_smells)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=wwmoraes_dot&metric=sqale_index)](https://sonarcloud.io/dashboard?id=wwmoraes_dot)
 
 </div>
 
