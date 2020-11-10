@@ -57,9 +57,7 @@ lint the code.
 
 ### Prerequisites
 
-Golang 1.15 as of now, but should work with older golang versions.
-
-No packages are needed.
+Golang 1.12+ and ideally a modules-enabled application. Dot has no dependencies.
 
 ## 🎈 Usage <a name = "usage"></a>
 
