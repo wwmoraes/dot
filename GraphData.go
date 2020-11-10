@@ -52,13 +52,17 @@ func NewGraph(options *GraphOptions) Graph {
 		panic("cannot create graph with parent")
 	}
 
+	if options.generator == nil {
+		options.generator = newUIDGenerator(24)
+	}
+
 	newGraph := &graph{
 		id:              options.ID,
 		parent:          options.parent,
 		Attributes:      attributes.NewAttributes(),
 		graphType:       options.Type,
 		strict:          options.Strict,
-		generator:       NewUIDGenerator(24),
+		generator:       options.generator,
 		nodes:           map[string]Node{},
 		edgesFrom:       map[string][]StyledEdge{},
 		subgraphs:       map[string]Graph{},
@@ -85,6 +89,9 @@ func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
 
 	// set parent
 	options.parent = thisGraph
+
+	// share generator
+	options.generator = thisGraph.generator
 
 	sub := NewGraph(options)
 	sub.SetAttributeString(attributes.KeyLabel, sub.ID())
