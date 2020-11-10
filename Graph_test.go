@@ -159,7 +159,7 @@ func TestSubgraph(t *testing.T) {
 	}
 	foundGraph, _ := di.FindSubgraph("test-id")
 	if got, want := foundGraph, sub; got != want {
-		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 	subsub := sub.Subgraph(&GraphOptions{
 		ID: "sub-test-id",
@@ -383,7 +383,7 @@ func TestGraphEdgeInitializer(t *testing.T) {
 		t.Error("attribute not found")
 	}
 	if got, want := gotAttr.(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
-		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 }
 
@@ -394,6 +394,6 @@ func TestGraphCreateNodeOnce(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("A")
 	if got, want := n1, n2; &n1 == &n2 {
-		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 }
