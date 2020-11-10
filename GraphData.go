@@ -54,6 +54,7 @@ func NewGraph(options *GraphOptions) Graph {
 
 	newGraph := &graph{
 		id:              options.ID,
+		parent:          options.parent,
 		Attributes:      attributes.NewAttributes(),
 		graphType:       options.Type,
 		strict:          options.Strict,
