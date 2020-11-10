@@ -33,8 +33,7 @@ type Graph interface {
 	attributes.Identity
 	attributes.Styleable
 	fmt.Stringer
-	// Root returns the top-level graph if this is a subgraph
-	Root() Graph
+
 	// FindSubgraph returns the subgraph of this graph or from one of its parents
 	FindSubgraph(id string) (Graph, bool)
 	// Subgraph creates a subgraph of this graph

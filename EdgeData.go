@@ -1,8 +1,6 @@
 package dot
 
 import (
-	"fmt"
-
 	"github.com/emicklei/dot/attributes"
 )
 
@@ -24,13 +22,6 @@ func (thisEdge *edge) From() Node {
 
 func (thisEdge *edge) To() Node {
 	return thisEdge.to
-}
-
-// Label sets "label"=value and returns the Edge.
-// Same as SetAttribute(attributes.KeyLabel, value)
-func (thisEdge *edge) Label(value fmt.Stringer) Edge {
-	thisEdge.SetAttribute(attributes.KeyLabel, value)
-	return thisEdge
 }
 
 // Solid sets the edge attribute "style" to "solid"

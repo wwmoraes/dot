@@ -94,20 +94,6 @@ func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
 	return sub
 }
 
-// Label sets the "label" attribute value.
-func (thisGraph *graph) Label(label string) Graph {
-	thisGraph.SetAttribute("label", attributes.NewString(label))
-	return thisGraph
-}
-
-// Root returns the top-level graph if this was a subgraph.
-func (thisGraph *graph) Root() Graph {
-	if thisGraph.parent == nil {
-		return thisGraph
-	}
-	return thisGraph.parent.Root()
-}
-
 // FindSubgraph returns the subgraph of the graph or one from its parents.
 func (thisGraph *graph) FindSubgraph(id string) (Graph, bool) {
 	sub, ok := thisGraph.subgraphs[id]
@@ -125,16 +111,6 @@ func (thisGraph *graph) FindNode(id string) (Node, bool) {
 		return nil, false
 	}
 	return thisGraph.parent.FindNode(id)
-}
-
-// NodeInitializer sets a function that is called (if not nil) when a Node is implicitly created.
-func (thisGraph *graph) NodeInitializer(callback func(n Node)) {
-	thisGraph.nodeInitializer = callback
-}
-
-// EdgeInitializer sets a function that is called (if not nil) when an Edge is implicitly created.
-func (thisGraph *graph) EdgeInitializer(callback func(e StyledEdge)) {
-	thisGraph.edgeInitializer = callback
 }
 
 // Node returns the node created with this id or creates a new node if absent.
@@ -169,14 +145,6 @@ func (thisGraph *graph) Edge(fromNode, toNode Node) StyledEdge {
 
 // Edge creates a new edge between two nodes, and set the given attributes
 func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) StyledEdge {
-	// assume fromNode owner == toNode owner
-	// if fromNode.Graph() != toNode.Graph() { // 1 or 2 are subgraphs
-	// 	edgeOwner := commonParentOf(fromNode.Graph(), toNode.Graph())
-	// 	if edgeOwner.ID() != g.ID() {
-	// 		return edgeOwner.EdgeWithAttributes(fromNode, toNode, attr)
-	// 	}
-	// }
-
 	e := &edge{
 		from:       fromNode,
 		to:         toNode,
@@ -196,10 +164,6 @@ func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attribute
 // FindEdges finds all edges in the graph that go from the fromNode to the toNode.
 // Otherwise, returns an empty slice.
 func (thisGraph *graph) FindEdges(fromNode, toNode Node) (found []Edge) {
-	// if fromNode.Graph() != toNode.Graph() {
-	// 	edgeOwner := commonParentOf(fromNode.Graph(), toNode.Graph())
-	// 	return edgeOwner.FindEdges(fromNode, toNode)
-	// }
 	found = make([]Edge, 0)
 	if edges, ok := thisGraph.edgesFrom[fromNode.ID()]; ok {
 		for _, e := range edges {
@@ -210,11 +174,6 @@ func (thisGraph *graph) FindEdges(fromNode, toNode Node) (found []Edge) {
 	}
 	return found
 }
-
-// func commonParentOf(one, two Graph) Graph {
-// 	// TODO
-// 	return one.Root()
-// }
 
 // AddToSameRank adds the given nodes to the specified rank group, forcing them to be rendered in the same row
 func (thisGraph *graph) AddToSameRank(group string, nodes ...Node) {

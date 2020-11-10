@@ -19,23 +19,6 @@ func (thisNode *node) String() string {
 	return thisNode.id
 }
 
-// Graph return this node's graph
-func (thisNode *node) Graph() Graph {
-	return thisNode.graph
-}
-
-// Label sets the attribute "label" to the given label
-func (thisNode *node) Label(label string) Node {
-	thisNode.SetAttribute(attributes.KeyLabel, attributes.NewString(label))
-	return thisNode
-}
-
-// Box sets the attribute "shape" to "box"
-func (thisNode *node) Box() Node {
-	thisNode.SetAttribute(attributes.KeyShape, *attributes.ShapeBox)
-	return thisNode
-}
-
 // Edge creates an Edge to a node
 func (thisNode *node) Edge(toNode Node) Edge {
 	return thisNode.graph.EdgeWithAttributes(thisNode, toNode, nil)
