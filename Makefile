@@ -1,5 +1,9 @@
 SOURCES := $(wildcard *.go) $(wildcard */*.go)
 
+.PHONY: lint
+lint:
+	golangci-lint run
+
 .PHONY: build
 build: $(SOURCES)
 	go build ./...
