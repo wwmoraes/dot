@@ -97,11 +97,13 @@ func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
 
 // FindSubgraph returns the subgraph of the graph or one from its parents.
 func (thisGraph *graph) FindSubgraph(id string) (Graph, bool) {
-	sub, ok := thisGraph.subgraphs[id]
-	if !ok && thisGraph.parent != nil {
-		return thisGraph.parent.FindSubgraph(id)
+	if sub, ok := thisGraph.subgraphs[id]; ok {
+		return sub, ok
 	}
-	return sub, ok
+	if thisGraph.parent == nil {
+		return nil, false
+	}
+	return thisGraph.parent.FindSubgraph(id)
 }
 
 func (thisGraph *graph) FindNode(id string) (Node, bool) {
