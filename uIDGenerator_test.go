@@ -6,7 +6,7 @@ import (
 
 func TestUIDGenerator(t *testing.T) {
 	expectedLength := 16
-	generator := NewUIDGenerator(expectedLength)
+	generator := newUIDGenerator(expectedLength)
 
 	if generator == nil {
 		t.Error("generator is nil")

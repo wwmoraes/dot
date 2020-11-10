@@ -29,7 +29,7 @@ type graph struct {
 //
 // if id is "-", a randonly generated ID will be set
 func NewGraph(options *GraphOptions) Graph {
-	generator := NewUIDGenerator(24)
+	generator := newUIDGenerator(24)
 	if options == nil {
 		options = &GraphOptions{}
 	}

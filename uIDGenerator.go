@@ -7,23 +7,23 @@ import (
 
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// UIDGenerator creates random strings seeded with its instance creation time
-type UIDGenerator struct {
+// uIDGenerator creates random strings seeded with its instance creation time
+type uIDGenerator struct {
 	random *rand.Rand
 	length int
 }
 
-// NewUIDGenerator returns a new instance of UIDGenerator seeded with the
+// newUIDGenerator returns a new instance of UIDGenerator seeded with the
 // current time
-func NewUIDGenerator(length int) *UIDGenerator {
-	return &UIDGenerator{
+func newUIDGenerator(length int) *uIDGenerator {
+	return &uIDGenerator{
 		random: rand.New(rand.NewSource(time.Now().UnixNano())),
 		length: length,
 	}
 }
 
 // String generates a random string with the default length
-func (generator *UIDGenerator) String() string {
+func (generator *uIDGenerator) String() string {
 	b := make([]byte, generator.length)
 
 	for i := 0; i < generator.length; i++ {
@@ -34,7 +34,7 @@ func (generator *UIDGenerator) String() string {
 }
 
 // Stringn generates a random string with given length
-func (generator *UIDGenerator) Stringn(length int) string {
+func (generator *uIDGenerator) Stringn(length int) string {
 	b := make([]byte, length)
 
 	for i := 0; i < length; i++ {
