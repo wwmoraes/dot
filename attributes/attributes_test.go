@@ -25,7 +25,7 @@ func TestAttributes(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttribute(KeyLabel, NewString("test"))
 
-		got := attributes.GetAttribute(KeyLabel)
+		got, _ := attributes.GetAttribute(KeyLabel)
 
 		want := NewString("test")
 

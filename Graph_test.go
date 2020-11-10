@@ -362,8 +362,12 @@ func TestGraphNodeInitializer(t *testing.T) {
 		},
 	})
 	n := di.Node("A")
-	if got, want := n.GetAttribute(attributes.KeyLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
-		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
+	gotAttr, gotOk := n.GetAttribute(attributes.KeyLabel)
+	if !gotOk {
+		t.Error("attribute not found")
+	}
+	if got, want := gotAttr.(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
+		t.Errorf("got [%v[1]:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
 }
 
@@ -374,7 +378,11 @@ func TestGraphEdgeInitializer(t *testing.T) {
 		},
 	})
 	e := di.Node("A").Edge(di.Node("B"))
-	if got, want := e.GetAttribute(attributes.KeyLabel).(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
+	gotAttr, gotOk := e.GetAttribute(attributes.KeyLabel)
+	if !gotOk {
+		t.Error("attribute not found")
+	}
+	if got, want := gotAttr.(*attributes.String), attributes.NewString("test"); !reflect.DeepEqual(got, want) {
 		t.Errorf("got [%v:%T] want [%v:%T]", got, got, want, want)
 	}
 }

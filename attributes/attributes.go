@@ -41,14 +41,21 @@ func (dotObjectData *Attributes) getAttributes() Map {
 	return dotObjectData.attributes
 }
 
-func (dotObjectData *Attributes) GetAttribute(key Key) fmt.Stringer {
-	return dotObjectData.attributes[key]
 // GetAttribute returns the attribute value or nil if unset
+func (dotObjectData *Attributes) GetAttribute(key Key) (fmt.Stringer, bool) {
+	attr, found := dotObjectData.attributes[key]
+	return attr, found
 }
 
 // GetAttributeString returns the attribute as string or an empty string if unset
 func (dotObjectData *Attributes) GetAttributeString(key Key) string {
-	return dotObjectData.attributes[key].String()
+	attr, ok := dotObjectData.GetAttribute(key)
+
+	if !ok {
+		return ""
+	}
+
+	return attr.String()
 }
 
 // GetAttributes returns a copy of all attributes
