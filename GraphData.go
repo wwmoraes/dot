@@ -180,7 +180,7 @@ func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attribute
 	e := &edge{
 		from:       fromNode,
 		to:         toNode,
-		id:         thisGraph.generator.String(),
+		internalID: thisGraph.generator.String(),
 		Attributes: attributes.NewAttributesFrom(attr),
 		graph:      thisGraph}
 

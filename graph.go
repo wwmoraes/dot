@@ -30,7 +30,8 @@ type GraphOptions struct {
 
 // Graph is implemented by dot-compatible graph values
 type Graph interface {
-	attributes.Object
+	attributes.Identity
+	attributes.Styleable
 	fmt.Stringer
 	// Root returns the top-level graph if this is a subgraph
 	Root() Graph

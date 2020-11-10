@@ -4,7 +4,8 @@ import "github.com/emicklei/dot/attributes"
 
 // Node is implemented by dot-compatible node values
 type Node interface {
-	attributes.Object
+	attributes.Identity
+	attributes.Styleable
 	attributes.Serializable
 	// Graph returns this node's graph
 	Graph() Graph

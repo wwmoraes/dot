@@ -4,7 +4,7 @@ import "github.com/emicklei/dot/attributes"
 
 // Edge is implemented by dot-compatible edge values
 type Edge interface {
-	attributes.Object
+	attributes.Styleable
 	attributes.Serializable
 	// From returns the tail node this Edge is connected from
 	From() Node

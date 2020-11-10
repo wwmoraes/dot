@@ -8,19 +8,14 @@ import (
 
 type edge struct {
 	*attributes.Attributes
-	graph    Graph
-	from, to Node
-	id       string
-}
-
-// ID returns the immutable id
-func (thisEdge *edge) ID() string {
-	return thisEdge.id
+	graph      Graph
+	from, to   Node
+	internalID string
 }
 
 func (thisEdge *edge) String() string {
 	// TODO
-	return thisEdge.id
+	return thisEdge.internalID
 }
 
 func (thisEdge *edge) From() Node {
