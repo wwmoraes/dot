@@ -373,7 +373,7 @@ func TestGraphNodeInitializer(t *testing.T) {
 
 func TestGraphEdgeInitializer(t *testing.T) {
 	di := NewGraph(&GraphOptions{
-		EdgeInitializer: func(e Edge) {
+		EdgeInitializer: func(e StyledEdge) {
 			e.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
 		},
 	})

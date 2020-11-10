@@ -25,7 +25,7 @@ type GraphOptions struct {
 	// NodeInitializer applies defaults to newly created nodes
 	NodeInitializer func(Node)
 	// EdgeInitializer applies defaults to newly created edges
-	EdgeInitializer func(Edge)
+	EdgeInitializer func(StyledEdge)
 }
 
 // Graph is implemented by dot-compatible graph values
@@ -40,11 +40,11 @@ type Graph interface {
 	Subgraph(options *GraphOptions) Graph
 	// Node gets a node by id, or creates a new one if it doesn't exist
 	Node(id string) Node
-	Edge(n1, n2 Node) Edge
-	EdgeWithAttributes(n1, n2 Node, attributes attributes.Reader) Edge
 	// Edge creates a new edge between the two provided nodes
+	Edge(n1, n2 Node) StyledEdge
 	// Edge creates a new edge between the two provided nodes, and also set the
 	// given attributes
+	EdgeWithAttributes(n1, n2 Node, attributes attributes.Reader) StyledEdge
 	// FindEdges gets all edges in the graph between the two provided nodes
 	FindEdges(fromNode, toNode Node) (found []Edge)
 	// FindNode gets a node by id

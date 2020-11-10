@@ -16,13 +16,13 @@ type graph struct {
 	strict    bool
 	generator *UIDGenerator
 	nodes     map[string]Node
-	edgesFrom map[string][]Edge
+	edgesFrom map[string][]StyledEdge
 	subgraphs map[string]Graph
 	parent    Graph
 	sameRank  map[string][]Node
 	//
 	nodeInitializer func(Node)
-	edgeInitializer func(Edge)
+	edgeInitializer func(StyledEdge)
 }
 
 // NewGraph return a new initialized Graph
@@ -59,7 +59,7 @@ func NewGraph(options *GraphOptions) Graph {
 		strict:          options.Strict,
 		generator:       NewUIDGenerator(24),
 		nodes:           map[string]Node{},
-		edgesFrom:       map[string][]Edge{},
+		edgesFrom:       map[string][]StyledEdge{},
 		subgraphs:       map[string]Graph{},
 		sameRank:        map[string][]Node{},
 		nodeInitializer: options.NodeInitializer,
@@ -133,7 +133,7 @@ func (thisGraph *graph) NodeInitializer(callback func(n Node)) {
 }
 
 // EdgeInitializer sets a function that is called (if not nil) when an Edge is implicitly created.
-func (thisGraph *graph) EdgeInitializer(callback func(e Edge)) {
+func (thisGraph *graph) EdgeInitializer(callback func(e StyledEdge)) {
 	thisGraph.edgeInitializer = callback
 }
 
@@ -163,12 +163,12 @@ func (thisGraph *graph) Node(id string) Node {
 }
 
 // Edge creates a new edge between two nodes
-func (thisGraph *graph) Edge(fromNode, toNode Node) Edge {
+func (thisGraph *graph) Edge(fromNode, toNode Node) StyledEdge {
 	return thisGraph.EdgeWithAttributes(fromNode, toNode, nil)
 }
 
 // Edge creates a new edge between two nodes, and set the given attributes
-func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) Edge {
+func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) StyledEdge {
 	// assume fromNode owner == toNode owner
 	// if fromNode.Graph() != toNode.Graph() { // 1 or 2 are subgraphs
 	// 	edgeOwner := commonParentOf(fromNode.Graph(), toNode.Graph())
