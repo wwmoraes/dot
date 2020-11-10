@@ -14,7 +14,7 @@ type graph struct {
 	id        string
 	graphType attributes.GraphType
 	strict    bool
-	generator *UIDGenerator
+	generator IDGenerator
 	nodes     map[string]Node
 	edgesFrom map[string][]StyledEdge
 	subgraphs map[string]Graph
