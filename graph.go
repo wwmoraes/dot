@@ -6,7 +6,7 @@ import (
 	"github.com/emicklei/dot/attributes"
 )
 
-// GraphOptions parameters used for graph creation
+// GraphOptions contains the parameters used for graph creation
 type GraphOptions struct {
 	parent Graph
 	// ID returns the immutable id
@@ -28,21 +28,36 @@ type GraphOptions struct {
 	EdgeInitializer func(Edge)
 }
 
-// Graph context/area that contains nodes and edges
+// Graph is implemented by dot-compatible graph values
 type Graph interface {
 	attributes.Object
 	fmt.Stringer
+	// Root returns the top-level graph if this is a subgraph
 	Root() Graph
+	// FindSubgraph returns the subgraph of this graph or from one of its parents
 	FindSubgraph(id string) (Graph, bool)
+	// Subgraph creates a subgraph of this graph
 	Subgraph(options *GraphOptions) Graph
+	// Node gets a node by id, or creates a new one if it doesn't exist
 	Node(id string) Node
 	Edge(n1, n2 Node) Edge
 	EdgeWithAttributes(n1, n2 Node, attributes attributes.Reader) Edge
+	// Edge creates a new edge between the two provided nodes
+	// Edge creates a new edge between the two provided nodes, and also set the
+	// given attributes
+	// FindEdges gets all edges in the graph between the two provided nodes
 	FindEdges(fromNode, toNode Node) (found []Edge)
+	// FindNode gets a node by id
 	FindNode(id string) (Node, bool)
+	// IndentedWrite write the graph to a writer using TAB indentation
 	IndentedWrite(w *IndentWriter)
+	// VisitNodes runs the provided function on all nodes recursively
 	VisitNodes(callback func(node Node) (done bool))
+	// AddToSameRank adds the given nodes to the specified rank group, forcing
+	// them to be rendered in the same row
 	AddToSameRank(group string, nodes ...Node)
+	// FindNodeByID return node by id
 	FindNodeByID(id string) (foundNode Node, found bool)
+	// FindNodes returns all nodes recursively
 	FindNodes() (nodes []Node)
 }

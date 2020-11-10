@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-// Map attribute map of graph component attributes
+// Map collection of dot component attributes
 type Map map[Key]fmt.Stringer
 
-// MapString map of graph component attributes as primitive strings
+// MapString collection of dot component attributes as primitive strings
 type MapString map[Key]string
 
-// Attributes graph component attributes data
+// Attributes dot component attributes data
 type Attributes struct {
 	attributes Map
 }
@@ -25,6 +25,7 @@ func NewAttributes() *Attributes {
 	}
 }
 
+// NewAttributesFrom creates an attributes map with the provided attributes
 func NewAttributesFrom(attr Reader) *Attributes {
 	if attr == nil {
 		return NewAttributes()
@@ -40,17 +41,17 @@ func (dotObjectData *Attributes) getAttributes() Map {
 	return dotObjectData.attributes
 }
 
-// GetAttribute returns a given attribute by its key
 func (dotObjectData *Attributes) GetAttribute(key Key) fmt.Stringer {
 	return dotObjectData.attributes[key]
+// GetAttribute returns the attribute value or nil if unset
 }
 
-// GetAttributeString returns the string value of an attribute, if set
+// GetAttributeString returns the attribute as string or an empty string if unset
 func (dotObjectData *Attributes) GetAttributeString(key Key) string {
 	return dotObjectData.attributes[key].String()
 }
 
-// GetAttributes returns a copy of all current attributes for this object
+// GetAttributes returns a copy of all attributes
 func (dotObjectData *Attributes) GetAttributes() Map {
 	newMap := make(Map, len(dotObjectData.attributes))
 	for key, value := range dotObjectData.attributes {
@@ -103,55 +104,55 @@ func (dotObjectData *Attributes) Write(device io.Writer, mustBracket bool) {
 	}
 }
 
-// SetAttribute defines the attribute value for the given key
+// SetAttribute sets the value for the attribute Key
 func (dotObjectData *Attributes) SetAttribute(key Key, value fmt.Stringer) {
 	dotObjectData.attributes[key] = value
 }
 
-// SetAttributeString defines a attribute value as plain string
+// SetAttributeString sets the string value for the attribute Key
 func (dotObjectData *Attributes) SetAttributeString(key Key, value string) {
 	dotObjectData.attributes[key] = NewString(value)
 }
 
-// SetAttributeLiteral defines a attribute value as literal string
+// SetAttributeLiteral sets the literal value for the attribute Key
 func (dotObjectData *Attributes) SetAttributeLiteral(key Key, value string) {
 	dotObjectData.attributes[key] = NewLiteral(value)
 }
 
-// SetAttributeHTML defines a attribute value as HTML string
+// SetAttributeHTML sets the HTML value for the attribute Key
 func (dotObjectData *Attributes) SetAttributeHTML(key Key, value string) {
 	dotObjectData.attributes[key] = NewHTML(value)
 }
 
-// SetAttributes sets multiple attribute values
+// SetAttributes sets the value for multiple attributes
 func (dotObjectData *Attributes) SetAttributes(attributeMap Map) {
 	for k, v := range attributeMap {
 		dotObjectData.attributes[k] = v
 	}
 }
 
-// SetAttributesString sets multiple attribute values as plain string
+// SetAttributesString sets the string value for multiple attributes
 func (dotObjectData *Attributes) SetAttributesString(attributeMap MapString) {
 	for k, v := range attributeMap {
 		dotObjectData.attributes[k] = NewString(v)
 	}
 }
 
-// SetAttributesLiteral sets multiple attribute values as literal string
+// SetAttributesLiteral sets the literal value for multiple attributes
 func (dotObjectData *Attributes) SetAttributesLiteral(attributeMap MapString) {
 	for k, v := range attributeMap {
 		dotObjectData.attributes[k] = NewLiteral(v)
 	}
 }
 
-// SetAttributesHTML sets multiple attribute values as HTML string
+// SetAttributesHTML sets the HTML value for multiple attributes
 func (dotObjectData *Attributes) SetAttributesHTML(attributeMap MapString) {
 	for k, v := range attributeMap {
 		dotObjectData.attributes[k] = NewHTML(v)
 	}
 }
 
-// DeleteAttribute removes an attribute, if it exists
+// DeleteAttribute unset the attribute Key
 func (dotObjectData *Attributes) DeleteAttribute(key Key) {
 	delete(dotObjectData.attributes, key)
 }

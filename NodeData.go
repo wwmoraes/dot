@@ -19,6 +19,7 @@ func (thisNode *node) String() string {
 	return thisNode.id
 }
 
+// Graph return this node's graph
 func (thisNode *node) Graph() Graph {
 	return thisNode.graph
 }
@@ -35,17 +36,17 @@ func (thisNode *node) Box() Node {
 	return thisNode
 }
 
-// Edge creates a Edge and returns it for chaining
+// Edge creates an Edge to a node
 func (thisNode *node) Edge(toNode Node) Edge {
 	return thisNode.graph.EdgeWithAttributes(thisNode, toNode, nil)
 }
 
-// EdgeWithAttributes sets the given attributes and returns the Edge for chaining
+// EdgeWithAttributes creates an Edge with the provided attributes to the a node
 func (thisNode *node) EdgeWithAttributes(toNode Node, attributes attributes.Reader) Edge {
 	return thisNode.graph.EdgeWithAttributes(thisNode, toNode, attributes)
 }
 
-// EdgesTo returns all existing edges between this Node and the argument Node.
+// EdgesTo returns all edges between this Node and the target Node
 func (thisNode *node) EdgesTo(toNode Node) []Edge {
 	return thisNode.graph.FindEdges(thisNode, toNode)
 }
