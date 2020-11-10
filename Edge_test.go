@@ -5,7 +5,26 @@ import (
 	"testing"
 )
 
-func TestEdgeStyleHelpers(t *testing.T) {
+func TestEdge_String(t *testing.T) {
+	// TODO String needs to be implemented, and will break this test when done so
+	graph := NewGraph(nil)
+	gotEdge := graph.Node("n1").Edge(graph.Node("n2"))
+
+	if got, want := gotEdge.String(), gotEdge.(*edge).internalID; got != want {
+		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
+	}
+}
+
+func TestEdge_ObjectInterface(t *testing.T) {
+	graph := NewGraph(nil)
+	graph.Node("n1").Edge(graph.Node("n2"))
+
+	if got, want := flatten(graph.String()), `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2";}`; got != want {
+		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
+	}
+}
+
+func TestEdge_StyleHelpers(t *testing.T) {
 
 	type test struct {
 		input string

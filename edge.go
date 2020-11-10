@@ -20,7 +20,7 @@ type Edge interface {
 	EdgesTo(to Node) []Edge
 }
 
-// StyledEdge is implemented by dot-compatible edge values implemented with
+// StyledEdge is implemented by dot-compatible edge values which have
 // convenience styling methods
 type StyledEdge interface {
 	Edge

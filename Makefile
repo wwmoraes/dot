@@ -1,5 +1,10 @@
 SOURCES := $(wildcard *.go) $(wildcard */*.go)
 
+.DEFAULT_GOAL := all
+
+.PHONY: all
+all: build test test-behavior coverage lint
+
 .PHONY: lint
 lint:
 	golangci-lint run
@@ -15,19 +20,19 @@ clean:
 
 .PHONY: test
 test: $(SOURCES)
-	go test -race -v ./...
+	go test -race ./...
 
 .PHONY: coverage
 coverage: coverage.html
 
 coverage.out: $(SOURCES)
-	go test -cover -coverprofile=$@ -v ./...
+	go test -cover -coverprofile=$@ ./...
 
 .PHONY: test-behavior
 test-behavior: coverage-behavior.html
 
 coverage-behavior.out: $(SOURCES)
-	go test -race -v -run ".*Behavior" -cover -coverprofile=$@ ./...
+	go test -race -run ".*Behavior" -cover -coverprofile=$@ ./...
 
 %.html: %.out
 	go tool cover -html=$< -o $@

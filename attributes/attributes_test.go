@@ -62,6 +62,37 @@ func TestAttributes_NewAttributes(t *testing.T) {
 	})
 }
 
+func TestAttributes_NewAttributesFrom(t *testing.T) {
+	t.Run("empty initialization", func(t *testing.T) {
+		attributes := NewAttributesFrom(nil)
+
+		got := attributes.GetAttributes()
+
+		want := Map{}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	})
+	t.Run("copy attributes given on initialization", func(t *testing.T) {
+		sourceAttributes := NewAttributes()
+		sourceAttributes.SetAttributeString(KeyLabel, "test-label")
+		attributes := NewAttributesFrom(sourceAttributes)
+
+		var gotStringBuilder strings.Builder
+		attributes.Write(&gotStringBuilder, false)
+		got := gotStringBuilder.String()
+
+		var wantStringBuilder strings.Builder
+		sourceAttributes.Write(&wantStringBuilder, false)
+		want := wantStringBuilder.String()
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	})
+}
+
 func TestAttributes_GetAttributes(t *testing.T) {
 	t.Run("does not mutate using GetAttributes copy map", func(t *testing.T) {
 		attributes := NewAttributes()
@@ -106,6 +137,17 @@ func TestAttributes_GetAttributes(t *testing.T) {
 		got := attributes.GetAttributeString(KeyLabel)
 
 		want := "<b>html label</b>"
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	})
+	t.Run("get single unset attribute as string", func(t *testing.T) {
+		attributes := NewAttributes()
+
+		got := attributes.GetAttributeString(KeyLabel)
+
+		want := ""
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)

@@ -11,6 +11,376 @@ import (
 	"github.com/emicklei/dot/attributes"
 )
 
+// TestGraphBehavior tests all components with real use cases
+func TestGraphBehavior(t *testing.T) {
+	t.Run("default graph", func(t *testing.T) {
+		graph := NewGraph(nil)
+
+		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
+
+		expected := `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2"[label="uses"];}`
+
+		if got, want := flatten(graph.String()), flatten(expected); got != want {
+			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
+		}
+	})
+	t.Run("directed graph", func(t *testing.T) {
+		graph := NewGraph(&GraphOptions{
+			Type: attributes.GraphTypeDirected,
+		})
+
+		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
+
+		expected := `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2"[label="uses"];}`
+
+		if got, want := flatten(graph.String()), flatten(expected); got != want {
+			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
+		}
+	})
+	t.Run("undirected graph", func(t *testing.T) {
+		graph := NewGraph(&GraphOptions{
+			Type: attributes.GraphTypeUndirected,
+		})
+
+		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
+
+		expected := `graph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"--"n2"[label="uses"];}`
+
+		if got, want := flatten(graph.String()), flatten(expected); got != want {
+			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
+		}
+	})
+	t.Run("subgraphs", func(t *testing.T) {
+		graph := NewGraph(nil)
+		subGraph := graph.Subgraph(nil)
+		subSubGraph := subGraph.Subgraph(nil)
+
+		n1 := graph.Node("n1")
+		n1.Edge(subGraph.Node("n2")).Edge(subSubGraph.Node("n3")).Edge(n1)
+
+		expected := `digraph "" {subgraph "" {subgraph "" {label="";"n3"[label="n3"];}label="";"n2"[label="n2"];}"n1"[label="n1"];"n1"->"n2";"n2"->"n3";"n3"->"n1";}`
+
+		if got, want := flatten(graph.String()), flatten(expected); got != want {
+			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
+		}
+	})
+}
+
+// TestNewGraph tests NewGraph factory function with static outcome
+func TestNewGraph(t *testing.T) {
+	type args struct {
+		options *GraphOptions
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "empty graph",
+			args: args{
+				options: nil,
+			},
+			want: `digraph "" {}`,
+		},
+		{
+			name: "empty named graph",
+			args: args{
+				options: &GraphOptions{
+					ID: "test",
+				},
+			},
+			want: `digraph "test" {}`,
+		},
+		{
+			name: "empty directed graph",
+			args: args{
+				options: &GraphOptions{
+					Type: attributes.GraphTypeDirected,
+				},
+			},
+			want: `digraph "" {}`,
+		},
+		{
+			name: "empty named directed graph",
+			args: args{
+				options: &GraphOptions{
+					ID:   "test",
+					Type: attributes.GraphTypeDirected,
+				},
+			},
+			want: `digraph "test" {}`,
+		},
+		{
+			name: "empty undirected graph",
+			args: args{
+				options: &GraphOptions{
+					Type: attributes.GraphTypeUndirected,
+				},
+			},
+			want: `graph "" {}`,
+		},
+		{
+			name: "empty named undirected graph",
+			args: args{
+				options: &GraphOptions{
+					ID:   "test",
+					Type: attributes.GraphTypeUndirected,
+				},
+			},
+			want: `graph "test" {}`,
+		},
+		{
+			name: "empty cluster graph",
+			args: args{
+				options: &GraphOptions{
+					Cluster: true,
+				},
+			},
+			want: `digraph "cluster_" {}`,
+		},
+		{
+			name: "empty named cluster graph",
+			args: args{
+				options: &GraphOptions{
+					ID:      "test",
+					Cluster: true,
+				},
+			},
+			want: `digraph "cluster_test" {}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := flatten(NewGraph(tt.args.options).String()); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewGraph() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGraph_Initializers(t *testing.T) {
+	t.Run("graph with node initializer", func(t *testing.T) {
+		graph := NewGraph(&GraphOptions{
+			NodeInitializer: func(nodeInstance Node) {
+				nodeInstance.SetAttributeString(attributes.KeyClass, "test-class")
+			},
+		})
+
+		graph.Node("n1")
+
+		if got, want := flatten(graph.String()), `digraph "" {"n1"[class="test-class",label="n1"];}`; got != want {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
+		}
+	})
+	t.Run("graph with edge initializer", func(t *testing.T) {
+		graph := NewGraph(&GraphOptions{
+			EdgeInitializer: func(edgeInstance StyledEdge) {
+				edgeInstance.SetAttributeString(attributes.KeyClass, "test-class")
+			},
+		})
+
+		graph.Node("n1").Edge(graph.Node("n2"))
+
+		if got, want := flatten(graph.String()), `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2"[class="test-class"];}`; got != want {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
+		}
+	})
+}
+
+func TestGraph_FindSubgraph(t *testing.T) {
+	t.Run("find existing subgraph from another subgraph", func(t *testing.T) {
+		graph := NewGraph(&GraphOptions{
+			ID: "root-graph",
+		})
+		sub1 := graph.Subgraph(&GraphOptions{ID: "subgraph-one"})
+		sub2 := graph.Subgraph(&GraphOptions{ID: "subgraph-two"})
+
+		got, found := sub1.FindSubgraph(sub2.ID())
+
+		if !found {
+			t.Error("subgraph not found as expected")
+		}
+
+		if want := sub2; !reflect.DeepEqual(got, want) {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	})
+	t.Run("find no un-existant subgraph from another subgraph", func(t *testing.T) {
+		graph := NewGraph(&GraphOptions{
+			ID: "root-graph",
+		})
+		sub1 := graph.Subgraph(&GraphOptions{ID: "subgraph-one"})
+
+		got, found := sub1.FindSubgraph("subgraph-two")
+
+		if found {
+			t.Error("subgraph was found, it wasn't expected")
+		}
+
+		if got != nil {
+			t.Errorf("got [%v] want [%v]", got, nil)
+		}
+	})
+}
+
+// TestNewGraph_generatedID tests NewGraph factory option to generate unique IDs
+func TestNewGraph_generatedID(t *testing.T) {
+	tests := []struct {
+		name    string
+		options *GraphOptions
+		want    func(graph Graph) string
+	}{
+		{
+			name: "empty randomly-named graph",
+			options: &GraphOptions{
+				ID: "-",
+			},
+			want: func(graph Graph) string {
+				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
+			},
+		},
+		{
+			name: "empty randomly-named directed graph",
+			options: &GraphOptions{
+				ID:   "-",
+				Type: attributes.GraphTypeDirected,
+			},
+			want: func(graph Graph) string {
+				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
+			},
+		},
+		{
+			name: "empty randomly-named undirected graph",
+			options: &GraphOptions{
+				ID:   "-",
+				Type: attributes.GraphTypeUndirected,
+			},
+			want: func(graph Graph) string {
+				return fmt.Sprintf(`graph "%s" {}`, graph.ID())
+			},
+		},
+		{
+			name: "empty randomly-named cluster directed graph",
+			options: &GraphOptions{
+				ID:      "-",
+				Cluster: true,
+			},
+			want: func(graph Graph) string {
+				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.options.ID = "-"
+
+			graph := NewGraph(tt.options)
+
+			if graph.ID() == "" {
+				t.Error("got empty ID instead of a random one")
+			}
+
+			if graph.ID() == "-" {
+				t.Error("got dash ID instead of a random one")
+			}
+
+			want := tt.want(graph)
+
+			if got := flatten(graph.String()); !reflect.DeepEqual(got, want) {
+				t.Errorf("NewGraph() = %v, want %v", got, want)
+			}
+		})
+	}
+}
+
+// TestNewGraph_invalid tests NewGraph factory invalid options
+func TestNewGraph_invalid(t *testing.T) {
+	tests := []struct {
+		name    string
+		options *GraphOptions
+	}{
+		{
+			name: "subgraph without parent",
+			options: &GraphOptions{
+				Type: attributes.GraphTypeSub,
+			},
+		},
+		{
+			name: "non-subgraph with parent",
+			options: &GraphOptions{
+				parent: NewGraph(nil),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer func() {
+				if err := recover(); err == nil {
+					t.Errorf("it should panic")
+				}
+			}()
+
+			got := NewGraph(tt.options)
+
+			if got != nil {
+				t.Errorf("got [%v] want [%v]", got, nil)
+			}
+		})
+	}
+}
+
+// TestGraph_Subgraph tests Graph.Subgraph factory
+func TestGraph_Subgraph(t *testing.T) {
+	tests := []struct {
+		name    string
+		options *GraphOptions
+		want    string
+	}{
+		{
+			name:    "empty anonymous subgraph",
+			options: nil,
+			want:    `digraph "" {subgraph "" {label="";}}`,
+		},
+		{
+			name: "empty named subgraph",
+			options: &GraphOptions{
+				ID: "test-sub",
+			},
+			want: `digraph "" {subgraph "test-sub" {label="test-sub";}}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			graph := NewGraph(nil)
+			graph.Subgraph(tt.options)
+			if got := flatten(graph.String()); got != tt.want {
+				t.Errorf("got [%v] want [%v]", got, tt.want)
+			}
+		})
+	}
+
+	t.Run("empty randomly-named subgraph", func(t *testing.T) {
+		graph := NewGraph(nil)
+		subGraph := graph.Subgraph(&GraphOptions{
+			ID: "-",
+		})
+
+		if subGraph.ID() == "" {
+			t.Error("got empty ID instead of a random one")
+		}
+
+		if subGraph.ID() == "-" {
+			t.Error("got dash ID instead of a random one")
+		}
+
+		if got, want := flatten(graph.String()), fmt.Sprintf(`digraph "" {subgraph "%[1]s" {label="%[1]s";}}`, subGraph.ID()); got != want {
+			t.Errorf("got [%v] want [%v]", got, want)
+		}
+	})
+}
+
 func TestEmpty(t *testing.T) {
 	di := NewGraph(nil)
 	if got, want := flatten(di.String()), `digraph "" {}`; got != want {
