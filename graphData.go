@@ -30,7 +30,7 @@ type graphData struct {
 //
 // if id is "-", a randonly generated ID will be set
 func NewGraph(options *GraphOptions) Graph {
-	generator := newUIDGenerator(24)
+	generator := newRandTimeIDGenerator(24)
 	if options == nil {
 		options = &GraphOptions{}
 	}
@@ -54,7 +54,7 @@ func NewGraph(options *GraphOptions) Graph {
 	}
 
 	if options.generator == nil {
-		options.generator = newUIDGenerator(24)
+		options.generator = newRandTimeIDGenerator(24)
 	}
 
 	newGraph := &graphData{
