@@ -12,7 +12,7 @@ type GraphOptions struct {
 	parent Graph
 	// TODO allow providing a custom generator
 	generator IDGenerator
-	// ID returns the immutable id
+	// ID immutable id
 	ID string
 	// Type the graph type (directed, undirected or sub)
 	Type attributes.GraphType

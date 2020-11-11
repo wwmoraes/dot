@@ -1,6 +1,6 @@
 package attributes
 
-// Identity is implemented by values that can have an identifier
+// Identity is implemented by values that have an immutable identifier
 type Identity interface {
 	// ID returns the immutable id
 	ID() string
