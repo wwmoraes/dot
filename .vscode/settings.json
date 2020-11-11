@@ -1,10 +1,10 @@
 {
   "go.coverageDecorator": {
     "type": "highlight",
-    "coveredHighlightColor": "rgba(64,128,128,0.5)",
-    "uncoveredHighlightColor": "rgba(128,64,64,0.25)",
-    "coveredBorderColor": "rgba(64,128,128,0.5)",
-    "uncoveredBorderColor": "rgba(128,64,64,0.25)",
+    "coveredHighlightColor": "rgba(64,128,128,0.15)",
+    "uncoveredHighlightColor": "rgba(128,64,64,0.15)",
+    "coveredBorderColor": "rgba(64,128,128,0.3)",
+    "uncoveredBorderColor": "rgba(128,64,64,0.3)",
     "coveredGutterStyle": "blockblue",
     "uncoveredGutterStyle": "slashyellow"
   },
