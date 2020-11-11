@@ -44,14 +44,11 @@ func main() {
 	log.Println("creating edges...")
 	outsideGraph.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outsideGraph)
 
-	log.Println("opening sample.dot file for write...")
+	log.Println("trying to open sample.dot file for write...")
 	fd, err := os.Create("sample.dot")
-	if err != nil {
-		log.Fatalln(err)
+	if err == nil {
+		log.Println("writing graph to sample.dot...")
+		rootGraph.Write(fd)
+		log.Println("done!")
 	}
-
-	log.Println("writing graph to sample.dot...")
-	rootGraph.Write(fd)
-
-	log.Println("done!")
 }
