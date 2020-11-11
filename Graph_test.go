@@ -636,7 +636,7 @@ func TestCluster(t *testing.T) {
 	insideThree := clusterB.Node("three")
 	insideFour := clusterB.Node("four")
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
-	if err := ioutil.WriteFile("doc/cluster.dot", []byte(di.String()), os.ModePerm); err != nil {
+	if err := ioutil.WriteFile("sample/cluster.dot", []byte(di.String()), os.ModePerm); err != nil {
 		t.Errorf("unable to write dot file: %w", err)
 	}
 }
