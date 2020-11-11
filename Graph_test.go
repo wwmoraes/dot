@@ -57,8 +57,9 @@ func TestGraphBehavior(t *testing.T) {
 
 		n1 := graph.Node("n1")
 		n1.Edge(subGraph.Node("n2")).Edge(subSubGraph.Node("n3")).Edge(n1)
+		subSubGraph.Node("n4").Edge(subSubGraph.Node("n3"))
 
-		expected := `digraph "" {subgraph "" {subgraph "" {"n3";}"n2";}"n1";"n1"->"n2";"n2"->"n3";"n3"->"n1";}`
+		expected := `digraph "" {subgraph "" {subgraph "" {"n3";"n4";"n4"->"n3";}"n2";}"n1";"n1"->"n2";"n2"->"n3";"n3"->"n1";}`
 
 		if got, want := flatten(graph.String()), flatten(expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)

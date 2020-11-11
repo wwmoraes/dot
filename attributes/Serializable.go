@@ -9,5 +9,5 @@ import (
 // written directly into an IO device
 type Serializable interface {
 	fmt.Stringer
-	Write(device io.Writer, mustBracket bool)
+	Write(device io.Writer)
 }

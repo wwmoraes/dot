@@ -1,6 +1,9 @@
 package dot
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/wwmoraes/dot/attributes"
 )
 
@@ -62,4 +65,16 @@ func (thisEdge *edgeData) EdgeWithAttributes(to Node, attributes attributes.Read
 // EdgesTo returns all existing edges between the "to" Node of this Edge and the argument Node.
 func (thisEdge *edgeData) EdgesTo(to Node) []Edge {
 	return thisEdge.graph.FindEdges(thisEdge.to, to)
+}
+
+func (thisEdge *edgeData) Write(device io.Writer) {
+	denoteEdge := attributes.EdgeTypeUndirected
+
+	if thisEdge.graph.Root().Type() == attributes.GraphTypeDirected {
+		denoteEdge = attributes.EdgeTypeDirected
+	}
+
+	fmt.Fprintf(device, `"%s"%s"%s"`, thisEdge.From().ID(), denoteEdge, thisEdge.To().ID())
+	thisEdge.Attributes.WriteAttributes(device, true)
+	fmt.Fprint(device, ";")
 }

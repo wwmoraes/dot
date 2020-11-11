@@ -67,8 +67,8 @@ func (dotObjectData *Attributes) GetAttributes() Map {
 	return newMap
 }
 
-// Write transforms attributes into dot notation and writes on the given writer
-func (dotObjectData *Attributes) Write(device io.Writer, mustBracket bool) {
+// WriteAttributes transforms attributes into dot notation and writes on the given writer
+func (dotObjectData *Attributes) WriteAttributes(device io.Writer, mustBracket bool) {
 	if len(dotObjectData.attributes) == 0 {
 		return
 	}

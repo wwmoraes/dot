@@ -80,6 +80,20 @@ func (thisGraph *graphData) ID() string {
 	return thisGraph.id
 }
 
+// Root returns the root graph (i.e. the topmost, without a parent graph)
+func (thisGraph *graphData) Root() Graph {
+	if thisGraph.parent == nil {
+		return thisGraph
+	}
+
+	return thisGraph.parent.Root()
+}
+
+// Type returns the graph type: directed, undirected or sub
+func (thisGraph *graphData) Type() attributes.GraphType {
+	return thisGraph.graphType
+}
+
 func (thisGraph *graphData) Subgraph(options *GraphOptions) Graph {
 	if options == nil {
 		options = &GraphOptions{}
@@ -212,27 +226,19 @@ func (thisGraph *graphData) IndentedWrite(w *IndentWriter) {
 			each.IndentedWrite(w)
 		}
 		// graph attributes
-		thisGraph.Attributes.Write(w, false)
+		thisGraph.Attributes.WriteAttributes(w, false)
 		w.NewLine()
 		// graph nodes
 		for _, key := range thisGraph.sortedNodesKeys() {
 			each := thisGraph.nodes[key]
-			fmt.Fprintf(w, `"%s"`, each.ID())
-			each.Write(w, true)
-			fmt.Fprintf(w, ";")
+			each.Write(w)
 			w.NewLine()
 		}
 		// graph edges
-		denoteEdge := "->"
-		if thisGraph.graphType == "graph" {
-			denoteEdge = "--"
-		}
 		for _, each := range thisGraph.sortedEdgesFromKeys() {
 			all := thisGraph.edgesFrom[each]
 			for _, each := range all {
-				fmt.Fprintf(w, `"%s"%s"%s"`, each.From().ID(), denoteEdge, each.To().ID())
-				each.Write(w, true)
-				fmt.Fprint(w, ";")
+				each.Write(w)
 				w.NewLine()
 			}
 		}

@@ -2,6 +2,7 @@ package attributes
 
 import (
 	"fmt"
+	"io"
 )
 
 // Reader is implemented by attribute-based values that allows reading them
@@ -12,4 +13,6 @@ type Reader interface {
 	GetAttributeString(key Key) string
 	// GetAttributes returns a copy of all attributes
 	GetAttributes() Map
+
+	WriteAttributes(device io.Writer, mustBracket bool)
 }

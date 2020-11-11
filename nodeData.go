@@ -1,6 +1,11 @@
 package dot
 
-import "github.com/wwmoraes/dot/attributes"
+import (
+	"fmt"
+	"io"
+
+	"github.com/wwmoraes/dot/attributes"
+)
 
 // nodeData represents a dot nodeData.
 type nodeData struct {
@@ -32,4 +37,10 @@ func (thisNode *nodeData) EdgeWithAttributes(toNode Node, attributes attributes.
 // EdgesTo returns all edges between this Node and the target Node
 func (thisNode *nodeData) EdgesTo(toNode Node) []Edge {
 	return thisNode.graph.FindEdges(thisNode, toNode)
+}
+
+func (thisNode *nodeData) Write(device io.Writer) {
+	fmt.Fprintf(device, `"%s"`, thisNode.ID())
+	thisNode.WriteAttributes(device, true)
+	fmt.Fprintf(device, ";")
 }
