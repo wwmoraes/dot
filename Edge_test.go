@@ -19,7 +19,7 @@ func TestEdge_ObjectInterface(t *testing.T) {
 	graph := NewGraph(nil)
 	graph.Node("n1").Edge(graph.Node("n2"))
 
-	if got, want := flatten(graph.String()), `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2";}`; got != want {
+	if got, want := flatten(graph.String()), `digraph "" {"n1";"n2";"n1"->"n2";}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -32,10 +32,10 @@ func TestEdge_StyleHelpers(t *testing.T) {
 	}
 
 	tests := []test{
-		{input: "solid", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="solid"];}`},
-		{input: "bold", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="bold"];}`},
-		{input: "dashed", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="dashed"];}`},
-		{input: "dotted", want: `digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s"[style="dotted"];}`},
+		{input: "solid", want: `digraph "" {"%[1]s";"%[2]s";"%[1]s"->"%[2]s"[style="solid"];}`},
+		{input: "bold", want: `digraph "" {"%[1]s";"%[2]s";"%[1]s"->"%[2]s"[style="bold"];}`},
+		{input: "dashed", want: `digraph "" {"%[1]s";"%[2]s";"%[1]s"->"%[2]s"[style="dashed"];}`},
+		{input: "dotted", want: `digraph "" {"%[1]s";"%[2]s";"%[1]s"->"%[2]s"[style="dotted"];}`},
 	}
 
 	for _, tc := range tests {

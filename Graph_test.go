@@ -18,7 +18,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
 
-		expected := `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2"[label="uses"];}`
+		expected := `digraph "" {"n1";"n2";"n1"->"n2"[label="uses"];}`
 
 		if got, want := flatten(graph.String()), flatten(expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
@@ -31,7 +31,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
 
-		expected := `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2"[label="uses"];}`
+		expected := `digraph "" {"n1";"n2";"n1"->"n2"[label="uses"];}`
 
 		if got, want := flatten(graph.String()), flatten(expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
@@ -44,7 +44,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
 
-		expected := `graph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"--"n2"[label="uses"];}`
+		expected := `graph "" {"n1";"n2";"n1"--"n2"[label="uses"];}`
 
 		if got, want := flatten(graph.String()), flatten(expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
@@ -58,7 +58,7 @@ func TestGraphBehavior(t *testing.T) {
 		n1 := graph.Node("n1")
 		n1.Edge(subGraph.Node("n2")).Edge(subSubGraph.Node("n3")).Edge(n1)
 
-		expected := `digraph "" {subgraph "" {subgraph "" {label="";"n3"[label="n3"];}label="";"n2"[label="n2"];}"n1"[label="n1"];"n1"->"n2";"n2"->"n3";"n3"->"n1";}`
+		expected := `digraph "" {subgraph "" {subgraph "" {"n3";}"n2";}"n1";"n1"->"n2";"n2"->"n3";"n3"->"n1";}`
 
 		if got, want := flatten(graph.String()), flatten(expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
@@ -169,7 +169,7 @@ func TestGraph_Initializers(t *testing.T) {
 
 		graph.Node("n1")
 
-		if got, want := flatten(graph.String()), `digraph "" {"n1"[class="test-class",label="n1"];}`; got != want {
+		if got, want := flatten(graph.String()), `digraph "" {"n1"[class="test-class"];}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
@@ -182,7 +182,7 @@ func TestGraph_Initializers(t *testing.T) {
 
 		graph.Node("n1").Edge(graph.Node("n2"))
 
-		if got, want := flatten(graph.String()), `digraph "" {"n1"[label="n1"];"n2"[label="n2"];"n1"->"n2"[class="test-class"];}`; got != want {
+		if got, want := flatten(graph.String()), `digraph "" {"n1";"n2";"n1"->"n2"[class="test-class"];}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
@@ -341,14 +341,14 @@ func TestGraph_Subgraph(t *testing.T) {
 		{
 			name:    "empty anonymous subgraph",
 			options: nil,
-			want:    `digraph "" {subgraph "" {label="";}}`,
+			want:    `digraph "" {subgraph "" {}}`,
 		},
 		{
 			name: "empty named subgraph",
 			options: &GraphOptions{
 				ID: "test-sub",
 			},
-			want: `digraph "" {subgraph "test-sub" {label="test-sub";}}`,
+			want: `digraph "" {subgraph "test-sub" {}}`,
 		},
 	}
 	for _, tt := range tests {
@@ -375,7 +375,7 @@ func TestGraph_Subgraph(t *testing.T) {
 			t.Error("got dash ID instead of a random one")
 		}
 
-		if got, want := flatten(graph.String()), fmt.Sprintf(`digraph "" {subgraph "%[1]s" {label="%[1]s";}}`, subGraph.ID()); got != want {
+		if got, want := flatten(graph.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {}}`, subGraph.ID()); got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	})
@@ -455,7 +455,7 @@ func TestTwoConnectedNodes(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"->"%[2]s";}`, n1.ID(), n2.ID()); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {"%[1]s";"%[2]s";"%[1]s"->"%[2]s";}`, n1.ID(), n2.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -498,7 +498,7 @@ func TestUndirectedTwoConnectedNodes(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`graph "" {"%[1]s"[label="A"];"%[2]s"[label="B"];"%[1]s"--"%[2]s";}`, n1.ID(), n2.ID()); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`graph "" {"%[1]s";"%[2]s";"%[1]s"--"%[2]s";}`, n1.ID(), n2.ID()); got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -520,7 +520,7 @@ func TestSubgraph(t *testing.T) {
 		ID: "test-id",
 	})
 	sub.SetAttributeString(attributes.KeyStyle, "filled")
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {label="test-id";style="filled";}}`, sub.ID()); got != want {
+	if got, want := flatten(di.String()), fmt.Sprintf(`digraph "" {subgraph "%s" {style="filled";}}`, sub.ID()); got != want {
 		t.Errorf("got\n[%v] want\n[%v]", got, want)
 	}
 	sub.SetAttributeString(attributes.KeyLabel, "new-label")
@@ -598,7 +598,7 @@ func TestEdgeLabel(t *testing.T) {
 	attr := attributes.NewAttributes()
 	attr.SetAttributeString(attributes.KeyLabel, "what")
 	n1.EdgeWithAttributes(n2, attr)
-	if got, want := flatten(di.String()), `digraph "" {"e1"[label="e1"];"e2"[label="e2"];"e1"->"e2"[label="what"];}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {"e1";"e2";"e1"->"e2"[label="what"];}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }
@@ -611,7 +611,7 @@ func TestSameRank(t *testing.T) {
 	foo1.Edge(foo2)
 	foo1.Edge(bar)
 	di.AddToSameRank("top-row", foo1, foo2)
-	if got, want := flatten(di.String()), `digraph "" {"bar"[label="bar"];"foo1"[label="foo1"];"foo2"[label="foo2"];"foo1"->"foo2";"foo1"->"bar";{rank=same; "foo1";"foo2";};}`; got != want {
+	if got, want := flatten(di.String()), `digraph "" {"bar";"foo1";"foo2";"foo1"->"foo2";"foo1"->"bar";{rank=same; "foo1";"foo2";};}`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

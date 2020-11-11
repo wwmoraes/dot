@@ -1,18 +1,18 @@
 digraph "" {
 	subgraph "cluster_Cluster A" {
 		label="Cluster A";
-		"one"[label="one"];
-		"two"[label="two"];
+		"one";
+		"two";
 		
 	}
 	subgraph "cluster_Cluster B" {
 		label="Cluster B";
-		"four"[label="four"];
-		"three"[label="three"];
+		"four";
+		"three";
 		
 	}
 	
-	"Outside"[label="Outside"];
+	"Outside";
 	"Outside"->"four";
 	"four"->"one";
 	"one"->"two";

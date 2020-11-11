@@ -94,7 +94,6 @@ func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
 	options.generator = thisGraph.generator
 
 	sub := NewGraph(options)
-	sub.SetAttributeString(attributes.KeyLabel, sub.ID())
 
 	// save on parent with the generated ID
 	thisGraph.subgraphs[sub.ID()] = sub
@@ -139,7 +138,6 @@ func (thisGraph *graph) Node(id string) Node {
 		Attributes: attributes.NewAttributes(),
 		graph:      thisGraph,
 	}
-	n.SetAttribute(attributes.KeyLabel, attributes.NewString(id))
 	if thisGraph.nodeInitializer != nil {
 		thisGraph.nodeInitializer(n)
 	}
