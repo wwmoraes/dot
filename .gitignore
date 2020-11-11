@@ -2,6 +2,8 @@
 /*.png
 .idea
 
+**/sample.dot
+
 # SonarQube
 .scannerwork/
 
