@@ -3,6 +3,7 @@
 .idea
 
 **/sample.dot
+site/
 
 # SonarQube
 .scannerwork/

@@ -7,6 +7,7 @@ a lightweight, pure golang graphviz-compatible dot language implementation
 <div align="center">
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/wwmoraes/dot)
 [![GitHub Issues](https://img.shields.io/github/issues/wwmoraes/dot.svg)](https://github.com/wwmoraes/dot/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/wwmoraes/dot.svg)](https://github.com/wwmoraes/dot/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)

@@ -1,0 +1,32 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - .github/workflows/docs.yml
+    - mkdocs.yml
+    - 'docs/**'
+  pull_request:
+    branches:
+    - master
+    paths:
+    - .github/workflows/docs.yml
+    - mkdocs.yml
+    - 'docs/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: install mkdocs-material
+      run: pip install mkdocs-material
+    - name: deploy github pages
+      run: mkdocs gh-deploy --force

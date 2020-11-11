@@ -1,0 +1,20 @@
+site_name: Dot package
+repo_url: https://github.com/wwmoraes/dot
+repo_name: wwmoraes/dot
+theme:
+  name: material
+  icon:
+    logo: fontawesome/solid/project-diagram
+    repo: fontawesome/brands/github
+  palette:
+    scheme: slate
+    primary: blue
+    accent: cyan
+  features:
+  - navigation.instant
+  - navigation.tabs
+markdown_extensions:
+- admonition
+- pymdownx.tabbed
+- pymdownx.superfences
+- pymdownx.snippets

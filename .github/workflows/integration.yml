@@ -6,9 +6,21 @@ on:
     - master
     tags:
     - '*'
+    paths:
+    - .github/workflows/integration.yml
+    - .golangci.yaml
+    - go.mod
+    - go.sum
+    - '**.go'
   pull_request:
     branches:
     - master
+    paths:
+    - .github/workflows/integration.yml
+    - .golangci.yaml
+    - go.mod
+    - go.sum
+    - '**.go'
 
 jobs:
   build:
