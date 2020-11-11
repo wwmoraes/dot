@@ -1,40 +1,40 @@
 package attributes
 
 // PrimitiveShape edge arrow types
-type PrimitiveShape *String
+type PrimitiveShape string
 
-var (
+const (
 	// ShapeBox box arrow shape
-	ShapeBox PrimitiveShape = &String{"box"}
+	ShapeBox PrimitiveShape = "box"
 	// ShapeCrow crow arrow shape
-	ShapeCrow PrimitiveShape = &String{"crow"}
+	ShapeCrow PrimitiveShape = "crow"
 	// ShapeCurve curve arrow shape
-	ShapeCurve PrimitiveShape = &String{"curve"}
+	ShapeCurve PrimitiveShape = "curve"
 	// ShapeICurve icurve arrow shape
-	ShapeICurve PrimitiveShape = &String{"icurve"}
+	ShapeICurve PrimitiveShape = "icurve"
 	// ShapeDiamond diamond arrow shape
-	ShapeDiamond PrimitiveShape = &String{"diamond"}
+	ShapeDiamond PrimitiveShape = "diamond"
 	// ShapeDot dot arrow shape
-	ShapeDot PrimitiveShape = &String{"dot"}
+	ShapeDot PrimitiveShape = "dot"
 	// ShapeInv inv arrow shape
-	ShapeInv PrimitiveShape = &String{"inv"}
+	ShapeInv PrimitiveShape = "inv"
 	// ShapeNone none arrow shape
-	ShapeNone PrimitiveShape = &String{"none"}
+	ShapeNone PrimitiveShape = "none"
 	// ShapeNormal normal arrow shape
-	ShapeNormal PrimitiveShape = &String{"normal"}
+	ShapeNormal PrimitiveShape = "normal"
 	// ShapeTee tee arrow shape
-	ShapeTee PrimitiveShape = &String{"tee"}
+	ShapeTee PrimitiveShape = "tee"
 	// ShapeVee vee arrow shape
-	ShapeVee PrimitiveShape = &String{"vee"}
+	ShapeVee PrimitiveShape = "vee"
 
 	// ShapeEDiamond backwards-compatible ediamond shape
-	ShapeEDiamond PrimitiveShape = &String{"ediamond"}
+	ShapeEDiamond PrimitiveShape = "ediamond"
 	// ShapeOpen backwards-compatible ediamond open
-	ShapeOpen PrimitiveShape = &String{"open"}
+	ShapeOpen PrimitiveShape = "open"
 	// ShapeHalfOpen backwards-compatible ediamond halfopen
-	ShapeHalfOpen PrimitiveShape = &String{"halfopen"}
+	ShapeHalfOpen PrimitiveShape = "halfopen"
 	// ShapeEmpty backwards-compatible ediamond empty
-	ShapeEmpty PrimitiveShape = &String{"empty"}
+	ShapeEmpty PrimitiveShape = "empty"
 	// ShapeInvEmpty backwards-compatible ediamond invempty
-	ShapeInvEmpty PrimitiveShape = &String{"invempty"}
+	ShapeInvEmpty PrimitiveShape = "invempty"
 )

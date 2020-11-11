@@ -3,7 +3,7 @@ package attributes
 // GraphType graphviz graph types
 type GraphType string
 
-var (
+const (
 	// GraphTypeUndirected node edges will have no direction, i.e. a layout engine
 	// can freely organize the graph and draw glyphless edges between the nodes
 	GraphTypeUndirected GraphType = "graph"
