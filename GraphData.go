@@ -8,8 +8,9 @@ import (
 	"github.com/wwmoraes/dot/attributes"
 )
 
-// graph represents a dot graph with nodes and edges.
-type graph struct {
+// graphData is a dot-compatible graph that stores child components, and
+// auto-generates IDs internally
+type graphData struct {
 	*attributes.Attributes
 	id        string
 	graphType attributes.GraphType
@@ -56,7 +57,7 @@ func NewGraph(options *GraphOptions) Graph {
 		options.generator = newUIDGenerator(24)
 	}
 
-	newGraph := &graph{
+	newGraph := &graphData{
 		id:              options.ID,
 		parent:          options.parent,
 		Attributes:      attributes.NewAttributes(),
@@ -75,11 +76,11 @@ func NewGraph(options *GraphOptions) Graph {
 }
 
 // ID returns the immutable id
-func (thisGraph *graph) ID() string {
+func (thisGraph *graphData) ID() string {
 	return thisGraph.id
 }
 
-func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
+func (thisGraph *graphData) Subgraph(options *GraphOptions) Graph {
 	if options == nil {
 		options = &GraphOptions{}
 	}
@@ -102,7 +103,7 @@ func (thisGraph *graph) Subgraph(options *GraphOptions) Graph {
 }
 
 // FindSubgraph returns the subgraph of the graph or one from its parents.
-func (thisGraph *graph) FindSubgraph(id string) (Graph, bool) {
+func (thisGraph *graphData) FindSubgraph(id string) (Graph, bool) {
 	if sub, ok := thisGraph.subgraphs[id]; ok {
 		return sub, ok
 	}
@@ -112,7 +113,7 @@ func (thisGraph *graph) FindSubgraph(id string) (Graph, bool) {
 	return thisGraph.parent.FindSubgraph(id)
 }
 
-func (thisGraph *graph) FindNode(id string) (Node, bool) {
+func (thisGraph *graphData) FindNode(id string) (Node, bool) {
 	if n, ok := thisGraph.nodes[id]; ok {
 		return n, ok
 	}
@@ -122,18 +123,17 @@ func (thisGraph *graph) FindNode(id string) (Node, bool) {
 	return thisGraph.parent.FindNode(id)
 }
 
-// Node returns the node created with this id or creates a new node if absent.
-// The node will have a label attribute with the id as its value. Use Label() to overwrite this.
+// Node returns the node created with this id or creates a new node if absent
 // This method can be used as both a constructor and accessor.
 // not thread safe!
-func (thisGraph *graph) Node(id string) Node {
+func (thisGraph *graphData) Node(id string) Node {
 	if n, ok := thisGraph.FindNode(id); ok {
 		return n
 	}
 	if len(id) == 0 {
 		id = thisGraph.generator.String()
 	}
-	n := &node{
+	n := &nodeData{
 		id:         id,
 		Attributes: attributes.NewAttributes(),
 		graph:      thisGraph,
@@ -147,13 +147,13 @@ func (thisGraph *graph) Node(id string) Node {
 }
 
 // Edge creates a new edge between two nodes
-func (thisGraph *graph) Edge(fromNode, toNode Node) StyledEdge {
+func (thisGraph *graphData) Edge(fromNode, toNode Node) StyledEdge {
 	return thisGraph.EdgeWithAttributes(fromNode, toNode, nil)
 }
 
 // Edge creates a new edge between two nodes, and set the given attributes
-func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) StyledEdge {
-	e := &edge{
+func (thisGraph *graphData) EdgeWithAttributes(fromNode, toNode Node, attr attributes.Reader) StyledEdge {
+	e := &edgeData{
 		from:       fromNode,
 		to:         toNode,
 		internalID: thisGraph.generator.String(),
@@ -171,7 +171,7 @@ func (thisGraph *graph) EdgeWithAttributes(fromNode, toNode Node, attr attribute
 
 // FindEdges finds all edges in the graph that go from the fromNode to the toNode.
 // Otherwise, returns an empty slice.
-func (thisGraph *graph) FindEdges(fromNode, toNode Node) (found []Edge) {
+func (thisGraph *graphData) FindEdges(fromNode, toNode Node) (found []Edge) {
 	found = make([]Edge, 0)
 	if edges, ok := thisGraph.edgesFrom[fromNode.ID()]; ok {
 		for _, e := range edges {
@@ -184,23 +184,23 @@ func (thisGraph *graph) FindEdges(fromNode, toNode Node) (found []Edge) {
 }
 
 // AddToSameRank adds the given nodes to the specified rank group, forcing them to be rendered in the same row
-func (thisGraph *graph) AddToSameRank(group string, nodes ...Node) {
+func (thisGraph *graphData) AddToSameRank(group string, nodes ...Node) {
 	thisGraph.sameRank[group] = append(thisGraph.sameRank[group], nodes...)
 }
 
 // String returns the source in dot notation.
-func (thisGraph *graph) String() string {
+func (thisGraph *graphData) String() string {
 	b := new(bytes.Buffer)
 	thisGraph.Write(b)
 	return b.String()
 }
 
-func (thisGraph *graph) Write(w io.Writer) {
+func (thisGraph *graphData) Write(w io.Writer) {
 	thisGraph.IndentedWrite(NewIndentWriter(w))
 }
 
 // IndentedWrite write the graph to a writer using simple TAB indentation.
-func (thisGraph *graph) IndentedWrite(w *IndentWriter) {
+func (thisGraph *graphData) IndentedWrite(w *IndentWriter) {
 	if thisGraph.strict {
 		fmt.Fprint(w, "strict ")
 	}
@@ -250,7 +250,7 @@ func (thisGraph *graph) IndentedWrite(w *IndentWriter) {
 }
 
 // VisitNodes visits all nodes recursively
-func (thisGraph *graph) VisitNodes(callback func(node Node) (done bool)) {
+func (thisGraph *graphData) VisitNodes(callback func(node Node) (done bool)) {
 	for _, node := range thisGraph.nodes {
 		done := callback(node)
 		if done {
@@ -264,7 +264,7 @@ func (thisGraph *graph) VisitNodes(callback func(node Node) (done bool)) {
 }
 
 // FindNodeByID return node by id
-func (thisGraph *graph) FindNodeByID(id string) (foundNode Node, found bool) {
+func (thisGraph *graphData) FindNodeByID(id string) (foundNode Node, found bool) {
 	thisGraph.VisitNodes(func(node Node) (done bool) {
 		if node.ID() == id {
 			found = true
@@ -277,7 +277,7 @@ func (thisGraph *graph) FindNodeByID(id string) (foundNode Node, found bool) {
 }
 
 // FindNodes returns all nodes recursively
-func (thisGraph *graph) FindNodes() (nodes []Node) {
+func (thisGraph *graphData) FindNodes() (nodes []Node) {
 	var foundNodes []Node
 	thisGraph.VisitNodes(func(node Node) (done bool) {
 		foundNodes = append(foundNodes, node)

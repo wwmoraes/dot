@@ -10,7 +10,7 @@ func TestEdge_String(t *testing.T) {
 	graph := NewGraph(nil)
 	gotEdge := graph.Node("n1").Edge(graph.Node("n2"))
 
-	if got, want := gotEdge.String(), gotEdge.(*edge).internalID; got != want {
+	if got, want := gotEdge.String(), gotEdge.(*edgeData).internalID; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }

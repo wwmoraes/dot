@@ -4,62 +4,62 @@ import (
 	"github.com/wwmoraes/dot/attributes"
 )
 
-type edge struct {
+type edgeData struct {
 	*attributes.Attributes
 	graph      Graph
 	from, to   Node
 	internalID string
 }
 
-func (thisEdge *edge) String() string {
+func (thisEdge *edgeData) String() string {
 	// TODO
 	return thisEdge.internalID
 }
 
-func (thisEdge *edge) From() Node {
+func (thisEdge *edgeData) From() Node {
 	return thisEdge.from
 }
 
-func (thisEdge *edge) To() Node {
+func (thisEdge *edgeData) To() Node {
 	return thisEdge.to
 }
 
 // Solid sets the edge attribute "style" to "solid"
 // Default style
-func (thisEdge *edge) Solid() Edge {
+func (thisEdge *edgeData) Solid() Edge {
 	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("solid"))
 	return thisEdge
 }
 
 // Bold sets the edge attribute "style" to "bold"
-func (thisEdge *edge) Bold() Edge {
+func (thisEdge *edgeData) Bold() Edge {
 	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("bold"))
 	return thisEdge
 }
 
 // Dashed sets the edge attribute "style" to "dashed"
-func (thisEdge *edge) Dashed() Edge {
+func (thisEdge *edgeData) Dashed() Edge {
 	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("dashed"))
 	return thisEdge
 }
 
 // Dotted sets the edge attribute "style" to "dotted"
-func (thisEdge *edge) Dotted() Edge {
+func (thisEdge *edgeData) Dotted() Edge {
 	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("dotted"))
 	return thisEdge
 }
 
 // Edge returns a new Edge between the "to" node of this Edge and the argument Node
-func (thisEdge *edge) Edge(to Node) Edge {
+func (thisEdge *edgeData) Edge(to Node) Edge {
 	return thisEdge.EdgeWithAttributes(to, nil)
 }
 
 // EdgeWithAttributes returns a new Edge between the "to" node of this Edge and the argument Node
-func (thisEdge *edge) EdgeWithAttributes(to Node, attributes attributes.Reader) Edge {
+func (thisEdge *edgeData) EdgeWithAttributes(to Node, attributes attributes.Reader) Edge {
 	return thisEdge.graph.EdgeWithAttributes(thisEdge.to, to, attributes)
 }
 
 // EdgesTo returns all existing edges between the "to" Node of this Edge and the argument Node.
-func (thisEdge *edge) EdgesTo(to Node) []Edge {
+func (thisEdge *edgeData) EdgesTo(to Node) []Edge {
 	return thisEdge.graph.FindEdges(thisEdge.to, to)
 }
