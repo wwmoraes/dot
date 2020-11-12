@@ -1,4 +1,4 @@
-package dot
+package formatters
 
 import (
 	"bytes"
@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-func TestIndentWriter(t *testing.T) {
+func TestIndentedWriter(t *testing.T) {
 	b := new(bytes.Buffer)
-	i := NewIndentWriter(b)
+	i := NewIndentedWriter(b)
 	if _, err := i.WriteString("doc {"); err != nil {
 		t.Errorf("unable to open doc block: %w", err)
 		return

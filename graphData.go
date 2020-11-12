@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/formatters"
 )
 
 // graphData is a dot-compatible graph that stores child components, and
@@ -210,11 +211,64 @@ func (thisGraph *graphData) String() string {
 }
 
 func (thisGraph *graphData) Write(w io.Writer) {
-	thisGraph.IndentedWrite(NewIndentWriter(w))
+	if thisGraph.strict {
+		fmt.Fprint(w, "strict ")
+	}
+
+	// open graph
+	fmt.Fprintf(w, `%s`, thisGraph.graphType)
+	if len(thisGraph.id) > 0 {
+		fmt.Fprintf(w, ` "%s"`, thisGraph.id)
+	}
+	fmt.Fprint(w, " {")
+
+	// write attributes
+	if thisGraph.HasAttributes() {
+		fmt.Fprintf(w, "graph ")
+		thisGraph.Attributes.WriteAttributes(w)
+		fmt.Fprintf(w, ";")
+	}
+
+	// iterate and write subgraphs
+	for _, key := range thisGraph.sortedSubgraphsKeys() {
+		each := thisGraph.subgraphs[key]
+		each.Write(w)
+	}
+
+	// iterate and write nodes
+	for _, key := range thisGraph.sortedNodesKeys() {
+		each := thisGraph.nodes[key]
+		each.Write(w)
+	}
+
+	// iterate and write node groups
+	for _, nodes := range thisGraph.sameRank {
+		// open group
+		fmt.Fprintf(w, "{")
+		// set rank attribute
+		fmt.Fprintf(w, "rank=same;")
+		// write group nodes
+		for _, n := range nodes {
+			n.Write(w)
+		}
+		// close group
+		fmt.Fprintf(w, "}")
+	}
+
+	// iterate and write edges
+	for _, each := range thisGraph.sortedEdgesFromKeys() {
+		all := thisGraph.edgesFrom[each]
+		for _, each := range all {
+			each.Write(w)
+		}
+	}
+
+	// close graph
+	fmt.Fprintf(w, "}")
 }
 
 // IndentedWrite write the graph to a writer using simple TAB indentation.
-func (thisGraph *graphData) IndentedWrite(w *IndentWriter) {
+func (thisGraph *graphData) IndentedWrite(w formatters.IndentedWriter) {
 	if thisGraph.strict {
 		fmt.Fprint(w, "strict ")
 	}
@@ -224,35 +278,34 @@ func (thisGraph *graphData) IndentedWrite(w *IndentWriter) {
 		for _, key := range thisGraph.sortedSubgraphsKeys() {
 			each := thisGraph.subgraphs[key]
 			each.IndentedWrite(w)
+			w.NewLine()
 		}
 		// graph attributes
-		thisGraph.Attributes.WriteAttributes(w, false)
-		w.NewLine()
+		thisGraph.Attributes.WriteAttributes(w)
 		// graph nodes
 		for _, key := range thisGraph.sortedNodesKeys() {
+			w.NewLine()
 			each := thisGraph.nodes[key]
 			each.Write(w)
-			w.NewLine()
 		}
 		// graph edges
 		for _, each := range thisGraph.sortedEdgesFromKeys() {
 			all := thisGraph.edgesFrom[each]
 			for _, each := range all {
-				each.Write(w)
 				w.NewLine()
+				each.Write(w)
 			}
 		}
 		for _, nodes := range thisGraph.sameRank {
+			w.NewLine()
 			str := ""
 			for _, n := range nodes {
 				str += fmt.Sprintf(`"%s";`, n.ID())
 			}
 			fmt.Fprintf(w, "{rank=same; %s};", str)
-			w.NewLine()
 		}
 	})
 	fmt.Fprintf(w, "}")
-	w.NewLine()
 }
 
 // VisitNodes visits all nodes recursively

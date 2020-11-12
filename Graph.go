@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/formatters"
 )
 
 // GraphOptions contains the parameters used for graph creation
@@ -57,7 +58,7 @@ type Graph interface {
 	// FindNode gets a node by id
 	FindNode(id string) (Node, bool)
 	// IndentedWrite write the graph to a writer using TAB indentation
-	IndentedWrite(w *IndentWriter)
+	IndentedWrite(w formatters.IndentedWriter)
 	// VisitNodes runs the provided function on all nodes recursively
 	VisitNodes(callback func(node Node) (done bool))
 	// AddToSameRank adds the given nodes to the specified rank group, forcing
