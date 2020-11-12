@@ -6,6 +6,7 @@ import (
 
 	"github.com/wwmoraes/dot"
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/formatters"
 )
 
 func main() {
@@ -44,11 +45,11 @@ func main() {
 	log.Println("creating edges...")
 	outsideGraph.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outsideGraph)
 
-	log.Println("trying to open sample.dot file for write...")
-	fd, err := os.Create("sample.dot")
+	log.Println("trying to open cluster.dot file for write...")
+	fd, err := os.Create("cluster.dot")
 	if err == nil {
-		log.Println("writing graph to sample.dot...")
-		rootGraph.Write(fd)
+		log.Println("writing graph to cluster.dot...")
+		rootGraph.Write(formatters.NewPrettyWriter(fd))
 		log.Println("done!")
 	}
 }
