@@ -75,6 +75,6 @@ func (thisEdge *edgeData) Write(device io.Writer) {
 	}
 
 	fmt.Fprintf(device, `"%s"%s"%s"`, thisEdge.From().ID(), denoteEdge, thisEdge.To().ID())
-	thisEdge.Attributes.WriteAttributes(device, true)
+	thisEdge.WriteAttributes(device)
 	fmt.Fprint(device, ";")
 }

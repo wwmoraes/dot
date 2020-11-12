@@ -51,7 +51,7 @@ func TestAttributes_NewAttributes(t *testing.T) {
 		attributes := NewAttributes()
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
 		want := ""
@@ -80,11 +80,11 @@ func TestAttributes_NewAttributesFrom(t *testing.T) {
 		attributes := NewAttributesFrom(sourceAttributes)
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
 		var wantStringBuilder strings.Builder
-		sourceAttributes.WriteAttributes(&wantStringBuilder, false)
+		sourceAttributes.WriteAttributes(&wantStringBuilder)
 		want := wantStringBuilder.String()
 
 		if !reflect.DeepEqual(got, want) {
@@ -161,10 +161,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
-		want := `label="test";`
+		want := `[label="test"]`
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -175,7 +175,7 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, true)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
 		want := `[label="test"]`
@@ -189,10 +189,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
-		want := "label=<<B>Hi</B>>;"
+		want := "[label=<<B>Hi</B>>]"
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -203,7 +203,7 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, true)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
 		want := "[label=<<B>Hi</B>>]"
@@ -217,10 +217,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
-		want := `label="left text\l";`
+		want := `[label="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -231,7 +231,7 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, true)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
 		want := `[label="left text\l"]`
@@ -248,10 +248,10 @@ func TestAttributes_Write(t *testing.T) {
 		})
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
-		want := `class="my-class";label="my-label";`
+		want := `[class="my-class",label="my-label"]`
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -265,7 +265,7 @@ func TestAttributes_Write(t *testing.T) {
 		})
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, true)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
 		want := `[class="my-class",label="my-label"]`
@@ -285,10 +285,10 @@ func TestAttributes_SetAttribute(t *testing.T) {
 		attributes.SetAttribute(KeyColor, NewString("black"))
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
-		want := `class="my-class";color="black";label=<<b>my-label</b>>;xlabel="left text\l";`
+		want := `[class="my-class",color="black",label=<<b>my-label</b>>,xlabel="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)
@@ -310,10 +310,10 @@ func TestAttributes_SetAttribute(t *testing.T) {
 		})
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder, false)
+		attributes.WriteAttributes(&gotStringBuilder)
 		got := gotStringBuilder.String()
 
-		want := `class="my-class";color="black";label=<<b>my-label</b>>;xlabel="left text\l";`
+		want := `[class="my-class",color="black",label=<<b>my-label</b>>,xlabel="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got [%v] want [%v]", got, want)

@@ -67,50 +67,6 @@ func (dotObjectData *Attributes) GetAttributes() Map {
 	return newMap
 }
 
-// WriteAttributes transforms attributes into dot notation and writes on the given writer
-func (dotObjectData *Attributes) WriteAttributes(device io.Writer, mustBracket bool) {
-	if len(dotObjectData.attributes) == 0 {
-		return
-	}
-
-	if mustBracket {
-		fmt.Fprint(device, "[")
-	}
-	first := true
-	// first collect keys
-	keys := []Key{}
-	for k := range dotObjectData.attributes {
-		keys = append(keys, k)
-	}
-	sort.SliceStable(keys, func(i, j int) bool {
-		return strings.Compare(string(keys[i]), string(keys[j])) < 0
-	})
-
-	for _, k := range keys {
-		if !first {
-			if mustBracket {
-				fmt.Fprint(device, ",")
-			} else {
-				fmt.Fprint(device, ";")
-			}
-		}
-		switch attributeData := dotObjectData.attributes[k].(type) {
-		case *HTML:
-			fmt.Fprintf(device, "%s=<%s>", k, attributeData.value)
-		case *Literal:
-			fmt.Fprintf(device, "%s=%s", k, attributeData.value)
-		default:
-			fmt.Fprintf(device, "%s=%q", k, attributeData.String())
-		}
-		first = false
-	}
-	if mustBracket {
-		fmt.Fprint(device, "]")
-	} else {
-		fmt.Fprint(device, ";")
-	}
-}
-
 // SetAttribute sets the value for the attribute Key
 func (dotObjectData *Attributes) SetAttribute(key Key, value fmt.Stringer) {
 	dotObjectData.attributes[key] = value
@@ -163,3 +119,33 @@ func (dotObjectData *Attributes) SetAttributesHTML(attributeMap MapString) {
 func (dotObjectData *Attributes) DeleteAttribute(key Key) {
 	delete(dotObjectData.attributes, key)
 }
+
+func (dotObjectData *Attributes) WriteAttributes(writer io.Writer) {
+	if !dotObjectData.HasAttributes() {
+		return
+	}
+
+	// first collect keys
+	keys := []Key{}
+	for k := range dotObjectData.attributes {
+		keys = append(keys, k)
+	}
+	sort.SliceStable(keys, func(i, j int) bool {
+		return strings.Compare(string(keys[i]), string(keys[j])) < 0
+	})
+
+	// write keys
+	var stringAttributes = make([]string, len(keys))
+	for i, k := range keys {
+		switch attributeData := dotObjectData.attributes[k].(type) {
+		case *HTML:
+			stringAttributes[i] = fmt.Sprintf("%s=<%s>", k, attributeData.String())
+		case *Literal:
+			stringAttributes[i] = fmt.Sprintf("%s=%s", k, attributeData.String())
+		default:
+			stringAttributes[i] = fmt.Sprintf("%s=%q", k, attributeData.String())
+		}
+	}
+	fmt.Fprintf(writer, "[%s]", strings.Join(stringAttributes, ","))
+}
+

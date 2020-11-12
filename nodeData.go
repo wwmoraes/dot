@@ -41,6 +41,6 @@ func (thisNode *nodeData) EdgesTo(toNode Node) []Edge {
 
 func (thisNode *nodeData) Write(device io.Writer) {
 	fmt.Fprintf(device, `"%s"`, thisNode.ID())
-	thisNode.WriteAttributes(device, true)
+	thisNode.WriteAttributes(device)
 	fmt.Fprintf(device, ";")
 }
