@@ -9,6 +9,12 @@ all: build test test-behavior coverage lint
 lint:
 	golangci-lint run
 
+.PHONY: cluster
+cluster: sample/cluster.png
+sample/cluster.png: sample/cluster.dot
+sample/cluster.dot: sample/cluster.go
+	cd sample && go run cluster.go
+
 .PHONY: build
 build: $(SOURCES)
 	go build ./...
@@ -36,3 +42,6 @@ coverage-behavior.out: $(SOURCES)
 
 %.html: %.out
 	go tool cover -html=$< -o $@
+
+%.png: %.dot
+	dot -Tpng -o $@ $<
