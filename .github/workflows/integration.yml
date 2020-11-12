@@ -39,14 +39,20 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${GOCACHE}
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
+        key: ${{ runner.os }}-build-${{ matrix.go-version }}-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
-          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-${{ matrix.go-version }}-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
+          ${{ runner.os }}-build-${{ matrix.go-version }}-${{ env.cache-name }}-
+          ${{ runner.os }}-build-${{ matrix.go-version }}-
           ${{ runner.os }}-build-
-          ${{ runner.os }}-
+    - name: initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: go
     - name: build
       run: go build -race ./...
+    - name: CodeQL analysis
+      uses: github/codeql-action/analyze@v1
   lint:
     runs-on: ubuntu-latest
     steps:
