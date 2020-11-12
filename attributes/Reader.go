@@ -13,6 +13,8 @@ type Reader interface {
 	GetAttributeString(key Key) string
 	// GetAttributes returns a copy of all attributes
 	GetAttributes() Map
+	// HasAttributes returns true if there's any attribute set
+	HasAttributes() bool
 	// WriteAttributes writes the attribute set into the given writer
 	WriteAttributes(device io.Writer)
 }

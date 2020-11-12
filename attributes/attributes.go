@@ -149,3 +149,6 @@ func (dotObjectData *Attributes) WriteAttributes(writer io.Writer) {
 	fmt.Fprintf(writer, "[%s]", strings.Join(stringAttributes, ","))
 }
 
+func (dotObjectData *Attributes) HasAttributes() bool {
+	return len(dotObjectData.attributes) > 0
+}
