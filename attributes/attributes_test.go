@@ -18,7 +18,7 @@ func TestAttributes(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("get attribute previously set", func(t *testing.T) {
@@ -30,7 +30,7 @@ func TestAttributes(t *testing.T) {
 		want := NewString("test")
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
@@ -44,7 +44,7 @@ func TestAttributes_NewAttributes(t *testing.T) {
 		want := Map{}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("write nothing if empty", func(t *testing.T) {
@@ -57,7 +57,7 @@ func TestAttributes_NewAttributes(t *testing.T) {
 		want := ""
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
@@ -71,7 +71,7 @@ func TestAttributes_NewAttributesFrom(t *testing.T) {
 		want := Map{}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("copy attributes given on initialization", func(t *testing.T) {
@@ -88,7 +88,7 @@ func TestAttributes_NewAttributesFrom(t *testing.T) {
 		want := wantStringBuilder.String()
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
@@ -108,7 +108,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("mutates using getAttributes map reference", func(t *testing.T) {
@@ -127,7 +127,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("get single attribute as string", func(t *testing.T) {
@@ -139,7 +139,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 		want := "<b>html label</b>"
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("get single unset attribute as string", func(t *testing.T) {
@@ -150,7 +150,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 		want := ""
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
@@ -167,7 +167,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := `[label="test"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes single string attribute with brackets", func(t *testing.T) {
@@ -181,7 +181,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := `[label="test"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes single HTML attribute without brackets", func(t *testing.T) {
@@ -195,7 +195,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := "[label=<<B>Hi</B>>]"
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes single HTML attribute with brackets", func(t *testing.T) {
@@ -209,7 +209,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := "[label=<<B>Hi</B>>]"
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes single Literal attribute without brackets", func(t *testing.T) {
@@ -223,7 +223,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := `[label="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes single Literal attribute with brackets", func(t *testing.T) {
@@ -237,7 +237,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := `[label="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes multi attributes without brackets", func(t *testing.T) {
@@ -254,7 +254,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := `[class="my-class",label="my-label"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("writes multi attributes with brackets", func(t *testing.T) {
@@ -271,7 +271,7 @@ func TestAttributes_Write(t *testing.T) {
 		want := `[class="my-class",label="my-label"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
@@ -291,7 +291,7 @@ func TestAttributes_SetAttribute(t *testing.T) {
 		want := `[class="my-class",color="black",label=<<b>my-label</b>>,xlabel="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("set attribute using multi attribute set methods", func(t *testing.T) {
@@ -316,7 +316,7 @@ func TestAttributes_SetAttribute(t *testing.T) {
 		want := `[class="my-class",color="black",label=<<b>my-label</b>>,xlabel="left text\l"]`
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
@@ -331,7 +331,7 @@ func TestAttributes_DeleteAttribute(t *testing.T) {
 		want := Map{}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 	t.Run("delete a set attribute", func(t *testing.T) {
@@ -344,7 +344,7 @@ func TestAttributes_DeleteAttribute(t *testing.T) {
 		want := Map{}
 
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got [%v] want [%v]", got, want)
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
 }
