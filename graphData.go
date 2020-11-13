@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/wwmoraes/dot/attributes"
-	"github.com/wwmoraes/dot/formatters"
 	"github.com/wwmoraes/dot/generators"
 )
 
@@ -333,57 +332,6 @@ func (thisGraph *graphData) WriteTo(w io.Writer) (n int64, err error) {
 	n += int64(written32)
 
 	return
-}
-
-// TODO fully ditch this writer in the future
-// IndentedWrite write the graph to a writer using simple TAB indentation.
-func (thisGraph *graphData) IndentedWrite(w formatters.IndentedWriter) {
-	if thisGraph.strict {
-		fmt.Fprint(w, "strict ")
-	}
-	fmt.Fprintf(w, `%s "%s" {`, thisGraph.graphType, thisGraph.id)
-	w.NewLineIndentWhile(func() {
-		// subgraphs
-		for _, key := range thisGraph.sortedSubgraphsKeys() {
-			each := thisGraph.subgraphs[key]
-			each.IndentedWrite(w)
-			w.NewLine()
-		}
-		// graph attributes
-		_, err := thisGraph.Attributes.WriteTo(w)
-		if err != nil {
-			log.Println(err)
-		}
-		// graph nodes
-		for _, key := range thisGraph.sortedNodesKeys() {
-			w.NewLine()
-			each := thisGraph.nodes[key]
-			_, err := each.WriteTo(w)
-			if err != nil {
-				log.Println(err)
-			}
-		}
-		// graph edges
-		for _, each := range thisGraph.sortedEdgesFromKeys() {
-			all := thisGraph.edgesFrom[each]
-			for _, each := range all {
-				w.NewLine()
-				_, err := each.WriteTo(w)
-				if err != nil {
-					log.Println(err)
-				}
-			}
-		}
-		for _, nodes := range thisGraph.sameRank {
-			w.NewLine()
-			str := ""
-			for _, n := range nodes {
-				str += fmt.Sprintf(`"%s";`, n.ID())
-			}
-			fmt.Fprintf(w, "{rank=same; %s};", str)
-		}
-	})
-	fmt.Fprintf(w, "}")
 }
 
 // VisitNodes visits all nodes recursively
