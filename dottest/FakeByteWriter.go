@@ -30,10 +30,12 @@ func NewByteWriter(tb testing.TB, limit int, err error) ByteWriter {
 	}
 }
 
+// String returns the buffer value as string
 func (fw *byteWriter) String() string {
 	return fw.buffer.String()
 }
 
+// Write writes the data into buffer, or returns an error if over the limit
 func (fw *byteWriter) Write(p []byte) (int, error) {
 	if fw.count < fw.limit {
 		fw.count++
