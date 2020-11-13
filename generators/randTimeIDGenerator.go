@@ -1,4 +1,4 @@
-package dot
+package generators
 
 import (
 	"math/rand"
@@ -14,8 +14,8 @@ type randTimeIDGenerator struct {
 	length int
 }
 
-// newRandTimeIDGenerator returns a new instance of randTimeIDGenerator
-func newRandTimeIDGenerator(length int) *randTimeIDGenerator {
+// NewRandTimeIDGenerator returns a new instance of randTimeIDGenerator
+func NewRandTimeIDGenerator(length int) IDGenerator {
 	return &randTimeIDGenerator{
 		random: rand.New(rand.NewSource(time.Now().UnixNano())),
 		length: length,

@@ -6,13 +6,14 @@ import (
 
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/formatters"
+	"github.com/wwmoraes/dot/generators"
 )
 
 // GraphOptions contains the parameters used for graph creation
 type GraphOptions struct {
 	parent Graph
-	// TODO allow providing a custom generator
-	generator IDGenerator
+	// Generator is used to create IDs for objects to prevent colision
+	Generator generators.IDGenerator
 	// ID immutable id
 	ID string
 	// Type the graph type (directed, undirected or sub)

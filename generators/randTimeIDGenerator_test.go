@@ -1,4 +1,4 @@
-package dot
+package generators
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 func TestRandTimeIDGenerator(t *testing.T) {
 	t.Run("generate default length random string", func(t *testing.T) {
 		expectedLength := 16
-		generator := newRandTimeIDGenerator(expectedLength)
+		generator := NewRandTimeIDGenerator(expectedLength)
 
 		if generator == nil {
 			t.Error("generator is nil")
@@ -24,7 +24,7 @@ func TestRandTimeIDGenerator(t *testing.T) {
 
 	t.Run("generate provided length random string", func(t *testing.T) {
 		expectedLength := 16
-		generator := newRandTimeIDGenerator(expectedLength)
+		generator := NewRandTimeIDGenerator(expectedLength)
 
 		if generator == nil {
 			t.Error("generator is nil")

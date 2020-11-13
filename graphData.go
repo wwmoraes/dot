@@ -7,6 +7,7 @@ import (
 
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/formatters"
+	"github.com/wwmoraes/dot/generators"
 )
 
 // graphData is a dot-compatible graph that stores child components, and
@@ -16,7 +17,7 @@ type graphData struct {
 	id        string
 	graphType attributes.GraphType
 	strict    bool
-	generator IDGenerator
+	generator generators.IDGenerator
 	nodes     map[string]Node
 	edgesFrom map[string][]StyledEdge
 	subgraphs map[string]Graph
@@ -31,7 +32,7 @@ type graphData struct {
 //
 // if id is "-", a randonly generated ID will be set
 func NewGraph(options *GraphOptions) Graph {
-	generator := newRandTimeIDGenerator(24)
+	generator := generators.NewRandTimeIDGenerator(24)
 	if options == nil {
 		options = &GraphOptions{}
 	}
@@ -54,8 +55,8 @@ func NewGraph(options *GraphOptions) Graph {
 		panic("cannot create graph with parent")
 	}
 
-	if options.generator == nil {
-		options.generator = newRandTimeIDGenerator(24)
+	if options.Generator == nil {
+		options.Generator = generators.NewRandTimeIDGenerator(24)
 	}
 
 	newGraph := &graphData{
@@ -64,7 +65,7 @@ func NewGraph(options *GraphOptions) Graph {
 		Attributes:      attributes.NewAttributes(),
 		graphType:       options.Type,
 		strict:          options.Strict,
-		generator:       options.generator,
+		generator:       options.Generator,
 		nodes:           map[string]Node{},
 		edgesFrom:       map[string][]StyledEdge{},
 		subgraphs:       map[string]Graph{},
@@ -107,7 +108,7 @@ func (thisGraph *graphData) Subgraph(options *GraphOptions) Graph {
 	options.parent = thisGraph
 
 	// share generator
-	options.generator = thisGraph.generator
+	options.Generator = thisGraph.generator
 
 	sub := NewGraph(options)
 
