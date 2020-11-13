@@ -71,4 +71,6 @@ type Graph interface {
 	HasEdges() bool
 	// HasSameRankNodes returns true if the graph has nodes grouped as same rank
 	HasSameRankNodes() bool
+	// IsStrict return true if the graph is set as strict
+	IsStrict() bool
 }

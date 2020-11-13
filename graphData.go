@@ -213,20 +213,24 @@ func (thisGraph *graphData) String() (string, error) {
 }
 
 func (thisGraph *graphData) WriteTo(w io.Writer) (n int64, err error) {
-	if thisGraph.strict {
-		written32, err := fmt.Fprint(w, "strict ")
-		n += int64(written32)
-		if err != nil {
-			return n, err
-		}
+	var written32 int
+	var written64 int64
+
+	// write strict tag
+	written64, err = thisGraph.writeStrictTagTo(w)
+	n += written64
+	if err != nil {
+		return
 	}
 
-	written32, err := fmt.Fprintf(w, `%s`, thisGraph.graphType)
+	// graph type
+	written32, err = fmt.Fprintf(w, `%s`, thisGraph.graphType)
 	n += int64(written32)
 	if err != nil {
 		return
 	}
 
+	// write graph id
 	if len(thisGraph.id) > 0 {
 		written32, err = fmt.Fprintf(w, ` "%s"`, thisGraph.id)
 		n += int64(written32)
@@ -235,97 +239,21 @@ func (thisGraph *graphData) WriteTo(w io.Writer) (n int64, err error) {
 		}
 	}
 
-	// open graph
+	// write open block
 	written32, err = fmt.Fprint(w, " {")
 	n += int64(written32)
 	if err != nil {
 		return
 	}
 
-	// write attributes
-	if thisGraph.HasAttributes() {
-		written32, err = fmt.Fprintf(w, "graph ")
-		n += int64(written32)
-		if err != nil {
-			return
-		}
-
-		written64, errAttr := thisGraph.Attributes.WriteTo(w)
-		n += written64
-		if errAttr != nil {
-			return n, errAttr
-		}
-
-		written32, err = fmt.Fprintf(w, ";")
-		n += int64(written32)
-		if err != nil {
-			return
-		}
+	// write graph body
+	written64, err = thisGraph.writeGraphBodyTo(w)
+	n += written64
+	if err != nil {
+		return
 	}
 
-	// iterate and write subgraphs
-	for _, key := range thisGraph.sortedSubgraphsKeys() {
-		each := thisGraph.subgraphs[key]
-		written64, err := each.WriteTo(w)
-		n += written64
-		if err != nil {
-			return n, err
-		}
-	}
-
-	// iterate and write nodes
-	for _, key := range thisGraph.sortedNodesKeys() {
-		each := thisGraph.nodes[key]
-		written64, err := each.WriteTo(w)
-		n += written64
-		if err != nil {
-			return n, err
-		}
-	}
-
-	// iterate and write node groups
-	for _, nodes := range thisGraph.sameRank {
-		// open group
-		written32, err = fmt.Fprintf(w, "{")
-		n += int64(written32)
-		if err != nil {
-			return
-		}
-		// set rank attribute
-		written32, err = fmt.Fprintf(w, "rank=same;")
-		n += int64(written32)
-		if err != nil {
-			return
-		}
-		// write group nodes
-		for _, node := range nodes {
-			written64, err := node.WriteTo(w)
-			n += written64
-			if err != nil {
-				return n, err
-			}
-		}
-		// close group
-		written32, err = fmt.Fprintf(w, "}")
-		n += int64(written32)
-		if err != nil {
-			return
-		}
-	}
-
-	// iterate and write edges
-	for _, each := range thisGraph.sortedEdgesFromKeys() {
-		all := thisGraph.edgesFrom[each]
-		for _, each := range all {
-			written64, err := each.WriteTo(w)
-			n += written64
-			if err != nil {
-				return n, err
-			}
-		}
-	}
-
-	// close graph
+	// write close block
 	written32, err = fmt.Fprintf(w, "}")
 	n += int64(written32)
 
@@ -387,4 +315,178 @@ func (thisGraph *graphData) HasEdges() bool {
 // HasSameRankNodes returns true if the graph has nodes grouped as same rank
 func (thisGraph *graphData) HasSameRankNodes() bool {
 	return len(thisGraph.sameRank) > 0
+}
+
+func (thisGraph *graphData) writeGraphBodyTo(w io.Writer) (n int64, err error) {
+	// write attributes
+	written64, err := thisGraph.writeAttributesTo(w)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	// write subgraphs
+	written64, err = thisGraph.writeSubgraphsTo(w)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	// write nodes
+	written64, err = thisGraph.writeNodesTo(w)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	// node groups
+	written64, err = thisGraph.writeSameRankNodesTo(w)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	// write edges
+	written64, err = thisGraph.writeEdgesTo(w)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	return n, err
+}
+
+func (thisGraph *graphData) writeAttributesTo(w io.Writer) (n int64, err error) {
+	if !thisGraph.HasAttributes() {
+		return 0, nil
+	}
+
+	written32, err := fmt.Fprintf(w, "graph ")
+	n += int64(written32)
+	if err != nil {
+		return n, err
+	}
+
+	written64, err := thisGraph.Attributes.WriteTo(w)
+	n += written64
+	if err != nil {
+		return n, err
+	}
+
+	written32, err = fmt.Fprintf(w, ";")
+	n += int64(written32)
+	if err != nil {
+		return n, err
+	}
+
+	return n, err
+}
+
+func (thisGraph *graphData) writeSubgraphsTo(w io.Writer) (n int64, err error) {
+	if !thisGraph.HasSubgraphs() {
+		return 0, nil
+	}
+
+	for _, key := range thisGraph.sortedSubgraphsKeys() {
+		each := thisGraph.subgraphs[key]
+		written64, err := each.WriteTo(w)
+		n += written64
+		if err != nil {
+			return n, err
+		}
+	}
+
+	return n, err
+}
+
+func (thisGraph *graphData) writeNodesTo(w io.Writer) (n int64, err error) {
+	if !thisGraph.HasNodes() {
+		return 0, nil
+	}
+
+	for _, key := range thisGraph.sortedNodesKeys() {
+		each := thisGraph.nodes[key]
+		written64, err := each.WriteTo(w)
+		n += written64
+		if err != nil {
+			return n, err
+		}
+	}
+
+	return n, err
+}
+
+func (thisGraph *graphData) writeEdgesTo(w io.Writer) (n int64, err error) {
+	if !thisGraph.HasEdges() {
+		return 0, nil
+	}
+
+	for _, each := range thisGraph.sortedEdgesFromKeys() {
+		all := thisGraph.edgesFrom[each]
+		for _, each := range all {
+			written64, err := each.WriteTo(w)
+			n += written64
+			if err != nil {
+				return n, err
+			}
+		}
+	}
+
+	return n, err
+}
+
+func (thisGraph *graphData) writeSameRankNodesTo(w io.Writer) (n int64, err error) {
+	if !thisGraph.HasSameRankNodes() {
+		return 0, nil
+	}
+
+	for _, nodes := range thisGraph.sameRank {
+		// open group
+		written32, err := fmt.Fprintf(w, "{")
+		n += int64(written32)
+		if err != nil {
+			return n, err
+		}
+		// set rank attribute
+		written32, err = fmt.Fprintf(w, "rank=same;")
+		n += int64(written32)
+		if err != nil {
+			return n, err
+		}
+		// write group nodes
+		for _, node := range nodes {
+			written64, err := node.WriteTo(w)
+			n += written64
+			if err != nil {
+				return n, err
+			}
+		}
+		// close group
+		written32, err = fmt.Fprintf(w, "}")
+		n += int64(written32)
+		if err != nil {
+			return n, err
+		}
+	}
+
+	return n, err
+}
+
+func (thisGraph *graphData) writeStrictTagTo(w io.Writer) (n int64, err error) {
+	if !thisGraph.IsStrict() {
+		return 0, nil
+	}
+
+	written32, err := fmt.Fprint(w, "strict ")
+	n += int64(written32)
+	if err != nil {
+		return n, err
+	}
+
+	return n, err
+}
+
+// IsStrict return true if the graph is set as strict
+func (thisGraph *graphData) IsStrict() bool {
+	return thisGraph.strict
 }
