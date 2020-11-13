@@ -63,4 +63,12 @@ type Graph interface {
 	FindNodeByID(id string) (foundNode Node, found bool)
 	// FindNodes returns all nodes recursively
 	FindNodes() (nodes []Node)
+	// HasSubgraphs returns true if the graph has any subgraphs
+	HasSubgraphs() bool
+	// HasNodes returns true if the graph has any nodes
+	HasNodes() bool
+	// HasEdges returns true if the graph has any nodes
+	HasEdges() bool
+	// HasSameRankNodes returns true if the graph has nodes grouped as same rank
+	HasSameRankNodes() bool
 }

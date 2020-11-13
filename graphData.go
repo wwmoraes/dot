@@ -368,3 +368,23 @@ func (thisGraph *graphData) FindNodes() (nodes []Node) {
 	})
 	return foundNodes
 }
+
+// HasSubgraphs returns true if the graph has any subgraphs
+func (thisGraph *graphData) HasSubgraphs() bool {
+	return len(thisGraph.subgraphs) > 0
+}
+
+// HasNodes returns true if the graph has any nodes
+func (thisGraph *graphData) HasNodes() bool {
+	return len(thisGraph.nodes) > 0
+}
+
+// HasEdges returns true if the graph has any edges
+func (thisGraph *graphData) HasEdges() bool {
+	return len(thisGraph.edgesFrom) > 0
+}
+
+// HasSameRankNodes returns true if the graph has nodes grouped as same rank
+func (thisGraph *graphData) HasSameRankNodes() bool {
+	return len(thisGraph.sameRank) > 0
+}
