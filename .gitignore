@@ -2,7 +2,8 @@
 /*.png
 .idea
 
-**/sample.dot
+sample/**/*.dot
+sample/**/*.png
 site/
 
 # SonarQube

@@ -1,5 +1,5 @@
 SOURCES := $(wildcard *.go) $(wildcard */*.go)
-
+PNGS := sample/cluster.png $(patsubst %.go,%.png,$(wildcard sample/formatter/*/sample.go))
 .DEFAULT_GOAL := all
 
 .PHONY: all
@@ -9,11 +9,8 @@ all: build test coverage lint
 lint:
 	golangci-lint run
 
-.PHONY: cluster
-cluster: sample/cluster.png
-sample/cluster.png: sample/cluster.dot
-sample/cluster.dot: sample/cluster.go
-	cd sample && go run cluster.go
+.PHONY: pngs
+pngs: $(PNGS)
 
 .PHONY: build
 build: $(SOURCES)
@@ -54,3 +51,6 @@ coverage-behavior.out: $(SOURCES)
 
 %.png: %.dot
 	dot -Tpng -o $@ $<
+
+%.dot: %.go
+	cd $(shell dirname $<) && go run $(shell basename $<)
