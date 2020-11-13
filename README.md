@@ -76,14 +76,14 @@ package main
 import (
   "os"
   "github.com/wwmoraes/dot"
-  "github.com/wwmoraes/dot/attributes"
 )
 
 func main() {
   graph := dot.NewGraph(nil)
-  clusterA := graph.Subgraph(&attributes.GraphOptions{ ID: "Cluster A", Cluster: true })
+  graph.SetAttributeString("label", "an amazing graph")
+  clusterA := graph.Subgraph(&GraphOptions{ ID: "Cluster A", Cluster: true })
   clusterA.SetAttributeString("label", "Cluster A")
-  clusterB := graph.Subgraph(&attributes.GraphOptions{ ID: "Cluster B", Cluster: true })
+  clusterB := graph.Subgraph(&GraphOptions{ ID: "Cluster B", Cluster: true })
   clusterB.SetAttributeString("label", "Cluster B")
 
   clusterA.
@@ -94,7 +94,8 @@ func main() {
     Edge(clusterB.Node("four")).
     Edge(clusterA.Node("one"))
 
-  graph.Write(os.Create("sample.dot"))
+  fd, _ := os.Create("sample.dot")
+  graph.WriteTo(fd)
 }
 ```
 
@@ -103,14 +104,18 @@ be used instead of plain strings to avoid both duplication and errors:
 
 ```go
 graph := dot.NewGraph(nil)
-graph.Node("n1").SetAttributeString(attributes.KeyLabel, "my label")
+graph.SetAttributeString(attributes.KeyLabel, "a graph")
+node := graph.Node("n1")
+node.SetAttributeString(attributes.KeyLabel, "a node")
+edge := graph.Edge(graph.Node("n2"), graph.Node("n3"))
+edge.SetAttributeString(attributes.KeyLabel, "a edge")
 ```
 
 You can also set literals and HTML values using the helper functions:
 
 ```go
 graph := dot.NewGraph(nil)
-graph.Node("n1").SetAttributeLiteral(attributes.KeyLabel, `my left label\l`)
+graph.Node("n1").SetAttributeLiteral(attributes.KeyLabel, `a left label\l`)
 graph.Node("n2").SetAttributeHTML(attributes.KeyLabel, `<b>a bold label</b>`)
 ```
 
