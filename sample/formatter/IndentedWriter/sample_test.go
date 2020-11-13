@@ -5,11 +5,11 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/wwmoraes/dot"
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/dottest"
 	"github.com/wwmoraes/dot/formatters"
 )
 
@@ -37,11 +37,6 @@ digraph {
 }
 `
 
-func flatten(s string, t *testing.T) string {
-	t.Helper()
-	return strings.Replace((strings.Replace(s, "\n", "", -1)), "  ", "", -1)
-}
-
 func TestSample(t *testing.T) {
 	if err := os.Remove(dotFileName); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
@@ -65,7 +60,7 @@ func TestSample(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got, want := flatten(string(fileData), t), flatten(expectedOutput, t); got != want {
+	if got, want := dottest.Flatten(t, string(fileData)), dottest.Flatten(t, expectedOutput); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }

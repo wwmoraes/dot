@@ -8,7 +8,6 @@ import (
 	"os"
 	"path"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/wwmoraes/dot/attributes"
