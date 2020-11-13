@@ -1,56 +1,54 @@
 package formatters
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"regexp"
 	"strings"
 )
 
+var ErrNoWriter = errors.New("the underlying writer is not valid")
+
 type regexpRule struct {
 	regex              *regexp.Regexp
-	replacement        string
-	expand             bool
+	replacement        []byte
 	indent             bool
 	adjustIndentBefore int
 	adjustIndentAfter  int
 }
 
-func (thisRule *regexpRule) Apply(dataString string, level int) (string, int) {
+func (thisRule *regexpRule) Apply(data []byte, level int) ([]byte, int) {
 	// skip entirely if the regex doesn't match
-	if !thisRule.regex.MatchString(dataString) {
-		return dataString, level
+	if !thisRule.regex.Match(data) {
+		return data, level
 	}
 
-	var newDataString strings.Builder
+	var newData bytes.Buffer
 
 	// indent with pre/post-adjust
 	level = level + thisRule.adjustIndentBefore
 	if thisRule.indent {
-		newDataString.WriteString(strings.Repeat("  ", level))
+		newData.WriteString(strings.Repeat("  ", level))
 	}
 	level = level + thisRule.adjustIndentAfter
 
-	if thisRule.expand {
-		newDataString.WriteString(thisRule.regex.ReplaceAllString(dataString, thisRule.replacement))
-	} else {
-		newDataString.WriteString(thisRule.regex.ReplaceAllLiteralString(dataString, thisRule.replacement))
-	}
+	newData.Write(thisRule.regex.ReplaceAllLiteral(data, thisRule.replacement))
 
-	return newDataString.String(), level
+	return newData.Bytes(), level
 }
 
 var masterRules []regexpRule = []regexpRule{
 	{
 		// break lines and increase level on opening blocks
 		regex:             regexp.MustCompile(`{`),
-		replacement:       "{\n",
+		replacement:       []byte("{\n"),
 		adjustIndentAfter: 1,
 	},
 	{
 		// indent and increase level of anonymous blocks
 		regex:              regexp.MustCompile(`^{`),
-		replacement:        "{",
+		replacement:        []byte("{"),
 		indent:             true,
 		adjustIndentBefore: -1,
 		adjustIndentAfter:  1,
@@ -58,108 +56,69 @@ var masterRules []regexpRule = []regexpRule{
 	{
 		// break lines after semicolon
 		regex:       regexp.MustCompile(`;`),
-		replacement: ";\n",
+		replacement: []byte(";\n"),
 	},
 	{
 		// break lines and decrease indent on closing blocks
 		regex:              regexp.MustCompile(`}`),
-		replacement:        "}\n",
+		replacement:        []byte("}\n"),
 		indent:             true,
 		adjustIndentBefore: -1,
 	},
 	{
 		// indent global graph attributes
 		regex:       regexp.MustCompile(`\bgraph\b`),
-		replacement: `graph`,
+		replacement: []byte(`graph`),
 		indent:      true,
 	},
 	{
 		// indent subgraphs
 		regex:       regexp.MustCompile(`\bsubgraph\b`),
-		replacement: `subgraph`,
+		replacement: []byte(`subgraph`),
 		indent:      true,
 	},
 	{
 		// indent global node attributes
 		regex:       regexp.MustCompile(`\bnode\b`),
-		replacement: `node`,
+		replacement: []byte(`node`),
 		indent:      true,
 	},
 	{
 		// indent global edge attributes
 		regex:       regexp.MustCompile(`\bedge\b`),
-		replacement: `edge`,
+		replacement: []byte(`edge`),
 		indent:      true,
 	},
 	{
 		// indent nodes and edges
 		regex:       regexp.MustCompile(`^"`),
-		replacement: `"`,
+		replacement: []byte(`"`),
 		indent:      true,
 	},
-	{
-		// indent attributes directly set on the graph
-		regex:       regexp.MustCompile(`^([a-zA-Z0-9 ]+=)`),
-		replacement: `$1`,
-		indent:      true,
-		expand:      true,
-	},
-	// {
-	// 	regex:        regexp.MustCompile(`(.*)`),
-	// 	replacement:  "^$1$",
-	// 	indentBefore: false,
-	// },
 }
 
 type prettyWriter struct {
-	byteWriter   io.Writer
-	stringWriter io.StringWriter
-	rules        []regexpRule
-	level        int
+	writer io.Writer
+	rules  []regexpRule
+	level  int
 }
 
 // NewPrettyWriter creates a new instance of a prettifier formatter for dot code
 func NewPrettyWriter(writer io.Writer) io.Writer {
-	if stringWriter, ok := writer.(io.StringWriter); ok {
-		return &prettyWriter{
-			stringWriter: stringWriter,
-			rules:        masterRules,
-		}
-	}
-
 	return &prettyWriter{
-		byteWriter: writer,
-		rules:      masterRules,
+		writer: writer,
+		rules:  masterRules,
 	}
 }
 
 // Write writes data bytes to the underlying writer
 func (thisWriter *prettyWriter) Write(data []byte) (n int, err error) {
-	return thisWriter.processWrite(string(data))
-}
+	if thisWriter.writer == nil {
+		return 0, ErrNoWriter
+	}
 
-// WriteString writes the string data to the underlying writer
-func (thisWriter *prettyWriter) WriteString(stringData string) (n int, err error) {
-	return thisWriter.processWrite(stringData)
-}
-
-// processWrite prettifies the string data before forwarding it
-func (thisWriter *prettyWriter) processWrite(stringData string) (n int, err error) {
 	for _, rule := range thisWriter.rules {
-		stringData, thisWriter.level = rule.Apply(stringData, thisWriter.level)
+		data, thisWriter.level = rule.Apply(data, thisWriter.level)
 	}
-	return thisWriter.forwardWrite(stringData)
-}
-
-// forwardWrite sends the modified string data to the underlying writer
-func (thisWriter *prettyWriter) forwardWrite(stringData string) (n int, err error) {
-	if thisWriter.stringWriter != nil {
-		return thisWriter.stringWriter.WriteString(stringData)
-	}
-
-	if thisWriter.byteWriter != nil {
-		return thisWriter.byteWriter.Write([]byte(stringData))
-	}
-
-	return 0, errors.New("Unimplemented")
+	return thisWriter.writer.Write(data)
 }

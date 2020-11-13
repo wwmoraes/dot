@@ -1,107 +1,98 @@
 package formatters
 
 import (
-	"bytes"
-	"io"
+	"errors"
 	"io/ioutil"
+	"math"
 	"os"
 	"path"
-	"reflect"
-	"strings"
 	"testing"
+
+	"github.com/wwmoraes/dot"
+	"github.com/wwmoraes/dot/dottest"
 )
 
 func TestPrettyWriter(t *testing.T) {
-	want := strings.Join([]string{
-		"digraph {",
-		`  label="test";`,
-		`  "n1";`,
-		`  "n2";`,
-		`  "n1"->"n2";`,
-		"}",
-		"",
-	}, "\n")
-	t.Run("string writer", func(t *testing.T) {
-		var writer strings.Builder
+	t.Run("invalid writer", func(t *testing.T) {
+		graph := dot.NewGraph(nil)
+		graph.Node("n1").Edge(graph.Node("n2"))
 
-		err := writeSample(t, &writer)
-		if err != nil {
-			t.Fatal(err)
+		prettyWriter := NewPrettyWriter(nil)
+
+		gotN, gotErr := graph.WriteTo(prettyWriter)
+
+		wantN := int64(0)
+		wantErr := ErrNoWriter
+
+		if gotN != wantN {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotN, wantN)
 		}
 
-		got := writer.String()
-
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got [\n%v\n] want [\n%v\n]", got, want)
+		if !errors.Is(gotErr, wantErr) {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotErr, wantErr)
 		}
 	})
 	t.Run("bytes writer", func(t *testing.T) {
-		var buf bytes.Buffer
+		graph := dot.NewGraph(nil)
+		graph.Node("n1").Edge(graph.Node("n2"))
 
-		err := writeSample(t, &buf)
-		if err != nil {
-			t.Fatal(err)
+		wantString := "digraph {\n  \"n1\";\n  \"n2\";\n  \"n1\"->\"n2\";\n}\n"
+		wantN := int64(len(wantString))
+		var wantErr error = nil
+
+		stringWriter := dottest.NewByteWriter(t, math.MaxInt32, wantErr)
+		prettyWriter := NewPrettyWriter(stringWriter)
+
+		gotN, gotErr := graph.WriteTo(prettyWriter)
+		gotString := stringWriter.String()
+
+		if gotN != wantN {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotN, wantN)
 		}
 
-		var stringWriter strings.Builder
-		_, err = buf.WriteTo(&stringWriter)
-		if err != nil {
-			t.Fatal(err)
+		if !errors.Is(gotErr, wantErr) {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotErr, wantErr)
 		}
 
-		got := stringWriter.String()
-
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got [\n%v\n] want [\n%v\n]", got, want)
+		if gotString != wantString {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotString, wantString)
 		}
 	})
 	t.Run("file writer", func(t *testing.T) {
+		graph := dot.NewGraph(nil)
+		graph.Node("n1").Edge(graph.Node("n2"))
+
 		filePath := path.Join(t.TempDir(), "graph.dot")
 		fd, err := os.Create(filePath)
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer fd.Close()
 
-		err = writeSample(t, fd)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		fd.Close()
+		prettyWriter := NewPrettyWriter(fd)
+		gotN, gotErr := graph.WriteTo(prettyWriter)
 
 		bytes, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		got := string(bytes)
+		gotString := string(bytes)
 
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("got [\n%v\n] want [\n%v\n]", got, want)
+		wantString := "digraph {\n  \"n1\";\n  \"n2\";\n  \"n1\"->\"n2\";\n}\n"
+		wantN := int64(len(wantString))
+		var wantErr error = nil
+
+		if gotN != wantN {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotN, wantN)
+		}
+
+		if !errors.Is(gotErr, wantErr) {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotErr, wantErr)
+		}
+
+		if gotString != wantString {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", gotString, wantString)
 		}
 	})
-}
-
-func writeSample(t *testing.T, writer io.Writer) error {
-	t.Helper()
-
-	prettyWriter := NewPrettyWriter(writer)
-
-	writeChunks := []string{
-		"digraph {",
-		`label="test";`,
-		`"n1";`,
-		`"n2";`,
-		`"n1"->"n2";`,
-		"}",
-	}
-
-	for _, chunk := range writeChunks {
-		_, err := prettyWriter.Write([]byte(chunk))
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
