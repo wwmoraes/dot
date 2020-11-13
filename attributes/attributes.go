@@ -152,6 +152,7 @@ func (dotObjectData *Attributes) WriteTo(writer io.Writer) (n int64, err error) 
 	return
 }
 
+// HasAttributes returns true if there's any attribute set
 func (dotObjectData *Attributes) HasAttributes() bool {
 	return len(dotObjectData.attributes) > 0
 }
