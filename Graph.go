@@ -2,32 +2,7 @@ package dot
 
 import (
 	"github.com/wwmoraes/dot/attributes"
-	"github.com/wwmoraes/dot/generators"
 )
-
-// GraphOptions contains the parameters used for graph creation
-type GraphOptions struct {
-	parent Graph
-	// Generator is used to create IDs for objects to prevent colision
-	Generator generators.IDGenerator
-	// ID immutable id
-	ID string
-	// Type the graph type (directed, undirected or sub)
-	Type attributes.GraphType
-	// Cluster forbids the creation of multi-edges i.e.:
-	//
-	// on directed graphs, only one one edge between a given pair of head and tail nodes is allowed
-	//
-	// on undirected graphs, only one edge between the same two nodes is allowed
-	Strict bool
-	// Cluster denotes if the graph is the special cluster subgraph, whose name
-	// starts with "cluster_"
-	Cluster bool
-	// NodeInitializer applies defaults to newly created nodes
-	NodeInitializer func(Node)
-	// EdgeInitializer applies defaults to newly created edges
-	EdgeInitializer func(StyledEdge)
-}
 
 // Graph is implemented by dot-compatible graph values
 type Graph interface {

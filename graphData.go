@@ -31,32 +31,7 @@ type graphData struct {
 //
 // if id is "-", a randonly generated ID will be set
 func NewGraph(options *GraphOptions) Graph {
-	generator := generators.NewRandTimeIDGenerator(24)
-	if options == nil {
-		options = &GraphOptions{}
-	}
-
-	if options.ID == "-" {
-		options.ID = generator.String()
-	}
-
-	if options.Cluster {
-		options.ID = fmt.Sprintf("cluster_%s", options.ID)
-	}
-
-	if options.Type == "" {
-		options.Type = attributes.GraphTypeDirected
-	}
-
-	if options.Type == attributes.GraphTypeSub && options.parent == nil {
-		panic("cannot create subgraph without parent")
-	} else if options.Type != attributes.GraphTypeSub && options.parent != nil {
-		panic("cannot create graph with parent")
-	}
-
-	if options.Generator == nil {
-		options.Generator = generators.NewRandTimeIDGenerator(24)
-	}
+	options = parseGraphOptions(options)
 
 	newGraph := &graphData{
 		id:              options.ID,
