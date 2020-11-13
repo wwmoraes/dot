@@ -13,7 +13,7 @@ type Graph interface {
 	// Root returns the root graph (i.e. the topmost, without a parent graph)
 	Root() Graph
 	// Type returns the graph type: directed, undirected or sub
-	Type() attributes.GraphType
+	Type() GraphType
 	// FindSubgraph returns the subgraph of this graph or from one of its parents
 	FindSubgraph(id string) (Graph, bool)
 	// Subgraph creates a subgraph of this graph

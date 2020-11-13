@@ -29,7 +29,7 @@ func TestGraphBehavior(t *testing.T) {
 	})
 	t.Run("directed graph", func(t *testing.T) {
 		graph := NewGraph(&GraphOptions{
-			Type: attributes.GraphTypeDirected,
+			Type: GraphTypeDirected,
 		})
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
@@ -42,7 +42,7 @@ func TestGraphBehavior(t *testing.T) {
 	})
 	t.Run("undirected graph", func(t *testing.T) {
 		graph := NewGraph(&GraphOptions{
-			Type: attributes.GraphTypeUndirected,
+			Type: GraphTypeUndirected,
 		})
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
@@ -100,7 +100,7 @@ func TestNewGraph(t *testing.T) {
 			name: "empty directed graph",
 			args: args{
 				options: &GraphOptions{
-					Type: attributes.GraphTypeDirected,
+					Type: GraphTypeDirected,
 				},
 			},
 			want: `digraph {}`,
@@ -110,7 +110,7 @@ func TestNewGraph(t *testing.T) {
 			args: args{
 				options: &GraphOptions{
 					ID:   "test",
-					Type: attributes.GraphTypeDirected,
+					Type: GraphTypeDirected,
 				},
 			},
 			want: `digraph "test" {}`,
@@ -119,7 +119,7 @@ func TestNewGraph(t *testing.T) {
 			name: "empty undirected graph",
 			args: args{
 				options: &GraphOptions{
-					Type: attributes.GraphTypeUndirected,
+					Type: GraphTypeUndirected,
 				},
 			},
 			want: `graph {}`,
@@ -129,7 +129,7 @@ func TestNewGraph(t *testing.T) {
 			args: args{
 				options: &GraphOptions{
 					ID:   "test",
-					Type: attributes.GraphTypeUndirected,
+					Type: GraphTypeUndirected,
 				},
 			},
 			want: `graph "test" {}`,
@@ -249,7 +249,7 @@ func TestNewGraph_generatedID(t *testing.T) {
 			name: "empty randomly-named directed graph",
 			options: &GraphOptions{
 				ID:   "-",
-				Type: attributes.GraphTypeDirected,
+				Type: GraphTypeDirected,
 			},
 			want: func(graph Graph) string {
 				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
@@ -259,7 +259,7 @@ func TestNewGraph_generatedID(t *testing.T) {
 			name: "empty randomly-named undirected graph",
 			options: &GraphOptions{
 				ID:   "-",
-				Type: attributes.GraphTypeUndirected,
+				Type: GraphTypeUndirected,
 			},
 			want: func(graph Graph) string {
 				return fmt.Sprintf(`graph "%s" {}`, graph.ID())
@@ -308,7 +308,7 @@ func TestNewGraph_invalid(t *testing.T) {
 		{
 			name: "subgraph without parent",
 			options: &GraphOptions{
-				Type: attributes.GraphTypeSub,
+				Type: GraphTypeSub,
 			},
 		},
 		{
@@ -422,7 +422,7 @@ func TestStrict(t *testing.T) {
 	{
 		graph := NewGraph(&GraphOptions{
 			Strict: true,
-			Type:   attributes.GraphTypeUndirected,
+			Type:   GraphTypeUndirected,
 		})
 		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `strict graph {}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
@@ -498,7 +498,7 @@ func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
 
 func TestUndirectedTwoConnectedNodes(t *testing.T) {
 	di := NewGraph(&GraphOptions{
-		Type: attributes.GraphTypeUndirected,
+		Type: GraphTypeUndirected,
 	})
 	n1 := di.Node("A")
 	n2 := di.Node("B")
@@ -759,7 +759,7 @@ func TestGraphEdgeInitializer(t *testing.T) {
 
 func TestGraphCreateNodeOnce(t *testing.T) {
 	di := NewGraph(&GraphOptions{
-		Type: attributes.GraphTypeUndirected,
+		Type: GraphTypeUndirected,
 	})
 	n1 := di.Node("A")
 	n2 := di.Node("A")

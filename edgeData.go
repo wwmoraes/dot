@@ -75,7 +75,7 @@ func (thisEdge *edgeData) EdgesTo(to Node) []Edge {
 func (thisEdge *edgeData) WriteTo(device io.Writer) (n int64, err error) {
 	denoteEdge := attributes.EdgeTypeUndirected
 
-	if thisEdge.graph.Root().Type() == attributes.GraphTypeDirected {
+	if thisEdge.graph.Root().Type() == GraphTypeDirected {
 		denoteEdge = attributes.EdgeTypeDirected
 	}
 

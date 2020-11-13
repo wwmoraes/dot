@@ -1,4 +1,4 @@
-package attributes
+package dot
 
 // GraphType graphviz graph types
 type GraphType string

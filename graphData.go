@@ -14,7 +14,7 @@ import (
 type graphData struct {
 	*attributes.Attributes
 	id        string
-	graphType attributes.GraphType
+	graphType GraphType
 	strict    bool
 	generator generators.IDGenerator
 	nodes     map[string]Node
@@ -66,7 +66,7 @@ func (thisGraph *graphData) Root() Graph {
 }
 
 // Type returns the graph type: directed, undirected or sub
-func (thisGraph *graphData) Type() attributes.GraphType {
+func (thisGraph *graphData) Type() GraphType {
 	return thisGraph.graphType
 }
 
@@ -76,7 +76,7 @@ func (thisGraph *graphData) Subgraph(options *GraphOptions) Graph {
 	}
 
 	// enforce subgraph type
-	options.Type = attributes.GraphTypeSub
+	options.Type = GraphTypeSub
 
 	// set parent
 	options.parent = thisGraph

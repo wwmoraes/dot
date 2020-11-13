@@ -3,7 +3,6 @@ package dot
 import (
 	"fmt"
 
-	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/generators"
 )
 
@@ -15,7 +14,7 @@ type GraphOptions struct {
 	// ID immutable id
 	ID string
 	// Type the graph type (directed, undirected or sub)
-	Type attributes.GraphType
+	Type GraphType
 	// Cluster forbids the creation of multi-edges i.e.:
 	//
 	// on directed graphs, only one one edge between a given pair of head and tail nodes is allowed
