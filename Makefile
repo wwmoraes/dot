@@ -18,8 +18,14 @@ build: $(SOURCES)
 
 .PHONY: clean
 clean:
-	go clean -cache -testcache ./...
+	find . -name "*.dot" -delete
+	find . -name "*.png" -delete
 	rm -f coverage*.out coverage*.html
+	rm -rf site
+
+.PHONY: clean-cache
+clean-cache:
+	go clean -cache -testcache ./...
 
 .PHONY: test
 test: $(SOURCES)
