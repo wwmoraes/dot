@@ -40,9 +40,6 @@ coverage: coverage.html
 	@touch doc.go
 	@$(MAKE) $<
 
-.PHONY: coverage-html
-coverage-html: coverage.html
-
 coverage.out: $(SOURCES)
 	go test -race -cover -coverprofile=$@ ./...
 
