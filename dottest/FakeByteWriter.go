@@ -2,10 +2,14 @@ package dottest
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"testing"
 )
+
+// ErrLimit means that the test writer has reached its limit
+var ErrLimit = errors.New("unable to write more: the limit has been reached")
 
 // ByteWriter is implemented by values that can have only bytes written to
 type ByteWriter interface {
