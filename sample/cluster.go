@@ -45,14 +45,15 @@ func main() {
 	log.Println("creating edges...")
 	outsideGraph.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outsideGraph)
 
-	log.Println("trying to open cluster.dot file for write...")
-	fd, err := os.Create("cluster.dot")
+	fileName := "cluster.dot"
+	log.Printf("trying to open %s file for write...\n", fileName)
+	fd, err := os.Create(fileName)
 	if err == nil {
-		log.Println("writing graph to cluster.dot...")
+		defer fd.Close()
+		log.Printf("writing graph to %s...\n", fileName)
 		_, err := rootGraph.WriteTo(formatters.NewPrettyWriter(fd))
-		if err != nil {
-			log.Fatal(err)
+		if err == nil {
+			log.Printf("%s written successfully!\n", fileName)
 		}
-		log.Println("done!")
 	}
 }
