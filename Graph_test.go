@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"path"
 	"reflect"
 	"strings"
 	"testing"
@@ -620,7 +621,6 @@ func TestSameRank(t *testing.T) {
 	}
 }
 
-// dot -Tpng cluster.dot > cluster.png && open cluster.png
 func TestCluster(t *testing.T) {
 	di := NewGraph(nil)
 	outside := di.Node("Outside")
@@ -639,7 +639,8 @@ func TestCluster(t *testing.T) {
 	insideThree := clusterB.Node("three")
 	insideFour := clusterB.Node("four")
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
-	if err := ioutil.WriteFile("sample/cluster.dot", []byte(di.String()), os.ModePerm); err != nil {
+	filePath := path.Join(t.TempDir(), "cluster.dot")
+	if err := ioutil.WriteFile(filePath, []byte(di.String()), os.ModePerm); err != nil {
 		t.Errorf("unable to write dot file: %w", err)
 	}
 }
