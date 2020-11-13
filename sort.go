@@ -2,24 +2,36 @@ package dot
 
 import "sort"
 
-func (g *graphData) sortedNodesKeys() (keys []string) {
+func (g *graphData) sortedNodesKeys() []string {
+	keys := make([]string, 0, len(g.subgraphs))
+
 	for each := range g.nodes {
 		keys = append(keys, each)
 	}
+
 	sort.StringSlice(keys).Sort()
-	return
+
+	return keys
 }
-func (g *graphData) sortedEdgesFromKeys() (keys []string) {
+func (g *graphData) sortedEdgesFromKeys() []string {
+	keys := make([]string, 0, len(g.subgraphs))
+
 	for each := range g.edgesFrom {
 		keys = append(keys, each)
 	}
+
 	sort.StringSlice(keys).Sort()
-	return
+
+	return keys
 }
-func (g *graphData) sortedSubgraphsKeys() (keys []string) {
+func (g *graphData) sortedSubgraphsKeys() []string {
+	keys := make([]string, 0, len(g.subgraphs))
+
 	for each := range g.subgraphs {
 		keys = append(keys, each)
 	}
+
 	sort.StringSlice(keys).Sort()
-	return
+
+	return keys
 }
