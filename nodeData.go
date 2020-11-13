@@ -39,8 +39,21 @@ func (thisNode *nodeData) EdgesTo(toNode Node) []Edge {
 	return thisNode.graph.FindEdges(thisNode, toNode)
 }
 
-func (thisNode *nodeData) Write(device io.Writer) {
-	fmt.Fprintf(device, `"%s"`, thisNode.ID())
-	thisNode.WriteAttributes(device)
-	fmt.Fprintf(device, ";")
+func (thisNode *nodeData) WriteTo(device io.Writer) (n int64, err error) {
+	written32, err := fmt.Fprintf(device, `"%s"`, thisNode.ID())
+	n += int64(written32)
+	if err != nil {
+		return
+	}
+
+	written64, err := thisNode.Attributes.WriteTo(device)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	written32, err = fmt.Fprintf(device, ";")
+	n += int64(written32)
+
+	return
 }

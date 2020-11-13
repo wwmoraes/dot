@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/formatters"
@@ -207,67 +208,134 @@ func (thisGraph *graphData) AddToSameRank(group string, nodes ...Node) {
 // String returns the source in dot notation.
 func (thisGraph *graphData) String() string {
 	b := new(bytes.Buffer)
-	thisGraph.Write(b)
+	_, err := thisGraph.WriteTo(b)
+	if err != nil {
+		return ""
+	}
 	return b.String()
 }
 
-func (thisGraph *graphData) Write(w io.Writer) {
+func (thisGraph *graphData) WriteTo(w io.Writer) (n int64, err error) {
 	if thisGraph.strict {
-		fmt.Fprint(w, "strict ")
+		written32, err := fmt.Fprint(w, "strict ")
+		n += int64(written32)
+		if err != nil {
+			return n, err
+		}
+	}
+
+	written32, err := fmt.Fprintf(w, `%s`, thisGraph.graphType)
+	n += int64(written32)
+	if err != nil {
+		return
+	}
+
+	if len(thisGraph.id) > 0 {
+		written32, err = fmt.Fprintf(w, ` "%s"`, thisGraph.id)
+		n += int64(written32)
+		if err != nil {
+			return
+		}
 	}
 
 	// open graph
-	fmt.Fprintf(w, `%s`, thisGraph.graphType)
-	if len(thisGraph.id) > 0 {
-		fmt.Fprintf(w, ` "%s"`, thisGraph.id)
+	written32, err = fmt.Fprint(w, " {")
+	n += int64(written32)
+	if err != nil {
+		return
 	}
-	fmt.Fprint(w, " {")
 
 	// write attributes
 	if thisGraph.HasAttributes() {
-		fmt.Fprintf(w, "graph ")
-		thisGraph.Attributes.WriteAttributes(w)
-		fmt.Fprintf(w, ";")
+		written32, err = fmt.Fprintf(w, "graph ")
+		n += int64(written32)
+		if err != nil {
+			return
+		}
+
+		written64, errAttr := thisGraph.Attributes.WriteTo(w)
+		n += written64
+		if errAttr != nil {
+			return n, errAttr
+		}
+
+		written32, err = fmt.Fprintf(w, ";")
+		n += int64(written32)
+		if err != nil {
+			return
+		}
 	}
 
 	// iterate and write subgraphs
 	for _, key := range thisGraph.sortedSubgraphsKeys() {
 		each := thisGraph.subgraphs[key]
-		each.Write(w)
+		written64, err := each.WriteTo(w)
+		n += written64
+		if err != nil {
+			return n, err
+		}
 	}
 
 	// iterate and write nodes
 	for _, key := range thisGraph.sortedNodesKeys() {
 		each := thisGraph.nodes[key]
-		each.Write(w)
+		written64, err := each.WriteTo(w)
+		n += written64
+		if err != nil {
+			return n, err
+		}
 	}
 
 	// iterate and write node groups
 	for _, nodes := range thisGraph.sameRank {
 		// open group
-		fmt.Fprintf(w, "{")
+		written32, err = fmt.Fprintf(w, "{")
+		n += int64(written32)
+		if err != nil {
+			return
+		}
 		// set rank attribute
-		fmt.Fprintf(w, "rank=same;")
+		written32, err = fmt.Fprintf(w, "rank=same;")
+		n += int64(written32)
+		if err != nil {
+			return
+		}
 		// write group nodes
-		for _, n := range nodes {
-			n.Write(w)
+		for _, node := range nodes {
+			written64, err := node.WriteTo(w)
+			n += written64
+			if err != nil {
+				return n, err
+			}
 		}
 		// close group
-		fmt.Fprintf(w, "}")
+		written32, err = fmt.Fprintf(w, "}")
+		n += int64(written32)
+		if err != nil {
+			return
+		}
 	}
 
 	// iterate and write edges
 	for _, each := range thisGraph.sortedEdgesFromKeys() {
 		all := thisGraph.edgesFrom[each]
 		for _, each := range all {
-			each.Write(w)
+			written64, err := each.WriteTo(w)
+			n += written64
+			if err != nil {
+				return n, err
+			}
 		}
 	}
 
 	// close graph
-	fmt.Fprintf(w, "}")
+	written32, err = fmt.Fprintf(w, "}")
+	n += int64(written32)
+
+	return
 }
 
+// TODO fully ditch this writer in the future
 // IndentedWrite write the graph to a writer using simple TAB indentation.
 func (thisGraph *graphData) IndentedWrite(w formatters.IndentedWriter) {
 	if thisGraph.strict {
@@ -282,19 +350,28 @@ func (thisGraph *graphData) IndentedWrite(w formatters.IndentedWriter) {
 			w.NewLine()
 		}
 		// graph attributes
-		thisGraph.Attributes.WriteAttributes(w)
+		_, err := thisGraph.Attributes.WriteTo(w)
+		if err != nil {
+			log.Println(err)
+		}
 		// graph nodes
 		for _, key := range thisGraph.sortedNodesKeys() {
 			w.NewLine()
 			each := thisGraph.nodes[key]
-			each.Write(w)
+			_, err := each.WriteTo(w)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 		// graph edges
 		for _, each := range thisGraph.sortedEdgesFromKeys() {
 			all := thisGraph.edgesFrom[each]
 			for _, each := range all {
 				w.NewLine()
-				each.Write(w)
+				_, err := each.WriteTo(w)
+				if err != nil {
+					log.Println(err)
+				}
 			}
 		}
 		for _, nodes := range thisGraph.sameRank {

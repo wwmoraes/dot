@@ -1,9 +1,6 @@
 package dot
 
 import (
-	"fmt"
-	"io"
-
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/formatters"
 	"github.com/wwmoraes/dot/generators"
@@ -37,7 +34,7 @@ type GraphOptions struct {
 type Graph interface {
 	attributes.Identity
 	attributes.Styleable
-	fmt.Stringer
+	attributes.Serializable
 
 	// Root returns the root graph (i.e. the topmost, without a parent graph)
 	Root() Graph
@@ -69,6 +66,4 @@ type Graph interface {
 	FindNodeByID(id string) (foundNode Node, found bool)
 	// FindNodes returns all nodes recursively
 	FindNodes() (nodes []Node)
-	// Write outputs the current graph state in dot language notation
-	Write(w io.Writer)
 }

@@ -49,7 +49,10 @@ func main() {
 	fd, err := os.Create("cluster.dot")
 	if err == nil {
 		log.Println("writing graph to cluster.dot...")
-		rootGraph.Write(formatters.NewPrettyWriter(fd))
+		_, err := rootGraph.WriteTo(formatters.NewPrettyWriter(fd))
+		if err != nil {
+			log.Fatal(err)
+		}
 		log.Println("done!")
 	}
 }

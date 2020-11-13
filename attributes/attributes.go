@@ -120,9 +120,10 @@ func (dotObjectData *Attributes) DeleteAttribute(key Key) {
 	delete(dotObjectData.attributes, key)
 }
 
-func (dotObjectData *Attributes) WriteAttributes(writer io.Writer) {
+// WriteTo writes formatted attributes data to the writer
+func (dotObjectData *Attributes) WriteTo(writer io.Writer) (n int64, err error) {
 	if !dotObjectData.HasAttributes() {
-		return
+		return 0, nil
 	}
 
 	// first collect keys
@@ -146,7 +147,9 @@ func (dotObjectData *Attributes) WriteAttributes(writer io.Writer) {
 			stringAttributes[i] = fmt.Sprintf("%s=%q", k, attributeData.String())
 		}
 	}
-	fmt.Fprintf(writer, "[%s]", strings.Join(stringAttributes, ","))
+	written32, err := fmt.Fprintf(writer, "[%s]", strings.Join(stringAttributes, ","))
+	n += int64(written32)
+	return
 }
 
 func (dotObjectData *Attributes) HasAttributes() bool {

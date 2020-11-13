@@ -51,7 +51,10 @@ func TestAttributes_NewAttributes(t *testing.T) {
 		attributes := NewAttributes()
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := ""
@@ -80,11 +83,17 @@ func TestAttributes_NewAttributesFrom(t *testing.T) {
 		attributes := NewAttributesFrom(sourceAttributes)
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		var wantStringBuilder strings.Builder
-		sourceAttributes.WriteAttributes(&wantStringBuilder)
+		_, err = sourceAttributes.WriteTo(&wantStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		want := wantStringBuilder.String()
 
 		if !reflect.DeepEqual(got, want) {
@@ -155,13 +164,16 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	})
 }
 
-func TestAttributes_Write(t *testing.T) {
+func TestAttributes_WriteTo(t *testing.T) {
 	t.Run("writes single string attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[label="test"]`
@@ -175,7 +187,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttribute(KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[label="test"]`
@@ -189,7 +204,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := "[label=<<B>Hi</B>>]"
@@ -203,7 +221,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := "[label=<<B>Hi</B>>]"
@@ -217,7 +238,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[label="left text\l"]`
@@ -231,7 +255,10 @@ func TestAttributes_Write(t *testing.T) {
 		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[label="left text\l"]`
@@ -248,7 +275,10 @@ func TestAttributes_Write(t *testing.T) {
 		})
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[class="my-class",label="my-label"]`
@@ -265,7 +295,10 @@ func TestAttributes_Write(t *testing.T) {
 		})
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[class="my-class",label="my-label"]`
@@ -285,7 +318,10 @@ func TestAttributes_SetAttribute(t *testing.T) {
 		attributes.SetAttribute(KeyColor, NewString("black"))
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[class="my-class",color="black",label=<<b>my-label</b>>,xlabel="left text\l"]`
@@ -310,7 +346,10 @@ func TestAttributes_SetAttribute(t *testing.T) {
 		})
 
 		var gotStringBuilder strings.Builder
-		attributes.WriteAttributes(&gotStringBuilder)
+		_, err := attributes.WriteTo(&gotStringBuilder)
+		if err != nil {
+			t.Fatal(err)
+		}
 		got := gotStringBuilder.String()
 
 		want := `[class="my-class",color="black",label=<<b>my-label</b>>,xlabel="left text\l"]`

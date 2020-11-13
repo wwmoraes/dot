@@ -2,7 +2,10 @@ package dot
 
 import (
 	"fmt"
+	"math"
 	"testing"
+
+	"github.com/wwmoraes/dot/dottest"
 )
 
 func TestEdge_String(t *testing.T) {
@@ -58,5 +61,44 @@ func TestEdge_StyleHelpers(t *testing.T) {
 		if got, want := flatten(di.String()), fmt.Sprintf(tc.want, n1.ID(), n2.ID()); got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
+	}
+}
+
+func TestEdge_WriteTo(t *testing.T) {
+	tests := []struct {
+		name       string
+		limit      int
+		wantErr    error
+		wantString string
+	}{
+		{
+			name:       "zero data written",
+			limit:      0,
+			wantErr:    dottest.ErrLimit,
+			wantString: "",
+		},
+		{
+			name:       "partially written - edge",
+			limit:      1,
+			wantErr:    dottest.ErrLimit,
+			wantString: `"n1"->"n2"`,
+		},
+		{
+			name:       "fully written",
+			limit:      math.MaxInt32,
+			wantErr:    nil,
+			wantString: `"n1"->"n2"[label="test"];`,
+		},
+	}
+
+	graph := NewGraph(nil)
+	edge := graph.Edge(graph.Node("n1"), graph.Node("n2"))
+	edge.SetAttributeString("label", "test")
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wantN := int64(len(tt.wantString))
+			dottest.TestByteWrite(t, edge, tt.limit, tt.wantErr, wantN, tt.wantString)
+		})
 	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -68,28 +69,49 @@ func TestSample_Cluster(t *testing.T) {
 	}
 }
 
-func BenchmarkSample_Write(b *testing.B) {
-	b.Run("Direct", func(b *testing.B) {
-		graph := setupGraph(b)
-		b.ResetTimer()
-		for n := 0; n < b.N; n++ {
-			graph.Write(ioutil.Discard)
-		}
-	})
-	b.Run("IndentedWriter", func(b *testing.B) {
-		graph := setupGraph(b)
-		b.ResetTimer()
-		for n := 0; n < b.N; n++ {
-			graph.Write(ioutil.Discard)
-		}
-	})
-	b.Run("PrettyWriter", func(b *testing.B) {
-		graph := setupGraph(b)
-		b.ResetTimer()
-		for n := 0; n < b.N; n++ {
-			graph.Write(formatters.NewPrettyWriter(ioutil.Discard))
-		}
-	})
+func BenchmarkSample_WriteTo(b *testing.B) {
+	type args struct {
+		writer io.Writer
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "direct",
+			args: args{
+				writer: ioutil.Discard,
+			},
+		},
+		{
+			name: "IndentedWriter",
+			args: args{
+				writer: formatters.NewIndentedWriter(ioutil.Discard),
+			},
+		},
+		{
+			name: "PrettyWriter",
+			args: args{
+				writer: formatters.NewPrettyWriter(ioutil.Discard),
+			},
+		},
+	}
+
+	for _, bb := range tests {
+		b.Run(bb.name, func(b *testing.B) {
+			var err error
+
+			graph := setupGraph(b)
+
+			b.ResetTimer()
+			for n := 0; n < b.N; n++ {
+				_, err = graph.WriteTo(bb.args.writer)
+				if err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
 }
 
 func setupGraph(b *testing.B) dot.Graph {

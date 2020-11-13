@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/dottest"
 )
 
 // TestGraphBehavior tests all components with real use cases
@@ -770,22 +772,174 @@ func TestGraphCreateNodeOnce(t *testing.T) {
 	}
 }
 
-func BenchmarkGraph_Write(b *testing.B) {
+func TestGraph_WriteTo(t *testing.T) {
+	tests := []struct {
+		name       string
+		wantErr    error
+		wantString string
+	}{
+		{
+			name:       "zero data written",
+			wantErr:    dottest.ErrLimit,
+			wantString: "",
+		},
+		{
+			name:       "partially written - strict preffix",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict `,
+		},
+		{
+			name:       "partially written - graph type",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph`,
+		},
+		{
+			name:       "partially written - graph id",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph"`,
+		},
+		{
+			name:       "partially written - global graph attributes group",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {`,
+		},
+		{
+			name:       "partially written - global graph attributes group",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph `,
+		},
+		{
+			name:       "partially written - global graph attributes",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"]`,
+		},
+		{
+			name:       "partially written - global graph attributes separator",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];`,
+		},
+		{
+			name:       "partially written - subgraph start",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph`,
+		},
+		{
+			name:       "partially written - subgraph open block",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {`,
+		},
+		{
+			name:       "partially written - subgraph first node ID",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1"`,
+		},
+		{
+			name:       "partially written - subgraph first node separator",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";`,
+		},
+		{
+			name:       "partially written - subgraph second node ID",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2"`,
+		},
+		{
+			name:       "partially written - subgraph second node separator",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group open",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group attribute",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group first node",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;"n1"`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group node separator",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;"n1";`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group second node",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;"n1";"n2"`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group node separator",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;"n1";"n2";`,
+		},
+		{
+			name:       "partially written - subgraph anonymous same rank group close",
+			wantErr:    dottest.ErrLimit,
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;"n1";"n2";}`,
+		},
+		{
+			name:       "fully written",
+			wantString: `strict digraph "test-graph" {graph [label="test-graph"];subgraph {"n1";"n2";{rank=same;"n1";"n2";}"n1"->"n2"[label="subgraph-edge"];}"n1"[label="node1"];"n2"[label="node2"];"n1"->"n2"[label="graph-edge"];}`,
+		},
+	}
+
+	graph := NewGraph(&GraphOptions{
+		ID:     "test-graph",
+		Strict: true,
+	})
+	graph.SetAttributeString("label", "test-graph")
+	subGraph := graph.Subgraph(nil)
+	subGraph.AddToSameRank("g1", subGraph.Node("n1"), subGraph.Node("n2"))
+	subEdge := subGraph.Edge(subGraph.Node("n1"), subGraph.Node("n2"))
+	subEdge.SetAttributeString("label", "subgraph-edge")
+	edge := graph.Edge(graph.Node("n1"), graph.Node("n2"))
+	graph.Node("n1").SetAttributeString("label", "node1")
+	graph.Node("n2").SetAttributeString("label", "node2")
+	edge.SetAttributeString("label", "graph-edge")
+
+	for limit, tt := range tests {
+		if limit == len(tests)-1 {
+			limit = math.MaxInt32
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			wantN := int64(len(tt.wantString))
+			dottest.TestByteWrite(t, graph, limit, tt.wantErr, wantN, tt.wantString)
+		})
+	}
+}
+
+func BenchmarkGraph_WriteTo(b *testing.B) {
 	b.Run("empty graph to buffer", func(b *testing.B) {
-		graph := NewGraph(nil)
+		var err error
 		var buf bytes.Buffer
+
+		graph := NewGraph(nil)
 
 		b.ResetTimer()
 		for n := 0; n < b.N; n++ {
-			graph.Write(&buf)
+			_, err = graph.WriteTo(&buf)
+			if err != nil {
+				b.Fatal(err)
+			}
 		}
 	})
 	b.Run("empty graph to ioutil.Discard", func(b *testing.B) {
+		var err error
+
 		graph := NewGraph(nil)
 
 		b.ResetTimer()
 		for n := 0; n < b.N; n++ {
-			graph.Write(ioutil.Discard)
+			_, err = graph.WriteTo(ioutil.Discard)
+			if err != nil {
+				b.Fatal(err)
+			}
 		}
 	})
 }

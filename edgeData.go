@@ -67,14 +67,26 @@ func (thisEdge *edgeData) EdgesTo(to Node) []Edge {
 	return thisEdge.graph.FindEdges(thisEdge.to, to)
 }
 
-func (thisEdge *edgeData) Write(device io.Writer) {
+func (thisEdge *edgeData) WriteTo(device io.Writer) (n int64, err error) {
 	denoteEdge := attributes.EdgeTypeUndirected
 
 	if thisEdge.graph.Root().Type() == attributes.GraphTypeDirected {
 		denoteEdge = attributes.EdgeTypeDirected
 	}
 
-	fmt.Fprintf(device, `"%s"%s"%s"`, thisEdge.From().ID(), denoteEdge, thisEdge.To().ID())
-	thisEdge.WriteAttributes(device)
-	fmt.Fprint(device, ";")
+	written32, err := fmt.Fprintf(device, `"%s"%s"%s"`, thisEdge.From().ID(), denoteEdge, thisEdge.To().ID())
+	n += int64(written32)
+	if err != nil {
+		return
+	}
+
+	written64, err := thisEdge.Attributes.WriteTo(device)
+	n += written64
+	if err != nil {
+		return
+	}
+
+	written32, err = fmt.Fprint(device, ";")
+	n += int64(written32)
+	return
 }
