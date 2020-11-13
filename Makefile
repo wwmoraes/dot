@@ -1,5 +1,5 @@
 SOURCES := $(wildcard *.go) $(wildcard */*.go)
-PNGS := sample/cluster.png $(patsubst %.go,%.png,$(wildcard sample/formatter/*/sample.go))
+PNGS := sample/plain.png sample/pretty.png
 .DEFAULT_GOAL := all
 
 .PHONY: all

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"os"
 
@@ -8,6 +9,26 @@ import (
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/formatters"
 )
+
+func writeToWith(graph dot.Graph, fileName string, writerFunctors ...func(io.Writer) io.Writer) {
+	log.Printf("trying to open %s file for write plain dot...\n", fileName)
+	fd, err := os.Create(fileName)
+
+	if err == nil {
+		defer fd.Close()
+
+		var writer io.Writer = fd
+		for _, writerFunctor := range writerFunctors {
+			writer = writerFunctor(writer)
+		}
+
+		log.Printf("writing graph to %s...\n", fileName)
+		_, err := graph.WriteTo(writer)
+		if err == nil {
+			log.Printf("%s written successfully!\n", fileName)
+		}
+	}
+}
 
 func main() {
 	log.Println("creating graph instance...")
@@ -29,13 +50,6 @@ func main() {
 	log.Println("creating node two...")
 	insideTwo := clusterA.Node("two")
 
-	log.Println("grouping nodes one and two...")
-	clusterA.AddToSameRank(
-		"test",
-		clusterA.Node("one"),
-		clusterA.Node("two"),
-	)
-
 	log.Println("creating cluster subgraph B...")
 	clusterB := rootGraph.Subgraph(&dot.GraphOptions{
 		ID:      "B",
@@ -52,15 +66,6 @@ func main() {
 	log.Println("creating edges...")
 	outsideGraph.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outsideGraph)
 
-	fileName := "sample.dot"
-	log.Printf("trying to open %s file for write...\n", fileName)
-	fd, err := os.Create(fileName)
-	if err == nil {
-		defer fd.Close()
-		log.Printf("writing graph to %s...\n", fileName)
-		_, err := rootGraph.WriteTo(formatters.NewPrettyWriter(fd))
-		if err == nil {
-			log.Printf("%s written successfully!\n", fileName)
-		}
-	}
+	writeToWith(rootGraph, "plain.dot")
+	writeToWith(rootGraph, "pretty.dot", formatters.NewPrettyWriter)
 }
