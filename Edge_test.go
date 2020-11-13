@@ -11,9 +11,9 @@ import (
 func TestEdge_String(t *testing.T) {
 	// TODO String needs to be implemented, and will break this test when done so
 	graph := NewGraph(nil)
-	gotEdge := graph.Node("n1").Edge(graph.Node("n2"))
+	edge := graph.Node("n1").Edge(graph.Node("n2"))
 
-	if got, want := gotEdge.String(), gotEdge.(*edgeData).internalID; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, edge), `"n1"->"n2";`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -22,7 +22,7 @@ func TestEdge_ObjectInterface(t *testing.T) {
 	graph := NewGraph(nil)
 	graph.Node("n1").Edge(graph.Node("n2"))
 
-	if got, want := flatten(graph.String()), `digraph {"n1";"n2";"n1"->"n2";}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, graph), `digraph {"n1";"n2";"n1"->"n2";}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -58,7 +58,7 @@ func TestEdge_StyleHelpers(t *testing.T) {
 			di.Edge(n1, n2).Dotted()
 		}
 
-		if got, want := flatten(di.String()), fmt.Sprintf(tc.want, n1.ID(), n2.ID()); got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(tc.want, n1.ID(), n2.ID()); got != want {
 			t.Errorf("got [%v] want [%v]", got, want)
 		}
 	}

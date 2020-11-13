@@ -1,6 +1,7 @@
 package dot
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 
@@ -14,9 +15,13 @@ type edgeData struct {
 	internalID string
 }
 
-func (thisEdge *edgeData) String() string {
-	// TODO
-	return thisEdge.internalID
+// String returns the graph transformed into string dot notation
+func (thisEdge *edgeData) String() (string, error) {
+	var b bytes.Buffer
+
+	_, err := thisEdge.WriteTo(&b)
+
+	return b.String(), err
 }
 
 func (thisEdge *edgeData) From() Node {

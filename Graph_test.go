@@ -23,7 +23,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		expected := `digraph {"n1";"n2";"n1"->"n2"[label="uses"];}`
 
-		if got, want := flatten(graph.String()), flatten(expected); got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), dottest.Flatten(t, expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
 		}
 	})
@@ -36,7 +36,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		expected := `digraph {"n1";"n2";"n1"->"n2"[label="uses"];}`
 
-		if got, want := flatten(graph.String()), flatten(expected); got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), dottest.Flatten(t, expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
 		}
 	})
@@ -49,7 +49,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		expected := `graph {"n1";"n2";"n1"--"n2"[label="uses"];}`
 
-		if got, want := flatten(graph.String()), flatten(expected); got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), dottest.Flatten(t, expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
 		}
 	})
@@ -64,7 +64,7 @@ func TestGraphBehavior(t *testing.T) {
 
 		expected := `digraph {subgraph {subgraph {"n3";"n4";"n4"->"n3";}"n2";}"n1";"n1"->"n2";"n2"->"n3";"n3"->"n1";}`
 
-		if got, want := flatten(graph.String()), flatten(expected); got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), dottest.Flatten(t, expected); got != want {
 			t.Errorf("got [\n%v\n]want [\n%v\n]", got, want)
 		}
 	})
@@ -156,7 +156,8 @@ func TestNewGraph(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := flatten(NewGraph(tt.args.options).String()); !reflect.DeepEqual(got, tt.want) {
+			graph := NewGraph(tt.args.options)
+			if got := dottest.MustGetFlattenSerializableString(t, graph); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewGraph() = %v, want %v", got, tt.want)
 			}
 		})
@@ -173,7 +174,7 @@ func TestGraph_Initializers(t *testing.T) {
 
 		graph.Node("n1")
 
-		if got, want := flatten(graph.String()), `digraph {"n1"[class="test-class"];}`; got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `digraph {"n1"[class="test-class"];}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
@@ -186,7 +187,7 @@ func TestGraph_Initializers(t *testing.T) {
 
 		graph.Node("n1").Edge(graph.Node("n2"))
 
-		if got, want := flatten(graph.String()), `digraph {"n1";"n2";"n1"->"n2"[class="test-class"];}`; got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `digraph {"n1";"n2";"n1"->"n2"[class="test-class"];}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
@@ -291,7 +292,7 @@ func TestNewGraph_generatedID(t *testing.T) {
 
 			want := tt.want(graph)
 
-			if got := flatten(graph.String()); !reflect.DeepEqual(got, want) {
+			if got := dottest.MustGetFlattenSerializableString(t, graph); !reflect.DeepEqual(got, want) {
 				t.Errorf("NewGraph() = %v, want %v", got, want)
 			}
 		})
@@ -359,7 +360,7 @@ func TestGraph_Subgraph(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			graph := NewGraph(nil)
 			graph.Subgraph(tt.options)
-			if got := flatten(graph.String()); got != tt.want {
+			if got := dottest.MustGetFlattenSerializableString(t, graph); got != tt.want {
 				t.Errorf("got [%v] want [%v]", got, tt.want)
 			}
 		})
@@ -379,7 +380,7 @@ func TestGraph_Subgraph(t *testing.T) {
 			t.Error("got dash ID instead of a random one")
 		}
 
-		if got, want := flatten(graph.String()), fmt.Sprintf(`digraph {subgraph "%s" {}}`, subGraph.ID()); got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), fmt.Sprintf(`digraph {subgraph "%s" {}}`, subGraph.ID()); got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	})
@@ -387,13 +388,13 @@ func TestGraph_Subgraph(t *testing.T) {
 
 func TestEmpty(t *testing.T) {
 	di := NewGraph(nil)
-	if got, want := flatten(di.String()), `digraph {}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 	di2 := NewGraph(&GraphOptions{
 		ID: "test",
 	})
-	if got, want := flatten(di2.String()), `digraph "test" {}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di2), `digraph "test" {}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 	di3 := NewGraph(&GraphOptions{
@@ -402,7 +403,7 @@ func TestEmpty(t *testing.T) {
 	if di3.ID() == "-" {
 		t.Error("got dash id instead of randomly generated one")
 	}
-	if got, want := flatten(di3.String()), fmt.Sprintf(`digraph "%s" {}`, di3.ID()); got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di3), fmt.Sprintf(`digraph "%s" {}`, di3.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -413,7 +414,7 @@ func TestStrict(t *testing.T) {
 		graph := NewGraph(&GraphOptions{
 			Strict: true,
 		})
-		if got, want := flatten(graph.String()), `strict digraph {}`; got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `strict digraph {}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	}
@@ -423,7 +424,7 @@ func TestStrict(t *testing.T) {
 			Strict: true,
 			Type:   attributes.GraphTypeUndirected,
 		})
-		if got, want := flatten(graph.String()), `strict graph {}`; got != want {
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `strict graph {}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	}
@@ -433,7 +434,7 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 	di := NewGraph(nil)
 	di.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
 	di.SetAttribute(attributes.KeyColor, attributes.NewString("lightgrey"))
-	if got, want := flatten(di.String()), `digraph {graph [color="lightgrey",style="filled"];}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [color="lightgrey",style="filled"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -441,7 +442,7 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 func TestEmptyWithHTMLLabel(t *testing.T) {
 	di := NewGraph(nil)
 	di.SetAttribute(attributes.KeyLabel, attributes.NewHTML("<B>Hi</B>"))
-	if got, want := flatten(di.String()), `digraph {graph [label=<<B>Hi</B>>];}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [label=<<B>Hi</B>>];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -449,7 +450,7 @@ func TestEmptyWithHTMLLabel(t *testing.T) {
 func TestEmptyWithLiteralValueLabel(t *testing.T) {
 	di := NewGraph(nil)
 	di.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"left-justified text\l"`))
-	if got, want := flatten(di.String()), `digraph {graph [label="left-justified text\l"];}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [label="left-justified text\l"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -459,7 +460,7 @@ func TestTwoConnectedNodes(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph {"%[1]s";"%[2]s";"%[1]s"->"%[2]s";}`, n1.ID(), n2.ID()); got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`digraph {"%[1]s";"%[2]s";"%[1]s"->"%[2]s";}`, n1.ID(), n2.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -502,7 +503,7 @@ func TestUndirectedTwoConnectedNodes(t *testing.T) {
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
-	if got, want := flatten(di.String()), fmt.Sprintf(`graph {"%[1]s";"%[2]s";"%[1]s"--"%[2]s";}`, n1.ID(), n2.ID()); got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`graph {"%[1]s";"%[2]s";"%[1]s"--"%[2]s";}`, n1.ID(), n2.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -524,11 +525,11 @@ func TestSubgraph(t *testing.T) {
 		ID: "test-id",
 	})
 	sub.SetAttributeString(attributes.KeyStyle, "filled")
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph {subgraph "%s" {graph [style="filled"];}}`, sub.ID()); got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`digraph {subgraph "%s" {graph [style="filled"];}}`, sub.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 	sub.SetAttributeString(attributes.KeyLabel, "new-label")
-	if got, want := flatten(di.String()), fmt.Sprintf(`digraph {subgraph "%s" {graph [label="new-label",style="filled"];}}`, sub.ID()); got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`digraph {subgraph "%s" {graph [label="new-label",style="filled"];}}`, sub.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 	foundGraph, _ := di.FindSubgraph("test-id")
@@ -578,7 +579,7 @@ func TestNode(t *testing.T) {
 		return
 	}
 
-	if got, want := flatten(graph.String()), fmt.Sprintf(`digraph {"%s"[label="test",shape="box"];}`, node.ID()); got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, graph), fmt.Sprintf(`digraph {"%s"[label="test",shape="box"];}`, node.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 
@@ -602,7 +603,7 @@ func TestEdgeLabel(t *testing.T) {
 	attr := attributes.NewAttributes()
 	attr.SetAttributeString(attributes.KeyLabel, "what")
 	n1.EdgeWithAttributes(n2, attr)
-	if got, want := flatten(di.String()), `digraph {"e1";"e2";"e1"->"e2"[label="what"];}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {"e1";"e2";"e1"->"e2"[label="what"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -615,7 +616,7 @@ func TestSameRank(t *testing.T) {
 	foo1.Edge(foo2)
 	foo1.Edge(bar)
 	di.AddToSameRank("top-row", foo1, foo2)
-	if got, want := flatten(di.String()), `digraph {"bar";"foo1";"foo2";{rank=same;"foo1";"foo2";}"foo1"->"foo2";"foo1"->"bar";}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {"bar";"foo1";"foo2";{rank=same;"foo1";"foo2";}"foo1"->"foo2";"foo1"->"bar";}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -639,21 +640,16 @@ func TestCluster(t *testing.T) {
 	insideFour := clusterB.Node("four")
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
 	filePath := path.Join(t.TempDir(), "cluster.dot")
-	if err := ioutil.WriteFile(filePath, []byte(di.String()), os.ModePerm); err != nil {
+	if err := ioutil.WriteFile(filePath, []byte(dottest.MustGetSerializableString(t, di)), os.ModePerm); err != nil {
 		t.Errorf("unable to write dot file: %w", err)
 	}
-}
-
-// remove tabs and newlines and spaces
-func flatten(s string) string {
-	return strings.Replace((strings.Replace(s, "\n", "", -1)), "\t", "", -1)
 }
 
 func TestDeleteLabel(t *testing.T) {
 	g := NewGraph(nil)
 	n := g.Node("my-id")
 	n.DeleteAttribute(attributes.KeyLabel)
-	if got, want := flatten(g.String()), `digraph {"my-id";}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, g), `digraph {"my-id";}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
@@ -724,7 +720,7 @@ func TestLabelWithEscaping(t *testing.T) {
 	di := NewGraph(nil)
 	n := di.Node("without-linefeed")
 	n.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"with \l linefeed"`))
-	if got, want := flatten(di.String()), `digraph {"without-linefeed"[label="with \l linefeed"];}`; got != want {
+	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {"without-linefeed"[label="with \l linefeed"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }

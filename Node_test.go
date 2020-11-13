@@ -13,7 +13,7 @@ func TestNode_String(t *testing.T) {
 	graph := NewGraph(nil)
 	n1 := graph.Node("n1")
 
-	if got, want := n1.String(), n1.ID(); got != want {
+	if got, want := dottest.MustGetSerializableString(t, n1), `"n1";`; got != want {
 		t.Errorf("got [%v] want [%v]", got, want)
 	}
 }

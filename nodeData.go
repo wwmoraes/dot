@@ -1,6 +1,7 @@
 package dot
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 
@@ -19,9 +20,13 @@ func (thisNode *nodeData) ID() string {
 	return thisNode.id
 }
 
-func (thisNode *nodeData) String() string {
-	// TODO
-	return thisNode.id
+// String returns the graph transformed into string dot notation
+func (thisNode *nodeData) String() (string, error) {
+	var b bytes.Buffer
+
+	_, err := thisNode.WriteTo(&b)
+
+	return b.String(), err
 }
 
 // Edge creates an Edge to a node

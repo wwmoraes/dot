@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/generators"
@@ -204,14 +203,13 @@ func (thisGraph *graphData) AddToSameRank(group string, nodes ...Node) {
 	thisGraph.sameRank[group] = append(thisGraph.sameRank[group], nodes...)
 }
 
-// String returns the source in dot notation.
-func (thisGraph *graphData) String() string {
-	b := new(bytes.Buffer)
-	_, err := thisGraph.WriteTo(b)
-	if err != nil {
-		return ""
-	}
-	return b.String()
+// String returns the graph transformed into string dot notation
+func (thisGraph *graphData) String() (string, error) {
+	var b bytes.Buffer
+
+	_, err := thisGraph.WriteTo(&b)
+
+	return b.String(), err
 }
 
 func (thisGraph *graphData) WriteTo(w io.Writer) (n int64, err error) {
