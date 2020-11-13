@@ -3,7 +3,7 @@ SOURCES := $(wildcard *.go) $(wildcard */*.go)
 .DEFAULT_GOAL := all
 
 .PHONY: all
-all: build test test-behavior coverage lint
+all: build test coverage lint
 
 .PHONY: lint
 lint:
@@ -34,15 +34,20 @@ test-v: $(SOURCES)
 
 .PHONY: coverage
 coverage: coverage.html
+	@touch doc.go
+	@$(MAKE) $<
+
+.PHONY: coverage-html
+coverage-html: coverage.html
 
 coverage.out: $(SOURCES)
-	go test -cover -coverprofile=$@ ./...
+	go test -race -cover -coverprofile=$@ ./...
 
-.PHONY: test-behavior
-test-behavior: coverage-behavior.html
+.PHONY: coverage-behavior
+coverage-behavior: coverage-behavior.html
 
 coverage-behavior.out: $(SOURCES)
-	go test -race -run ".*Behavior" -cover -coverprofile=$@ ./...
+	go test -race -run ".*Behavior" -coverprofile=$@ ./...
 
 %.html: %.out
 	go tool cover -html=$< -o $@
