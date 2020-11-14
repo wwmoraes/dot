@@ -55,9 +55,6 @@ type GraphOptions interface {
 	SetCluster(bool)
 }
 
-// GraphOptionFn returns a function that mutates the graph options
-type GraphOptionFn func(GraphOptions) error
-
 // WithID sets the graph id, or generates one if id is "-"
 func WithID(id string) GraphOptionFn {
 	return func(options GraphOptions) error {

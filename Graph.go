@@ -4,6 +4,9 @@ import (
 	"github.com/wwmoraes/dot/attributes"
 )
 
+// GraphOptionFn is a functor that mutates graph options
+type GraphOptionFn func(GraphOptions) error
+
 // NodeInitializerFn mutates Nodes during their creation time
 type NodeInitializerFn func(Node)
 
