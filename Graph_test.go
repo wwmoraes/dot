@@ -17,7 +17,10 @@ import (
 // TestGraphBehavior tests all components with real use cases
 func TestGraphBehavior(t *testing.T) {
 	t.Run("default graph", func(t *testing.T) {
-		graph := NewGraph(nil)
+		graph, err := NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
 
@@ -28,9 +31,10 @@ func TestGraphBehavior(t *testing.T) {
 		}
 	})
 	t.Run("directed graph", func(t *testing.T) {
-		graph := NewGraph(&GraphOptions{
-			Type: GraphTypeDirected,
-		})
+		graph, err := NewGraph(WithType(GraphTypeDirected))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
 
@@ -41,9 +45,10 @@ func TestGraphBehavior(t *testing.T) {
 		}
 	})
 	t.Run("undirected graph", func(t *testing.T) {
-		graph := NewGraph(&GraphOptions{
-			Type: GraphTypeUndirected,
-		})
+		graph, err := NewGraph(WithType(GraphTypeUndirected))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
 
@@ -54,9 +59,19 @@ func TestGraphBehavior(t *testing.T) {
 		}
 	})
 	t.Run("subgraphs", func(t *testing.T) {
-		graph := NewGraph(nil)
-		subGraph := graph.Subgraph(nil)
-		subSubGraph := subGraph.Subgraph(nil)
+		graph, err := NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+		subGraph, err := graph.Subgraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		subSubGraph, err := subGraph.Subgraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		n1 := graph.Node("n1")
 		n1.Edge(subGraph.Node("n2")).Edge(subSubGraph.Node("n3")).Edge(n1)
@@ -73,7 +88,7 @@ func TestGraphBehavior(t *testing.T) {
 // TestNewGraph tests NewGraph factory function with static outcome
 func TestNewGraph(t *testing.T) {
 	type args struct {
-		options *GraphOptions
+		options []GraphOptionFn
 	}
 	tests := []struct {
 		name string
@@ -90,8 +105,8 @@ func TestNewGraph(t *testing.T) {
 		{
 			name: "empty named graph",
 			args: args{
-				options: &GraphOptions{
-					ID: "test",
+				options: []GraphOptionFn{
+					WithID("test"),
 				},
 			},
 			want: `digraph "test" {}`,
@@ -99,8 +114,8 @@ func TestNewGraph(t *testing.T) {
 		{
 			name: "empty directed graph",
 			args: args{
-				options: &GraphOptions{
-					Type: GraphTypeDirected,
+				options: []GraphOptionFn{
+					WithType(GraphTypeDirected),
 				},
 			},
 			want: `digraph {}`,
@@ -108,9 +123,9 @@ func TestNewGraph(t *testing.T) {
 		{
 			name: "empty named directed graph",
 			args: args{
-				options: &GraphOptions{
-					ID:   "test",
-					Type: GraphTypeDirected,
+				options: []GraphOptionFn{
+					WithID("test"),
+					WithType(GraphTypeDirected),
 				},
 			},
 			want: `digraph "test" {}`,
@@ -118,8 +133,8 @@ func TestNewGraph(t *testing.T) {
 		{
 			name: "empty undirected graph",
 			args: args{
-				options: &GraphOptions{
-					Type: GraphTypeUndirected,
+				options: []GraphOptionFn{
+					WithType(GraphTypeUndirected),
 				},
 			},
 			want: `graph {}`,
@@ -127,50 +142,115 @@ func TestNewGraph(t *testing.T) {
 		{
 			name: "empty named undirected graph",
 			args: args{
-				options: &GraphOptions{
-					ID:   "test",
-					Type: GraphTypeUndirected,
+				options: []GraphOptionFn{
+					WithID("test"),
+					WithType(GraphTypeUndirected),
 				},
 			},
 			want: `graph "test" {}`,
 		},
-		{
-			name: "empty cluster graph",
-			args: args{
-				options: &GraphOptions{
-					Cluster: true,
-				},
-			},
-			want: `digraph "cluster_" {}`,
-		},
-		{
-			name: "empty named cluster graph",
-			args: args{
-				options: &GraphOptions{
-					ID:      "test",
-					Cluster: true,
-				},
-			},
-			want: `digraph "cluster_test" {}`,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			graph := NewGraph(tt.args.options)
+			graph, err := NewGraph(tt.args.options...)
+			if err != nil {
+				t.Fatal("graph is nil, expected a valid instance")
+			}
+
 			if got := dottest.MustGetFlattenSerializableString(t, graph); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewGraph() = %v, want %v", got, tt.want)
 			}
 		})
 	}
+
+	t.Run("graph with random ID", func(t *testing.T) {
+		graph, err := NewGraph(WithID("-"))
+		if err != nil {
+			t.Fatalf("unexpected error: %++v", err)
+		}
+		if graph == nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		if graph.ID() == "-" {
+			t.Fatal("graph id was not generated")
+		}
+	})
+}
+
+func TestNewGraph_invalid(t *testing.T) {
+	tests := []struct {
+		name    string
+		options []GraphOptionFn
+	}{
+		{
+			name: "root subgraph",
+			options: []GraphOptionFn{
+				WithType(GraphTypeSub),
+			},
+		},
+		{
+			name: "non-root digraph",
+			options: []GraphOptionFn{
+				func() GraphOptionFn {
+					graph, _ := NewGraph()
+					return WithParent(graph)
+				}(),
+				WithType(GraphTypeDirected),
+			},
+		},
+		{
+			name: "non-root graph",
+			options: []GraphOptionFn{
+				func() GraphOptionFn {
+					graph, _ := NewGraph()
+					return WithParent(graph)
+				}(),
+				WithType(GraphTypeUndirected),
+			},
+		},
+		{
+			name: "graph without generator",
+			options: []GraphOptionFn{
+				WithGenerator(nil),
+			},
+		},
+		{
+			name: "graph without generator and dash id",
+			options: []GraphOptionFn{
+				WithGenerator(nil),
+				WithID("-"),
+			},
+		},
+		{
+			name: "root cluster graph",
+			options: []GraphOptionFn{
+				WithCluster(),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		graph, err := NewGraph(tt.options...)
+		if graph != nil {
+			t.Error("graph is not nil, a valid instance wasn't expected")
+		}
+		if err == nil {
+			t.Error("error is nil, an error was expected")
+		}
+	}
 }
 
 func TestGraph_Initializers(t *testing.T) {
 	t.Run("graph with node initializer", func(t *testing.T) {
-		graph := NewGraph(&GraphOptions{
-			NodeInitializer: func(nodeInstance Node) {
+		graph, err := NewGraph(
+			WithNodeInitializer(func(nodeInstance Node) {
 				nodeInstance.SetAttributeString(attributes.KeyClass, "test-class")
-			},
-		})
+			}),
+		)
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		graph.Node("n1")
 
@@ -179,11 +259,14 @@ func TestGraph_Initializers(t *testing.T) {
 		}
 	})
 	t.Run("graph with edge initializer", func(t *testing.T) {
-		graph := NewGraph(&GraphOptions{
-			EdgeInitializer: func(edgeInstance StyledEdge) {
+		graph, err := NewGraph(
+			WithEdgeInitializer(func(edgeInstance StyledEdge) {
 				edgeInstance.SetAttributeString(attributes.KeyClass, "test-class")
-			},
-		})
+			}),
+		)
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		graph.Node("n1").Edge(graph.Node("n2"))
 
@@ -195,11 +278,19 @@ func TestGraph_Initializers(t *testing.T) {
 
 func TestGraph_FindSubgraph(t *testing.T) {
 	t.Run("find existing subgraph from another subgraph", func(t *testing.T) {
-		graph := NewGraph(&GraphOptions{
-			ID: "root-graph",
-		})
-		sub1 := graph.Subgraph(&GraphOptions{ID: "subgraph-one"})
-		sub2 := graph.Subgraph(&GraphOptions{ID: "subgraph-two"})
+		graph, err := NewGraph(WithID("root-graph"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+		sub1, err := graph.Subgraph(WithID("subgraph-one"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		sub2, err := graph.Subgraph(WithID("subgraph-two"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		got, found := sub1.FindSubgraph(sub2.ID())
 
@@ -212,12 +303,41 @@ func TestGraph_FindSubgraph(t *testing.T) {
 		}
 	})
 	t.Run("find no un-existent subgraph from another subgraph", func(t *testing.T) {
-		graph := NewGraph(&GraphOptions{
-			ID: "root-graph",
-		})
-		sub1 := graph.Subgraph(&GraphOptions{ID: "subgraph-one"})
+		graph, err := NewGraph(WithID("root-graph"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		sub1, err := graph.Subgraph(WithID("subgraph-one"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		got, found := sub1.FindSubgraph("subgraph-two")
+
+		if found {
+			t.Error("subgraph was found, it wasn't expected")
+		}
+
+		if got != nil {
+			t.Errorf("got [%v] want [%v]", got, nil)
+		}
+	})
+	t.Run("fail to create invalid subgraph type", func(t *testing.T) {
+		graph, err := NewGraph(WithID("root-graph"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		_, err = graph.Subgraph(
+			WithID("subgraph-one"),
+			WithType(GraphTypeDirected),
+		)
+		if err == nil {
+			t.Fatal("graph error is nil, expected an error")
+		}
+
+		got, found := graph.FindSubgraph("subgraph-one")
 
 		if found {
 			t.Error("subgraph was found, it wasn't expected")
@@ -233,23 +353,20 @@ func TestGraph_FindSubgraph(t *testing.T) {
 func TestNewGraph_generatedID(t *testing.T) {
 	tests := []struct {
 		name    string
-		options *GraphOptions
+		options []GraphOptionFn
 		want    func(graph Graph) string
 	}{
 		{
-			name: "empty randomly-named graph",
-			options: &GraphOptions{
-				ID: "-",
-			},
+			name:    "empty randomly-named graph",
+			options: nil,
 			want: func(graph Graph) string {
 				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
 			},
 		},
 		{
 			name: "empty randomly-named directed graph",
-			options: &GraphOptions{
-				ID:   "-",
-				Type: GraphTypeDirected,
+			options: []GraphOptionFn{
+				WithType(GraphTypeDirected),
 			},
 			want: func(graph Graph) string {
 				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
@@ -257,30 +374,24 @@ func TestNewGraph_generatedID(t *testing.T) {
 		},
 		{
 			name: "empty randomly-named undirected graph",
-			options: &GraphOptions{
-				ID:   "-",
-				Type: GraphTypeUndirected,
+			options: []GraphOptionFn{
+				WithType(GraphTypeUndirected),
 			},
 			want: func(graph Graph) string {
 				return fmt.Sprintf(`graph "%s" {}`, graph.ID())
 			},
 		},
-		{
-			name: "empty randomly-named cluster directed graph",
-			options: &GraphOptions{
-				ID:      "-",
-				Cluster: true,
-			},
-			want: func(graph Graph) string {
-				return fmt.Sprintf(`digraph "%s" {}`, graph.ID())
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.options.ID = "-"
+			options := make([]GraphOptionFn, 0, len(tt.options)+1)
+			options = append(options, WithID("-"))
+			options = append(options, tt.options...)
 
-			graph := NewGraph(tt.options)
+			graph, err := NewGraph(options...)
+			if err != nil {
+				t.Fatal("graph is nil, expected a valid instance")
+			}
 
 			if graph.ID() == "" {
 				t.Error("got empty ID instead of a random one")
@@ -299,48 +410,11 @@ func TestNewGraph_generatedID(t *testing.T) {
 	}
 }
 
-// TestNewGraph_invalid tests NewGraph factory invalid options
-func TestNewGraph_invalid(t *testing.T) {
-	tests := []struct {
-		name    string
-		options *GraphOptions
-	}{
-		{
-			name: "subgraph without parent",
-			options: &GraphOptions{
-				Type: GraphTypeSub,
-			},
-		},
-		{
-			name: "non-subgraph with parent",
-			options: &GraphOptions{
-				parent: NewGraph(nil),
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			defer func() {
-				if err := recover(); err == nil {
-					t.Errorf("it should panic")
-				}
-			}()
-
-			got := NewGraph(tt.options)
-
-			if got != nil {
-				t.Errorf("got [%v] want [%v]", got, nil)
-			}
-		})
-	}
-}
-
 // TestGraph_Subgraph tests Graph.Subgraph factory
 func TestGraph_Subgraph(t *testing.T) {
 	tests := []struct {
 		name    string
-		options *GraphOptions
+		options []GraphOptionFn
 		want    string
 	}{
 		{
@@ -349,17 +423,39 @@ func TestGraph_Subgraph(t *testing.T) {
 			want:    `digraph {subgraph {}}`,
 		},
 		{
+			name: "empty anonymous subgraph with enforced type",
+			options: []GraphOptionFn{
+				WithType(GraphTypeSub),
+			},
+			want: `digraph {subgraph {}}`,
+		},
+		{
 			name: "empty named subgraph",
-			options: &GraphOptions{
-				ID: "test-sub",
+			options: []GraphOptionFn{
+				WithID("test-sub"),
+			},
+			want: `digraph {subgraph "test-sub" {}}`,
+		},
+		{
+			name: "remove cluster preffix subgraph",
+			options: []GraphOptionFn{
+				WithID("cluster_test-sub"),
 			},
 			want: `digraph {subgraph "test-sub" {}}`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			graph := NewGraph(nil)
-			graph.Subgraph(tt.options)
+			graph, err := NewGraph()
+			if err != nil {
+				t.Fatal("graph is nil, expected a valid instance")
+			}
+
+			_, err = graph.Subgraph(tt.options...)
+			if err != nil {
+				t.Fatal("graph is nil, expected a valid instance")
+			}
+
 			if got := dottest.MustGetFlattenSerializableString(t, graph); got != tt.want {
 				t.Errorf("got [%v] want [%v]", got, tt.want)
 			}
@@ -367,10 +463,15 @@ func TestGraph_Subgraph(t *testing.T) {
 	}
 
 	t.Run("empty randomly-named subgraph", func(t *testing.T) {
-		graph := NewGraph(nil)
-		subGraph := graph.Subgraph(&GraphOptions{
-			ID: "-",
-		})
+		graph, err := NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		subGraph, err := graph.Subgraph(WithID("-"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 
 		if subGraph.ID() == "" {
 			t.Error("got empty ID instead of a random one")
@@ -386,20 +487,128 @@ func TestGraph_Subgraph(t *testing.T) {
 	})
 }
 
+// TestGraph_Subgraph_generatedID tests Graph.Subgraph factory
+func TestGraph_Subgraph_generatedID(t *testing.T) {
+	tests := []struct {
+		name    string
+		options []GraphOptionFn
+		want    string
+	}{
+		{
+			name: "cluster then id subgraph",
+			options: []GraphOptionFn{
+				WithCluster(),
+				WithID("-"),
+			},
+			want: `digraph {subgraph "%s" {}}`,
+		},
+		{
+			name: "id then cluster subgraph",
+			options: []GraphOptionFn{
+				WithID("-"),
+				WithCluster(),
+			},
+			want: `digraph {subgraph "%s" {}}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			graph, err := NewGraph()
+			if err != nil {
+				t.Fatal("graph is nil, expected a valid instance")
+			}
+
+			subGraph, err := graph.Subgraph(tt.options...)
+			if err != nil {
+				t.Fatal("graph is nil, expected a valid instance")
+			}
+
+			if subGraph.ID() == "-" {
+				t.Error("graph has dash id, expected a randomly generated one")
+			}
+
+			if got := dottest.MustGetFlattenSerializableString(t, graph); got != fmt.Sprintf(tt.want, subGraph.ID()) {
+				t.Errorf("got [%v] want [%v]", got, tt.want)
+			}
+		})
+	}
+
+	t.Run("empty randomly-named subgraph", func(t *testing.T) {
+		graph, err := NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		subGraph, err := graph.Subgraph(WithID("-"))
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
+		if subGraph.ID() == "" {
+			t.Error("got empty ID instead of a random one")
+		}
+
+		if subGraph.ID() == "-" {
+			t.Error("got dash ID instead of a random one")
+		}
+
+		if got, want := dottest.MustGetFlattenSerializableString(t, graph), fmt.Sprintf(`digraph {subgraph "%s" {}}`, subGraph.ID()); got != want {
+			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
+		}
+	})
+}
+
+func TestGraph_Subgraph_invalid(t *testing.T) {
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatalf("unexpected error when creating graph: %++v", err)
+	}
+
+	tests := []struct {
+		name    string
+		options []GraphOptionFn
+	}{
+		{
+			name: "remove parent from subgraph",
+			options: []GraphOptionFn{
+				WithParent(nil),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		subgraph, err := graph.Subgraph(tt.options...)
+		if subgraph != nil {
+			t.Error("subgraph is not nil, a valid instance wasn't expected")
+		}
+		if err == nil {
+			t.Error("error is nil, an error was expected")
+		}
+	}
+}
+
 func TestEmpty(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
-	di2 := NewGraph(&GraphOptions{
-		ID: "test",
-	})
+	di2, err := NewGraph(WithID("test"))
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	if got, want := dottest.MustGetFlattenSerializableString(t, di2), `digraph "test" {}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
-	di3 := NewGraph(&GraphOptions{
-		ID: "-",
-	})
+	di3, err := NewGraph(WithID("-"))
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	if di3.ID() == "-" {
 		t.Error("got dash id instead of randomly generated one")
 	}
@@ -411,19 +620,25 @@ func TestEmpty(t *testing.T) {
 func TestStrict(t *testing.T) {
 	// test strict directed
 	{
-		graph := NewGraph(&GraphOptions{
-			Strict: true,
-		})
+		graph, err := NewGraph(WithStrict())
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
 		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `strict digraph {}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
 	}
 	// test strict undirected
 	{
-		graph := NewGraph(&GraphOptions{
-			Strict: true,
-			Type:   GraphTypeUndirected,
-		})
+		graph, err := NewGraph(
+			WithStrict(),
+			WithType(GraphTypeUndirected),
+		)
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
 		if got, want := dottest.MustGetFlattenSerializableString(t, graph), `strict graph {}`; got != want {
 			t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 		}
@@ -431,7 +646,11 @@ func TestStrict(t *testing.T) {
 }
 
 func TestEmptyWithIDAndAttributes(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	di.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
 	di.SetAttribute(attributes.KeyColor, attributes.NewString("lightgrey"))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [color="lightgrey",style="filled"];}`; got != want {
@@ -440,7 +659,11 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 }
 
 func TestEmptyWithHTMLLabel(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	di.SetAttribute(attributes.KeyLabel, attributes.NewHTML("<B>Hi</B>"))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [label=<<B>Hi</B>>];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
@@ -448,7 +671,11 @@ func TestEmptyWithHTMLLabel(t *testing.T) {
 }
 
 func TestEmptyWithLiteralValueLabel(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	di.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"left-justified text\l"`))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [label="left-justified text\l"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
@@ -456,7 +683,11 @@ func TestEmptyWithLiteralValueLabel(t *testing.T) {
 }
 
 func TestTwoConnectedNodes(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
@@ -466,11 +697,17 @@ func TestTwoConnectedNodes(t *testing.T) {
 }
 
 func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n1 := di.Node("A")
-	sub := di.Subgraph(&GraphOptions{
-		ID: "my-sub",
-	})
+	sub, err := di.Subgraph(WithID("my-sub"))
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n2 := sub.Node("B")
 	edge := di.Edge(n1, n2)
 	edge.SetAttributeString(attributes.KeyLabel, "cross-graph")
@@ -497,9 +734,13 @@ func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
 }
 
 func TestUndirectedTwoConnectedNodes(t *testing.T) {
-	di := NewGraph(&GraphOptions{
-		Type: GraphTypeUndirected,
-	})
+	di, err := NewGraph(
+		WithType(GraphTypeUndirected),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	di.Edge(n1, n2)
@@ -509,7 +750,11 @@ func TestUndirectedTwoConnectedNodes(t *testing.T) {
 }
 
 func TestGraph_FindEdges(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n1 := di.Node("A")
 	n2 := di.Node("B")
 	want := []Edge{di.Edge(n1, n2)}
@@ -520,10 +765,18 @@ func TestGraph_FindEdges(t *testing.T) {
 }
 
 func TestSubgraph(t *testing.T) {
-	di := NewGraph(nil)
-	sub := di.Subgraph(&GraphOptions{
-		ID: "test-id",
-	})
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
+	sub, err := di.Subgraph(
+		WithID("test-id"),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	sub.SetAttributeString(attributes.KeyStyle, "filled")
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`digraph {subgraph "%s" {graph [style="filled"];}}`, sub.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
@@ -536,9 +789,13 @@ func TestSubgraph(t *testing.T) {
 	if got, want := foundGraph, sub; got != want {
 		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
 	}
-	subsub := sub.Subgraph(&GraphOptions{
-		ID: "sub-test-id",
-	})
+	subsub, err := sub.Subgraph(
+		WithID("sub-test-id"),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	foundGraph, _ = di.FindSubgraph("test-id")
 	if got, want := foundGraph, sub; got != want {
 		t.Errorf("got [%[1]v:%[1]T] want [%[2]v:%[2]T]", got, want)
@@ -556,18 +813,30 @@ func TestSubgraph(t *testing.T) {
 }
 
 func TestSubgraphClusterOption(t *testing.T) {
-	di := NewGraph(nil)
-	sub := di.Subgraph(&GraphOptions{
-		ID:      "s1",
-		Cluster: true,
-	})
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
+	sub, err := di.Subgraph(
+		WithID("s1"),
+		WithCluster(),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	if got, want := sub.ID(), "cluster_s1"; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
 }
 
 func TestNode(t *testing.T) {
-	graph := NewGraph(nil)
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	node := graph.Node("")
 	node.SetAttributesString(attributes.MapString{
 		attributes.KeyLabel: "test",
@@ -597,7 +866,11 @@ func TestNode(t *testing.T) {
 }
 
 func TestEdgeLabel(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n1 := di.Node("e1")
 	n2 := di.Node("e2")
 	attr := attributes.NewAttributes()
@@ -609,7 +882,11 @@ func TestEdgeLabel(t *testing.T) {
 }
 
 func TestSameRank(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	foo1 := di.Node("foo1")
 	foo2 := di.Node("foo2")
 	bar := di.Node("bar")
@@ -622,19 +899,31 @@ func TestSameRank(t *testing.T) {
 }
 
 func TestCluster(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	outside := di.Node("Outside")
-	clusterA := di.Subgraph(&GraphOptions{
-		ID:      "Cluster A",
-		Cluster: true,
-	})
+	clusterA, err := di.Subgraph(
+		WithID("Cluster A"),
+		WithCluster(),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	clusterA.SetAttributeString(attributes.KeyLabel, "Cluster A")
 	insideOne := clusterA.Node("one")
 	insideTwo := clusterA.Node("two")
-	clusterB := di.Subgraph(&GraphOptions{
-		ID:      "Cluster B",
-		Cluster: true,
-	})
+	clusterB, err := di.Subgraph(
+		WithID("Cluster B"),
+		WithCluster(),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	clusterB.SetAttributeString(attributes.KeyLabel, "Cluster B")
 	insideThree := clusterB.Node("three")
 	insideFour := clusterB.Node("four")
@@ -646,7 +935,11 @@ func TestCluster(t *testing.T) {
 }
 
 func TestDeleteLabel(t *testing.T) {
-	g := NewGraph(nil)
+	g, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n := g.Node("my-id")
 	n.DeleteAttribute(attributes.KeyLabel)
 	if got, want := dottest.MustGetFlattenSerializableString(t, g), `digraph {"my-id";}`; got != want {
@@ -655,7 +948,10 @@ func TestDeleteLabel(t *testing.T) {
 }
 
 func TestGraph_FindNodeById_emptyGraph(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
 
 	_, found := di.FindNodeByID("F")
 
@@ -665,7 +961,11 @@ func TestGraph_FindNodeById_emptyGraph(t *testing.T) {
 }
 
 func TestGraph_FindNodeById_multiNodeGraph(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	di.Node("A")
 	di.Node("B")
 
@@ -681,12 +981,20 @@ func TestGraph_FindNodeById_multiNodeGraph(t *testing.T) {
 }
 
 func TestGraph_FindNodeById_multiNodesInSubGraphs(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	di.Node("A")
 	di.Node("B")
-	sub := di.Subgraph(&GraphOptions{
-		ID: "new subgraph",
-	})
+	sub, err := di.Subgraph(
+		WithID("new subgraph"),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	sub.Node("C")
 
 	node, found := di.FindNodeByID("C")
@@ -701,12 +1009,20 @@ func TestGraph_FindNodeById_multiNodesInSubGraphs(t *testing.T) {
 }
 
 func TestGraph_FindNodes_multiNodesInSubGraphs(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	di.Node("A")
 	di.Node("B")
-	sub := di.Subgraph(&GraphOptions{
-		ID: "new subgraph",
-	})
+	sub, err := di.Subgraph(
+		WithID("new subgraph"),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	sub.Node("C")
 
 	nodes := di.FindNodes()
@@ -717,7 +1033,11 @@ func TestGraph_FindNodes_multiNodesInSubGraphs(t *testing.T) {
 }
 
 func TestLabelWithEscaping(t *testing.T) {
-	di := NewGraph(nil)
+	di, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n := di.Node("without-linefeed")
 	n.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"with \l linefeed"`))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {"without-linefeed"[label="with \l linefeed"];}`; got != want {
@@ -726,11 +1046,15 @@ func TestLabelWithEscaping(t *testing.T) {
 }
 
 func TestGraphNodeInitializer(t *testing.T) {
-	di := NewGraph(&GraphOptions{
-		NodeInitializer: func(n Node) {
+	di, err := NewGraph(
+		WithNodeInitializer(func(n Node) {
 			n.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
-		},
-	})
+		}),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n := di.Node("A")
 	gotAttr, gotOk := n.GetAttribute(attributes.KeyLabel)
 	if !gotOk {
@@ -742,11 +1066,15 @@ func TestGraphNodeInitializer(t *testing.T) {
 }
 
 func TestGraphEdgeInitializer(t *testing.T) {
-	di := NewGraph(&GraphOptions{
-		EdgeInitializer: func(e StyledEdge) {
+	di, err := NewGraph(
+		WithEdgeInitializer(func(e StyledEdge) {
 			e.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
-		},
-	})
+		}),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	e := di.Node("A").Edge(di.Node("B"))
 	gotAttr, gotOk := e.GetAttribute(attributes.KeyLabel)
 	if !gotOk {
@@ -758,9 +1086,13 @@ func TestGraphEdgeInitializer(t *testing.T) {
 }
 
 func TestGraphCreateNodeOnce(t *testing.T) {
-	di := NewGraph(&GraphOptions{
-		Type: GraphTypeUndirected,
-	})
+	di, err := NewGraph(
+		WithType(GraphTypeUndirected),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	n1 := di.Node("A")
 	n2 := di.Node("A")
 	if got, want := n1, n2; &n1 == &n2 {
@@ -885,12 +1217,20 @@ func TestGraph_WriteTo(t *testing.T) {
 		},
 	}
 
-	graph := NewGraph(&GraphOptions{
-		ID:     "test-graph",
-		Strict: true,
-	})
+	graph, err := NewGraph(
+		WithID("test-graph"),
+		WithStrict(),
+	)
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	graph.SetAttributeString("label", "test-graph")
-	subGraph := graph.Subgraph(nil)
+	subGraph, err := graph.Subgraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	subGraph.AddToSameRank("g1", subGraph.Node("n1"), subGraph.Node("n2"))
 	subEdge := subGraph.Edge(subGraph.Node("n1"), subGraph.Node("n2"))
 	subEdge.SetAttributeString("label", "subgraph-edge")
@@ -915,7 +1255,10 @@ func BenchmarkGraph_WriteTo(b *testing.B) {
 		var err error
 		var buf bytes.Buffer
 
-		graph := NewGraph(nil)
+		graph, err := NewGraph()
+		if err != nil {
+			b.Fatal("graph is nil, expected a valid instance")
+		}
 
 		b.ResetTimer()
 		for n := 0; n < b.N; n++ {
@@ -928,7 +1271,10 @@ func BenchmarkGraph_WriteTo(b *testing.B) {
 	b.Run("empty graph to ioutil.Discard", func(b *testing.B) {
 		var err error
 
-		graph := NewGraph(nil)
+		graph, err := NewGraph()
+		if err != nil {
+			b.Fatal("graph is nil, expected a valid instance")
+		}
 
 		b.ResetTimer()
 		for n := 0; n < b.N; n++ {

@@ -47,7 +47,7 @@ import (
 )
 
 func main() {
-  graph := dot.NewGraph(nil)
+  graph := dot.NewGraph()
 
   graph.Node("n1").SetAttributeString("label", "hello dot!")
 

@@ -10,7 +10,10 @@ import (
 
 func TestEdge_String(t *testing.T) {
 	// TODO String needs to be implemented, and will break this test when done so
-	graph := NewGraph(nil)
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
 	edge := graph.Node("n1").Edge(graph.Node("n2"))
 
 	if got, want := dottest.MustGetFlattenSerializableString(t, edge), `"n1"->"n2";`; got != want {
@@ -19,7 +22,10 @@ func TestEdge_String(t *testing.T) {
 }
 
 func TestEdge_ObjectInterface(t *testing.T) {
-	graph := NewGraph(nil)
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
 	graph.Node("n1").Edge(graph.Node("n2"))
 
 	if got, want := dottest.MustGetFlattenSerializableString(t, graph), `digraph {"n1";"n2";"n1"->"n2";}`; got != want {
@@ -43,7 +49,10 @@ func TestEdge_StyleHelpers(t *testing.T) {
 
 	for _, tc := range tests {
 
-		di := NewGraph(nil)
+		di, err := NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
 		n1 := di.Node("A")
 		n2 := di.Node("B")
 
@@ -91,7 +100,10 @@ func TestEdge_WriteTo(t *testing.T) {
 		},
 	}
 
-	graph := NewGraph(nil)
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
 	edge := graph.Edge(graph.Node("n1"), graph.Node("n2"))
 	edge.SetAttributeString("label", "test")
 

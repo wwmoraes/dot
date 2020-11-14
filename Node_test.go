@@ -8,9 +8,11 @@ import (
 )
 
 func TestNode_String(t *testing.T) {
-	// TODO String needs to be implemented, and will break this test when done so
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
 
-	graph := NewGraph(nil)
 	n1 := graph.Node("n1")
 
 	if got, want := dottest.MustGetSerializableString(t, n1), `"n1";`; got != want {
@@ -45,7 +47,11 @@ func TestNode_WriteTo(t *testing.T) {
 		},
 	}
 
-	graph := NewGraph(nil)
+	graph, err := NewGraph()
+	if err != nil {
+		t.Fatal("graph is nil, expected a valid instance")
+	}
+
 	node := graph.Node("n1")
 	node.SetAttributeString("label", "test")
 

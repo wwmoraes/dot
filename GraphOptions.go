@@ -1,64 +1,164 @@
 package dot
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/wwmoraes/dot/generators"
 )
 
-// GraphOptions contains the parameters used for graph creation
-type GraphOptions struct {
-	parent Graph
-	// Generator is used to create IDs for objects to prevent colision
-	Generator generators.IDGenerator
-	// ID immutable id
-	ID string
-	// Type the graph type (directed, undirected or sub)
-	Type GraphType
-	// Cluster forbids the creation of multi-edges i.e.:
-	//
-	// on directed graphs, only one one edge between a given pair of head and tail nodes is allowed
-	//
-	// on undirected graphs, only one edge between the same two nodes is allowed
-	Strict bool
-	// Cluster denotes if the graph is the special cluster subgraph, whose name
-	// starts with "cluster_"
-	Cluster bool
-	// NodeInitializer applies defaults to newly created nodes
-	NodeInitializer func(Node)
-	// EdgeInitializer applies defaults to newly created edges
-	EdgeInitializer func(StyledEdge)
+// ErrSubgraphWithoutParent means a subgraph cannot be created without a parent
+var ErrSubgraphWithoutParent = errors.New("cannot create subgraph without parent")
+
+// ErrNonSubgraphWithParent means a non-subgraph cannot be created with a parent
+var ErrNonSubgraphWithParent = errors.New("cannot create [di]graph with parent")
+
+// ErrGraphWithoutGenerator means a graph cannot be created without a generator
+var ErrGraphWithoutGenerator = errors.New("cannot create a graph without an ID generator")
+
+// ErrRootCluster means a cluster graph cannot be created at root level
+var ErrRootCluster = errors.New("cannot create a root cluster graph")
+
+// ErrInvalidParent means an invalid parent was provided
+var ErrInvalidParent = errors.New("cannot create subgraph with invalid or nil parent")
+
+// GraphOptions is implemented by values used to initialize graphs
+type GraphOptions interface {
+	// SetID changes the id
+	SetID(string)
+	// ID returns the id
+	ID() string
+	// SetParent changes the parent graph
+	SetParent(Graph)
+	// Parent return the parent graph
+	Parent() Graph
+	// SetType changes the graph type
+	SetType(GraphType)
+	// Type returns the graph type
+	Type() GraphType
+	// SetStrict changes the strict flag
+	SetStrict(bool)
+	// Strict returns the strict flag
+	Strict() bool
+	// SetGenerator changes the ID generator
+	SetGenerator(generators.IDGenerator)
+	// Generator return the ID generator
+	Generator() generators.IDGenerator
+	// SetNodeInitializer changes the node initializer function
+	SetNodeInitializer(NodeInitializerFn)
+	// NodeInitializer returns the node initializer function
+	NodeInitializer() NodeInitializerFn
+	// SetEdgeInitializer changes the node initializer function
+	SetEdgeInitializer(EdgeInitializerFn)
+	// EdgeInitializer returns the node initializer function
+	EdgeInitializer() EdgeInitializerFn
+	// SetCluster changes the cluster flag
+	SetCluster(bool)
 }
 
-// parseGraphOptions ensures the options are valid and initialized properly
-func parseGraphOptions(options *GraphOptions) *GraphOptions {
-	generator := generators.NewRandTimeIDGenerator(24)
+// GraphOptionFn returns a function that mutates the graph options
+type GraphOptionFn func(GraphOptions) error
 
-	if options == nil {
-		options = &GraphOptions{}
+// WithID sets the graph id, or generates one if id is "-"
+func WithID(id string) GraphOptionFn {
+	return func(options GraphOptions) error {
+		if id == "-" {
+			if options.Generator() == nil {
+				return ErrGraphWithoutGenerator
+			}
+
+			id = options.Generator().String()
+		}
+
+		options.SetID(id)
+
+		return nil
 	}
+}
 
-	if options.ID == "-" {
-		options.ID = generator.String()
+// WithParent sets the graph parent
+func WithParent(graph Graph) GraphOptionFn {
+	return func(options GraphOptions) error {
+		if graph == nil {
+			return ErrInvalidParent
+		}
+
+		options.SetParent(graph)
+		options.SetType(GraphTypeSub)
+
+		return nil
 	}
+}
 
-	if options.Cluster {
-		options.ID = fmt.Sprintf("cluster_%s", options.ID)
+// WithType sets the graph type
+func WithType(graphType GraphType) GraphOptionFn {
+	return func(options GraphOptions) error {
+		if graphType == GraphTypeSub {
+			if options.Parent() == nil {
+				return ErrSubgraphWithoutParent
+			}
+
+			options.SetType(graphType)
+
+			return nil
+		}
+
+		if options.Parent() != nil {
+			return ErrNonSubgraphWithParent
+		}
+
+		options.SetType(graphType)
+
+		return nil
 	}
+}
 
-	if options.Type == "" {
-		options.Type = GraphTypeDirected
+// WithStrict sets the graph as strict
+func WithStrict() GraphOptionFn {
+	return func(options GraphOptions) error {
+		if options.Type() != GraphTypeSub {
+			options.SetStrict(true)
+		}
+
+		return nil
 	}
+}
 
-	if options.Type == GraphTypeSub && options.parent == nil {
-		panic("cannot create subgraph without parent")
-	} else if options.Type != GraphTypeSub && options.parent != nil {
-		panic("cannot create graph with parent")
+// WithCluster sets the graph as a cluster
+func WithCluster() GraphOptionFn {
+	return func(options GraphOptions) error {
+		if options.Type() != GraphTypeSub {
+			return ErrRootCluster
+		}
+
+		options.SetCluster(true)
+
+		return nil
 	}
+}
 
-	if options.Generator == nil {
-		options.Generator = generators.NewRandTimeIDGenerator(24)
+// WithGenerator sets the graph id generator
+func WithGenerator(generator generators.IDGenerator) GraphOptionFn {
+	return func(options GraphOptions) error {
+		options.SetGenerator(generator)
+
+		return nil
 	}
+}
 
-	return options
+// WithNodeInitializer sets the graph node initializer function
+func WithNodeInitializer(nodeInitializerFn NodeInitializerFn) GraphOptionFn {
+	return func(options GraphOptions) error {
+		options.SetNodeInitializer(nodeInitializerFn)
+
+		return nil
+	}
+}
+
+// WithEdgeInitializer sets the graph edge initializer function
+func WithEdgeInitializer(edgeInitializerFn EdgeInitializerFn) GraphOptionFn {
+	return func(options GraphOptions) error {
+		options.SetEdgeInitializer(edgeInitializerFn)
+
+		return nil
+	}
 }

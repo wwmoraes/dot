@@ -4,6 +4,12 @@ import (
 	"github.com/wwmoraes/dot/attributes"
 )
 
+// NodeInitializerFn mutates Nodes during their creation time
+type NodeInitializerFn func(Node)
+
+// EdgeInitializerFn mutates Edges during their creation time
+type EdgeInitializerFn func(StyledEdge)
+
 // Graph is implemented by dot-compatible graph values
 type Graph interface {
 	attributes.Identity
@@ -17,7 +23,7 @@ type Graph interface {
 	// FindSubgraph returns the subgraph of this graph or from one of its parents
 	FindSubgraph(id string) (Graph, bool)
 	// Subgraph creates a subgraph of this graph
-	Subgraph(options *GraphOptions) Graph
+	Subgraph(optionsFn ...GraphOptionFn) (Graph, error)
 	// Node gets a node by id, or creates a new one if it doesn't exist
 	Node(id string) Node
 	// Edge creates a new edge between the two provided nodes

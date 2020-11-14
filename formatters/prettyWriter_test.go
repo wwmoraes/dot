@@ -14,7 +14,11 @@ import (
 
 func TestPrettyWriter(t *testing.T) {
 	t.Run("invalid writer", func(t *testing.T) {
-		graph := dot.NewGraph(nil)
+		graph, err := dot.NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
 		graph.Node("n1").Edge(graph.Node("n2"))
 
 		prettyWriter := NewPrettyWriter(nil)
@@ -33,7 +37,11 @@ func TestPrettyWriter(t *testing.T) {
 		}
 	})
 	t.Run("bytes writer", func(t *testing.T) {
-		graph := dot.NewGraph(nil)
+		graph, err := dot.NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
 		graph.Node("n1").Edge(graph.Node("n2"))
 
 		wantString := "digraph {\n  \"n1\";\n  \"n2\";\n  \"n1\"->\"n2\";\n}\n"
@@ -59,7 +67,11 @@ func TestPrettyWriter(t *testing.T) {
 		}
 	})
 	t.Run("file writer", func(t *testing.T) {
-		graph := dot.NewGraph(nil)
+		graph, err := dot.NewGraph()
+		if err != nil {
+			t.Fatal("graph is nil, expected a valid instance")
+		}
+
 		graph.Node("n1").Edge(graph.Node("n2"))
 
 		filePath := path.Join(t.TempDir(), "graph.dot")

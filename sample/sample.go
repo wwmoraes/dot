@@ -32,16 +32,17 @@ func writeToWith(graph dot.Graph, fileName string, writerFunctors ...func(io.Wri
 
 func main() {
 	log.Println("creating graph instance...")
-	rootGraph := dot.NewGraph(nil)
+	rootGraph, _ := dot.NewGraph()
 
 	log.Println("creating outside node...")
 	outsideGraph := rootGraph.Node("Outside")
 
 	log.Println("creating cluster subgraph A...")
-	clusterA := rootGraph.Subgraph(&dot.GraphOptions{
-		ID:      "A",
-		Cluster: true,
-	})
+	clusterA, _ := rootGraph.Subgraph(
+		dot.WithID("A"),
+		dot.WithCluster(),
+	)
+
 	clusterA.SetAttributeString(attributes.KeyLabel, "Cluster A")
 
 	log.Println("creating node one...")
@@ -51,10 +52,11 @@ func main() {
 	insideTwo := clusterA.Node("two")
 
 	log.Println("creating cluster subgraph B...")
-	clusterB := rootGraph.Subgraph(&dot.GraphOptions{
-		ID:      "B",
-		Cluster: true,
-	})
+	clusterB, _ := rootGraph.Subgraph(
+		dot.WithID("B"),
+		dot.WithCluster(),
+	)
+
 	clusterB.SetAttributeString(attributes.KeyLabel, "Cluster B")
 
 	log.Println("creating node three...")

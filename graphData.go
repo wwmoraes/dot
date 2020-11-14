@@ -23,32 +23,32 @@ type graphData struct {
 	parent    Graph
 	sameRank  map[string][]Node
 	//
-	nodeInitializer func(Node)
-	edgeInitializer func(StyledEdge)
+	nodeInitializer NodeInitializerFn
+	edgeInitializer EdgeInitializerFn
 }
 
-// NewGraph return a new initialized Graph
-//
-// if id is "-", a randonly generated ID will be set
-func NewGraph(options *GraphOptions) Graph {
-	options = parseGraphOptions(options)
+// NewGraph return a Graph after all option functions are processed
+func NewGraph(optionsFn ...GraphOptionFn) (Graph, error) {
+	options, err := NewGraphOptions(optionsFn...)
 
-	newGraph := &graphData{
-		id:              options.ID,
-		parent:          options.parent,
+	if err != nil {
+		return nil, err
+	}
+
+	return &graphData{
+		id:              options.ID(),
+		parent:          options.Parent(),
 		Attributes:      attributes.NewAttributes(),
-		graphType:       options.Type,
-		strict:          options.Strict,
-		generator:       options.Generator,
+		graphType:       options.Type(),
+		strict:          options.Strict(),
+		generator:       options.Generator(),
 		nodes:           map[string]Node{},
 		edgesFrom:       map[string][]StyledEdge{},
 		subgraphs:       map[string]Graph{},
 		sameRank:        map[string][]Node{},
-		nodeInitializer: options.NodeInitializer,
-		edgeInitializer: options.EdgeInitializer,
-	}
-
-	return newGraph
+		nodeInitializer: options.NodeInitializer(),
+		edgeInitializer: options.EdgeInitializer(),
+	}, nil
 }
 
 // ID returns the immutable id
@@ -70,26 +70,29 @@ func (thisGraph *graphData) Type() GraphType {
 	return thisGraph.graphType
 }
 
-func (thisGraph *graphData) Subgraph(options *GraphOptions) Graph {
-	if options == nil {
-		options = &GraphOptions{}
+func (thisGraph *graphData) Subgraph(optionsFn ...GraphOptionFn) (Graph, error) {
+	subgraphOptions := [...]GraphOptionFn{
+		WithParent(thisGraph),
+		WithGenerator(thisGraph.generator),
 	}
 
-	// enforce subgraph type
-	options.Type = GraphTypeSub
+	newOptionsFn := make([]GraphOptionFn, 0, len(subgraphOptions)+len(optionsFn))
 
-	// set parent
-	options.parent = thisGraph
+	for _, subgraphOption := range subgraphOptions {
+		newOptionsFn = append(newOptionsFn, subgraphOption)
+	}
 
-	// share generator
-	options.Generator = thisGraph.generator
+	newOptionsFn = append(newOptionsFn, optionsFn...)
 
-	sub := NewGraph(options)
+	graph, err := NewGraph(newOptionsFn...)
+	if err != nil {
+		return nil, err
+	}
 
 	// save on parent with the generated ID
-	thisGraph.subgraphs[sub.ID()] = sub
+	thisGraph.subgraphs[graph.ID()] = graph
 
-	return sub
+	return graph, nil
 }
 
 // FindSubgraph returns the subgraph of the graph or one from its parents.
