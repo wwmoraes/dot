@@ -10,9 +10,8 @@ import (
 
 type edgeData struct {
 	*attributes.Attributes
-	graph      Graph
-	from, to   Node
-	internalID string
+	graph    Graph
+	from, to Node
 }
 
 // String returns the graph transformed into string dot notation

@@ -146,7 +146,6 @@ func (thisGraph *graphData) EdgeWithAttributes(fromNode, toNode Node, attr attri
 	e := &edgeData{
 		from:       fromNode,
 		to:         toNode,
-		internalID: thisGraph.generator.String(),
 		Attributes: attributes.NewAttributesFrom(attr),
 		graph:      thisGraph}
 
