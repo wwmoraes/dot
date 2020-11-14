@@ -1,4 +1,4 @@
-package attributes
+package constants
 
 // EdgeType is a supported edge notation
 type EdgeType string

@@ -4,17 +4,19 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/wwmoraes/dot/constants"
 )
 
 func TestAttributes(t *testing.T) {
 	t.Run("equal on attribute re-set with same value", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(KeyLabel, NewString("test"))
+		attributes.SetAttribute(constants.KeyLabel, NewString("test"))
 
 		got := attributes.GetAttributes()
 
 		want := Map{
-			KeyLabel: NewString("test"),
+			constants.KeyLabel: NewString("test"),
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -23,9 +25,9 @@ func TestAttributes(t *testing.T) {
 	})
 	t.Run("get attribute previously set", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(KeyLabel, NewString("test"))
+		attributes.SetAttribute(constants.KeyLabel, NewString("test"))
 
-		got, _ := attributes.GetAttribute(KeyLabel)
+		got, _ := attributes.GetAttribute(constants.KeyLabel)
 
 		want := NewString("test")
 
@@ -79,7 +81,7 @@ func TestAttributes_NewAttributesFrom(t *testing.T) {
 	})
 	t.Run("copy attributes given on initialization", func(t *testing.T) {
 		sourceAttributes := NewAttributes()
-		sourceAttributes.SetAttributeString(KeyLabel, "test-label")
+		sourceAttributes.SetAttributeString(constants.KeyLabel, "test-label")
 		attributes := NewAttributesFrom(sourceAttributes)
 
 		var gotStringBuilder strings.Builder
@@ -106,14 +108,14 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	t.Run("does not mutate using GetAttributes copy map", func(t *testing.T) {
 		attributes := NewAttributes()
 		value := NewString("test")
-		attributes.SetAttribute(KeyLabel, value)
+		attributes.SetAttribute(constants.KeyLabel, value)
 		indirectAttributes := attributes.GetAttributes()
-		indirectAttributes[KeyClass] = NewString("my-class")
+		indirectAttributes[constants.KeyClass] = NewString("my-classconstants.")
 
 		got := attributes.GetAttributes()
 
 		want := Map{
-			KeyLabel: value,
+			constants.KeyLabel: value,
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -123,16 +125,16 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	t.Run("mutates using getAttributes map reference", func(t *testing.T) {
 		attributes := NewAttributes()
 		labelValue := NewString("test")
-		attributes.SetAttribute(KeyLabel, labelValue)
+		attributes.SetAttribute(constants.KeyLabel, labelValue)
 		indirectAttributes := attributes.getAttributes()
 		classValue := NewString("my-class")
-		indirectAttributes[KeyClass] = classValue
+		indirectAttributes[constants.KeyClass] = classValue
 
 		got := attributes.GetAttributes()
 
 		want := Map{
-			KeyLabel: labelValue,
-			KeyClass: classValue,
+			constants.KeyLabel: labelValue,
+			constants.KeyClass: classValue,
 		}
 
 		if !reflect.DeepEqual(got, want) {
@@ -141,9 +143,9 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	})
 	t.Run("get single attribute as string", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(KeyLabel, NewHTML("<b>html label</b>"))
+		attributes.SetAttribute(constants.KeyLabel, NewHTML("<b>html label</b>"))
 
-		got := attributes.GetAttributeString(KeyLabel)
+		got := attributes.GetAttributeString(constants.KeyLabel)
 
 		want := "<b>html label</b>"
 
@@ -154,7 +156,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 	t.Run("get single unset attribute as string", func(t *testing.T) {
 		attributes := NewAttributes()
 
-		got := attributes.GetAttributeString(KeyLabel)
+		got := attributes.GetAttributeString(constants.KeyLabel)
 
 		want := ""
 
@@ -167,7 +169,7 @@ func TestAttributes_GetAttributes(t *testing.T) {
 func TestAttributes_WriteTo(t *testing.T) {
 	t.Run("writes single string attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(KeyLabel, NewString("test"))
+		attributes.SetAttribute(constants.KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -184,7 +186,7 @@ func TestAttributes_WriteTo(t *testing.T) {
 	})
 	t.Run("writes single string attribute with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(KeyLabel, NewString("test"))
+		attributes.SetAttribute(constants.KeyLabel, NewString("test"))
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -201,7 +203,7 @@ func TestAttributes_WriteTo(t *testing.T) {
 	})
 	t.Run("writes single HTML attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
+		attributes.SetAttributeHTML(constants.KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -218,7 +220,7 @@ func TestAttributes_WriteTo(t *testing.T) {
 	})
 	t.Run("writes single HTML attribute with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeHTML(KeyLabel, "<B>Hi</B>")
+		attributes.SetAttributeHTML(constants.KeyLabel, "<B>Hi</B>")
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -235,7 +237,7 @@ func TestAttributes_WriteTo(t *testing.T) {
 	})
 	t.Run("writes single Literal attribute without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
+		attributes.SetAttributeLiteral(constants.KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -252,7 +254,7 @@ func TestAttributes_WriteTo(t *testing.T) {
 	})
 	t.Run("writes single Literal attribute with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeLiteral(KeyLabel, `"left text\l"`)
+		attributes.SetAttributeLiteral(constants.KeyLabel, `"left text\l"`)
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -270,8 +272,8 @@ func TestAttributes_WriteTo(t *testing.T) {
 	t.Run("writes multi attributes without brackets", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttributesString(MapString{
-			KeyClass: "my-class",
-			KeyLabel: "my-label",
+			constants.KeyClass: "my-class",
+			constants.KeyLabel: "my-label",
 		})
 
 		var gotStringBuilder strings.Builder
@@ -290,8 +292,8 @@ func TestAttributes_WriteTo(t *testing.T) {
 	t.Run("writes multi attributes with brackets", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttributesString(MapString{
-			KeyClass: "my-class",
-			KeyLabel: "my-label",
+			constants.KeyClass: "my-class",
+			constants.KeyLabel: "my-label",
 		})
 
 		var gotStringBuilder strings.Builder
@@ -312,10 +314,10 @@ func TestAttributes_WriteTo(t *testing.T) {
 func TestAttributes_SetAttribute(t *testing.T) {
 	t.Run("set attribute using single attribute set methods", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttributeString(KeyClass, "my-class")
-		attributes.SetAttributeHTML(KeyLabel, "<b>my-label</b>")
-		attributes.SetAttributeLiteral(KeyXlabel, `"left text\l"`)
-		attributes.SetAttribute(KeyColor, NewString("black"))
+		attributes.SetAttributeString(constants.KeyClass, "my-class")
+		attributes.SetAttributeHTML(constants.KeyLabel, "<b>my-label</b>")
+		attributes.SetAttributeLiteral(constants.KeyXlabel, `"left text\l"`)
+		attributes.SetAttribute(constants.KeyColor, NewString("black"))
 
 		var gotStringBuilder strings.Builder
 		_, err := attributes.WriteTo(&gotStringBuilder)
@@ -333,16 +335,16 @@ func TestAttributes_SetAttribute(t *testing.T) {
 	t.Run("set attribute using multi attribute set methods", func(t *testing.T) {
 		attributes := NewAttributes()
 		attributes.SetAttributesString(MapString{
-			KeyClass: "my-class",
+			constants.KeyClass: "my-class",
 		})
 		attributes.SetAttributesHTML(MapString{
-			KeyLabel: "<b>my-label</b>",
+			constants.KeyLabel: "<b>my-label</b>",
 		})
 		attributes.SetAttributesLiteral(MapString{
-			KeyXlabel: `"left text\l"`,
+			constants.KeyXlabel: `"left text\l"`,
 		})
 		attributes.SetAttributes(Map{
-			KeyColor: NewString("black"),
+			constants.KeyColor: NewString("black"),
 		})
 
 		var gotStringBuilder strings.Builder
@@ -363,7 +365,7 @@ func TestAttributes_SetAttribute(t *testing.T) {
 func TestAttributes_DeleteAttribute(t *testing.T) {
 	t.Run("try to delete un-existent attribute", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.DeleteAttribute(KeyClass)
+		attributes.DeleteAttribute(constants.KeyClass)
 
 		got := attributes.GetAttributes()
 
@@ -375,8 +377,8 @@ func TestAttributes_DeleteAttribute(t *testing.T) {
 	})
 	t.Run("delete a set attribute", func(t *testing.T) {
 		attributes := NewAttributes()
-		attributes.SetAttribute(KeyLabel, NewString("test"))
-		attributes.DeleteAttribute(KeyLabel)
+		attributes.SetAttribute(constants.KeyLabel, NewString("test"))
+		attributes.DeleteAttribute(constants.KeyLabel)
 
 		got := attributes.GetAttributes()
 

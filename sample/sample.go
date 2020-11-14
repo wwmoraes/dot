@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/wwmoraes/dot"
-	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/constants"
 	"github.com/wwmoraes/dot/formatters"
 )
 
@@ -43,7 +43,7 @@ func main() {
 		dot.WithCluster(),
 	)
 
-	clusterA.SetAttributeString(attributes.KeyLabel, "Cluster A")
+	clusterA.SetAttributeString(constants.KeyLabel, "Cluster A")
 
 	log.Println("creating node one...")
 	insideOne := clusterA.Node("one")
@@ -57,7 +57,7 @@ func main() {
 		dot.WithCluster(),
 	)
 
-	clusterB.SetAttributeString(attributes.KeyLabel, "Cluster B")
+	clusterB.SetAttributeString(constants.KeyLabel, "Cluster B")
 
 	log.Println("creating node three...")
 	insideThree := clusterB.Node("three")

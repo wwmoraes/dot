@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/constants"
 	"github.com/wwmoraes/dot/dottest"
 )
 
@@ -22,7 +23,7 @@ func TestGraphBehavior(t *testing.T) {
 			t.Fatal("graph is nil, expected a valid instance")
 		}
 
-		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
+		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(constants.KeyLabel, "uses")
 
 		expected := `digraph {"n1";"n2";"n1"->"n2"[label="uses"];}`
 
@@ -36,7 +37,7 @@ func TestGraphBehavior(t *testing.T) {
 			t.Fatal("graph is nil, expected a valid instance")
 		}
 
-		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
+		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(constants.KeyLabel, "uses")
 
 		expected := `digraph {"n1";"n2";"n1"->"n2"[label="uses"];}`
 
@@ -50,7 +51,7 @@ func TestGraphBehavior(t *testing.T) {
 			t.Fatal("graph is nil, expected a valid instance")
 		}
 
-		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(attributes.KeyLabel, "uses")
+		graph.Node("n1").Edge(graph.Node("n2")).SetAttributeString(constants.KeyLabel, "uses")
 
 		expected := `graph {"n1";"n2";"n1"--"n2"[label="uses"];}`
 
@@ -245,7 +246,7 @@ func TestGraph_Initializers(t *testing.T) {
 	t.Run("graph with node initializer", func(t *testing.T) {
 		graph, err := NewGraph(
 			WithNodeInitializer(func(nodeInstance Node) {
-				nodeInstance.SetAttributeString(attributes.KeyClass, "test-class")
+				nodeInstance.SetAttributeString(constants.KeyClass, "test-class")
 			}),
 		)
 		if err != nil {
@@ -261,7 +262,7 @@ func TestGraph_Initializers(t *testing.T) {
 	t.Run("graph with edge initializer", func(t *testing.T) {
 		graph, err := NewGraph(
 			WithEdgeInitializer(func(edgeInstance StyledEdge) {
-				edgeInstance.SetAttributeString(attributes.KeyClass, "test-class")
+				edgeInstance.SetAttributeString(constants.KeyClass, "test-class")
 			}),
 		)
 		if err != nil {
@@ -651,8 +652,8 @@ func TestEmptyWithIDAndAttributes(t *testing.T) {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
 
-	di.SetAttribute(attributes.KeyStyle, attributes.NewString("filled"))
-	di.SetAttribute(attributes.KeyColor, attributes.NewString("lightgrey"))
+	di.SetAttribute(constants.KeyStyle, attributes.NewString("filled"))
+	di.SetAttribute(constants.KeyColor, attributes.NewString("lightgrey"))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [color="lightgrey",style="filled"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
@@ -664,7 +665,7 @@ func TestEmptyWithHTMLLabel(t *testing.T) {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
 
-	di.SetAttribute(attributes.KeyLabel, attributes.NewHTML("<B>Hi</B>"))
+	di.SetAttribute(constants.KeyLabel, attributes.NewHTML("<B>Hi</B>"))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [label=<<B>Hi</B>>];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
@@ -676,7 +677,7 @@ func TestEmptyWithLiteralValueLabel(t *testing.T) {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
 
-	di.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"left-justified text\l"`))
+	di.SetAttribute(constants.KeyLabel, attributes.NewLiteral(`"left-justified text\l"`))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {graph [label="left-justified text\l"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
@@ -710,7 +711,7 @@ func TestTwoConnectedNodesAcrossSubgraphs(t *testing.T) {
 
 	n2 := sub.Node("B")
 	edge := di.Edge(n1, n2)
-	edge.SetAttributeString(attributes.KeyLabel, "cross-graph")
+	edge.SetAttributeString(constants.KeyLabel, "cross-graph")
 
 	// test graph-level edge finding
 	{
@@ -777,11 +778,11 @@ func TestSubgraph(t *testing.T) {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
 
-	sub.SetAttributeString(attributes.KeyStyle, "filled")
+	sub.SetAttributeString(constants.KeyStyle, "filled")
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`digraph {subgraph "%s" {graph [style="filled"];}}`, sub.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
-	sub.SetAttributeString(attributes.KeyLabel, "new-label")
+	sub.SetAttributeString(constants.KeyLabel, "new-label")
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), fmt.Sprintf(`digraph {subgraph "%s" {graph [label="new-label",style="filled"];}}`, sub.ID()); got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
@@ -839,8 +840,8 @@ func TestNode(t *testing.T) {
 
 	node := graph.Node("")
 	node.SetAttributesString(attributes.MapString{
-		attributes.KeyLabel: "test",
-		attributes.KeyShape: "box",
+		constants.KeyLabel: "test",
+		constants.KeyShape: "box",
 	})
 
 	if node.ID() == "" {
@@ -874,7 +875,7 @@ func TestEdgeLabel(t *testing.T) {
 	n1 := di.Node("e1")
 	n2 := di.Node("e2")
 	attr := attributes.NewAttributes()
-	attr.SetAttributeString(attributes.KeyLabel, "what")
+	attr.SetAttributeString(constants.KeyLabel, "what")
 	n1.EdgeWithAttributes(n2, attr)
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {"e1";"e2";"e1"->"e2"[label="what"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
@@ -913,7 +914,7 @@ func TestCluster(t *testing.T) {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
 
-	clusterA.SetAttributeString(attributes.KeyLabel, "Cluster A")
+	clusterA.SetAttributeString(constants.KeyLabel, "Cluster A")
 	insideOne := clusterA.Node("one")
 	insideTwo := clusterA.Node("two")
 	clusterB, err := di.Subgraph(
@@ -924,7 +925,7 @@ func TestCluster(t *testing.T) {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
 
-	clusterB.SetAttributeString(attributes.KeyLabel, "Cluster B")
+	clusterB.SetAttributeString(constants.KeyLabel, "Cluster B")
 	insideThree := clusterB.Node("three")
 	insideFour := clusterB.Node("four")
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
@@ -941,7 +942,7 @@ func TestDeleteLabel(t *testing.T) {
 	}
 
 	n := g.Node("my-id")
-	n.DeleteAttribute(attributes.KeyLabel)
+	n.DeleteAttribute(constants.KeyLabel)
 	if got, want := dottest.MustGetFlattenSerializableString(t, g), `digraph {"my-id";}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
@@ -1039,7 +1040,7 @@ func TestLabelWithEscaping(t *testing.T) {
 	}
 
 	n := di.Node("without-linefeed")
-	n.SetAttribute(attributes.KeyLabel, attributes.NewLiteral(`"with \l linefeed"`))
+	n.SetAttribute(constants.KeyLabel, attributes.NewLiteral(`"with \l linefeed"`))
 	if got, want := dottest.MustGetFlattenSerializableString(t, di), `digraph {"without-linefeed"[label="with \l linefeed"];}`; got != want {
 		t.Errorf("got [\n%v\n] want [\n%v\n]", got, want)
 	}
@@ -1048,7 +1049,7 @@ func TestLabelWithEscaping(t *testing.T) {
 func TestGraphNodeInitializer(t *testing.T) {
 	di, err := NewGraph(
 		WithNodeInitializer(func(n Node) {
-			n.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
+			n.SetAttribute(constants.KeyLabel, attributes.NewString("test"))
 		}),
 	)
 	if err != nil {
@@ -1056,7 +1057,7 @@ func TestGraphNodeInitializer(t *testing.T) {
 	}
 
 	n := di.Node("A")
-	gotAttr, gotOk := n.GetAttribute(attributes.KeyLabel)
+	gotAttr, gotOk := n.GetAttribute(constants.KeyLabel)
 	if !gotOk {
 		t.Error("attribute not found")
 	}
@@ -1068,7 +1069,7 @@ func TestGraphNodeInitializer(t *testing.T) {
 func TestGraphEdgeInitializer(t *testing.T) {
 	di, err := NewGraph(
 		WithEdgeInitializer(func(e StyledEdge) {
-			e.SetAttribute(attributes.KeyLabel, attributes.NewString("test"))
+			e.SetAttribute(constants.KeyLabel, attributes.NewString("test"))
 		}),
 	)
 	if err != nil {
@@ -1076,7 +1077,7 @@ func TestGraphEdgeInitializer(t *testing.T) {
 	}
 
 	e := di.Node("A").Edge(di.Node("B"))
-	gotAttr, gotOk := e.GetAttribute(attributes.KeyLabel)
+	gotAttr, gotOk := e.GetAttribute(constants.KeyLabel)
 	if !gotOk {
 		t.Error("attribute not found")
 	}

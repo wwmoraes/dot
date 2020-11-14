@@ -1,4 +1,4 @@
-package attributes
+package constants
 
 // Key attribute key type
 type Key string

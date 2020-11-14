@@ -5,13 +5,15 @@ import (
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/wwmoraes/dot/constants"
 )
 
 // Map collection of dot component attributes
-type Map map[Key]fmt.Stringer
+type Map map[constants.Key]fmt.Stringer
 
 // MapString collection of dot component attributes as primitive strings
-type MapString map[Key]string
+type MapString map[constants.Key]string
 
 // Attributes dot component attributes data
 type Attributes struct {
@@ -42,13 +44,13 @@ func (dotObjectData *Attributes) getAttributes() Map {
 }
 
 // GetAttribute returns the attribute value or nil if unset
-func (dotObjectData *Attributes) GetAttribute(key Key) (fmt.Stringer, bool) {
+func (dotObjectData *Attributes) GetAttribute(key constants.Key) (fmt.Stringer, bool) {
 	attr, found := dotObjectData.attributes[key]
 	return attr, found
 }
 
 // GetAttributeString returns the attribute as string or an empty string if unset
-func (dotObjectData *Attributes) GetAttributeString(key Key) string {
+func (dotObjectData *Attributes) GetAttributeString(key constants.Key) string {
 	attr, ok := dotObjectData.GetAttribute(key)
 
 	if !ok {
@@ -68,22 +70,22 @@ func (dotObjectData *Attributes) GetAttributes() Map {
 }
 
 // SetAttribute sets the value for the attribute Key
-func (dotObjectData *Attributes) SetAttribute(key Key, value fmt.Stringer) {
+func (dotObjectData *Attributes) SetAttribute(key constants.Key, value fmt.Stringer) {
 	dotObjectData.attributes[key] = value
 }
 
 // SetAttributeString sets the string value for the attribute Key
-func (dotObjectData *Attributes) SetAttributeString(key Key, value string) {
+func (dotObjectData *Attributes) SetAttributeString(key constants.Key, value string) {
 	dotObjectData.attributes[key] = NewString(value)
 }
 
 // SetAttributeLiteral sets the literal value for the attribute Key
-func (dotObjectData *Attributes) SetAttributeLiteral(key Key, value string) {
+func (dotObjectData *Attributes) SetAttributeLiteral(key constants.Key, value string) {
 	dotObjectData.attributes[key] = NewLiteral(value)
 }
 
 // SetAttributeHTML sets the HTML value for the attribute Key
-func (dotObjectData *Attributes) SetAttributeHTML(key Key, value string) {
+func (dotObjectData *Attributes) SetAttributeHTML(key constants.Key, value string) {
 	dotObjectData.attributes[key] = NewHTML(value)
 }
 
@@ -116,7 +118,7 @@ func (dotObjectData *Attributes) SetAttributesHTML(attributeMap MapString) {
 }
 
 // DeleteAttribute unset the attribute Key
-func (dotObjectData *Attributes) DeleteAttribute(key Key) {
+func (dotObjectData *Attributes) DeleteAttribute(key constants.Key) {
 	delete(dotObjectData.attributes, key)
 }
 
@@ -127,7 +129,7 @@ func (dotObjectData *Attributes) WriteTo(writer io.Writer) (n int64, err error) 
 	}
 
 	// first collect keys
-	keys := []Key{}
+	keys := []constants.Key{}
 	for k := range dotObjectData.attributes {
 		keys = append(keys, k)
 	}

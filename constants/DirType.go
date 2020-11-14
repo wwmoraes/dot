@@ -1,4 +1,4 @@
-package attributes
+package constants
 
 // DirType type for drawing arrowheads
 type DirType string

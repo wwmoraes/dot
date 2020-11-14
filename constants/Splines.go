@@ -1,4 +1,4 @@
-package attributes
+package constants
 
 // Splines controls how, and if, edges are represented
 type Splines string

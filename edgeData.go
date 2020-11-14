@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/wwmoraes/dot/attributes"
+	"github.com/wwmoraes/dot/constants"
 )
 
 type edgeData struct {
@@ -34,25 +35,25 @@ func (thisEdge *edgeData) To() Node {
 // Solid sets the edge attribute "style" to "solid"
 // Default style
 func (thisEdge *edgeData) Solid() Edge {
-	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("solid"))
+	thisEdge.SetAttribute(constants.KeyStyle, attributes.NewString("solid"))
 	return thisEdge
 }
 
 // Bold sets the edge attribute "style" to "bold"
 func (thisEdge *edgeData) Bold() Edge {
-	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("bold"))
+	thisEdge.SetAttribute(constants.KeyStyle, attributes.NewString("bold"))
 	return thisEdge
 }
 
 // Dashed sets the edge attribute "style" to "dashed"
 func (thisEdge *edgeData) Dashed() Edge {
-	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("dashed"))
+	thisEdge.SetAttribute(constants.KeyStyle, attributes.NewString("dashed"))
 	return thisEdge
 }
 
 // Dotted sets the edge attribute "style" to "dotted"
 func (thisEdge *edgeData) Dotted() Edge {
-	thisEdge.SetAttribute(attributes.KeyStyle, attributes.NewString("dotted"))
+	thisEdge.SetAttribute(constants.KeyStyle, attributes.NewString("dotted"))
 	return thisEdge
 }
 
@@ -72,10 +73,10 @@ func (thisEdge *edgeData) EdgesTo(to Node) []Edge {
 }
 
 func (thisEdge *edgeData) WriteTo(device io.Writer) (n int64, err error) {
-	denoteEdge := attributes.EdgeTypeUndirected
+	denoteEdge := constants.EdgeTypeUndirected
 
 	if thisEdge.graph.Root().Type() == GraphTypeDirected {
-		denoteEdge = attributes.EdgeTypeDirected
+		denoteEdge = constants.EdgeTypeDirected
 	}
 
 	written32, err := fmt.Fprintf(device, `"%s"%s"%s"`, thisEdge.From().ID(), denoteEdge, thisEdge.To().ID())

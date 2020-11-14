@@ -1,4 +1,4 @@
-package attributes
+package constants
 
 // PrimitiveShape edge arrow types
 type PrimitiveShape string

@@ -1,4 +1,4 @@
-package attributes
+package constants
 
 // ClusterMode mode used for handling clusters
 type ClusterMode string
