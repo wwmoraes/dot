@@ -6,6 +6,7 @@ import "github.com/wwmoraes/dot/attributes"
 type Edge interface {
 	attributes.Styleable
 	attributes.Serializable
+
 	// From returns the tail node this Edge is connected from
 	From() Node
 	// From returns the head node this Edge is connected to
@@ -18,18 +19,4 @@ type Edge interface {
 	// EdgesTo returns all edges between the head Node of this Edge and the target
 	// Node
 	EdgesTo(to Node) []Edge
-}
-
-// StyledEdge is implemented by dot-compatible edge values which have
-// convenience styling methods
-type StyledEdge interface {
-	Edge
-	// Solid sets the edge style to solid
-	Solid() Edge
-	// Solid sets the edge style to bold
-	Bold() Edge
-	// Solid sets the edge style to dashed
-	Dashed() Edge
-	// Solid sets the edge style to dotted
-	Dotted() Edge
 }
