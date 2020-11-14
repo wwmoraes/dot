@@ -14,6 +14,7 @@ theme:
   - navigation.instant
   - navigation.tabs
 markdown_extensions:
+- meta
 - admonition
 - pymdownx.tabbed
 - pymdownx.superfences

@@ -7,6 +7,7 @@ type Node interface {
 	attributes.Identity
 	attributes.Styleable
 	attributes.Serializable
+
 	// Edge creates an Edge to a Node
 	Edge(to Node) Edge
 	// EdgeWithAttributes creates an Edge with the provided attributes to a Node

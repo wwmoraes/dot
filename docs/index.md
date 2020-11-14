@@ -4,7 +4,7 @@
     this package is a WIP and will introduce breaking changes while on major
     version zero.
 
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![Status](https://img.shields.io/badge/status-active-success.svg)](https://github.com/wwmoraes/dot)
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/wwmoraes/dot)
 [![Go Report Card](https://goreportcard.com/badge/github.com/wwmoraes/dot)](https://goreportcard.com/report/github.com/wwmoraes/dot)
 [![GoDoc](https://godoc.org/github.com/wwmoraes/dot?status.svg)](https://pkg.go.dev/github.com/wwmoraes/dot)
@@ -19,7 +19,7 @@ implementation focused on generating dot/gv files that [Graphviz](graphviz) can
 then convert into any of its output formats supported (e.g. png, jpeg, svg, pdf).
 
 Dot provides both interfaces and ready-to-use concrete types that represent
-[dot language](dotlanguage) resources - namely Graphs, Nodes and Edges, plus all
+[dot language](dot-language) resources - namely Graphs, Nodes and Edges, plus all
 attributes.
 
 This package was inspired/initially forked from [emicklei/dot](emicklei-dot),
@@ -51,10 +51,13 @@ func main() {
 
   graph.Node("n1").SetAttributeString("label", "hello dot!")
 
-  graph.Write(os.Create("sample.dot"))
+  fd, _ := os.Create("sample.dot")
+  defer fd.Close()
+
+  graph.WriteTo(fd)
 }
 ```
 
 [graphviz]: https://graphviz.org
-[dotlanguage]: http://www.graphviz.org/doc/info/lang.html
+[dot-language]: http://www.graphviz.org/doc/info/lang.html
 [emicklei-dot]: https://github.com/emicklei/dot

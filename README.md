@@ -81,9 +81,9 @@ import (
 func main() {
   graph := dot.NewGraph()
   graph.SetAttributeString("label", "an amazing graph")
-  clusterA := graph.Subgraph(&GraphOptions{ ID: "Cluster A", Cluster: true })
+  clusterA := graph.Subgraph(WithID("Cluster A"), WithCluster())
   clusterA.SetAttributeString("label", "Cluster A")
-  clusterB := graph.Subgraph(&GraphOptions{ ID: "Cluster B", Cluster: true })
+  clusterB := graph.Subgraph(WithID("Cluster B"), WithCluster())
   clusterB.SetAttributeString("label", "Cluster B")
 
   clusterA.
@@ -99,24 +99,49 @@ func main() {
 }
 ```
 
-The attributes sub-package has all supported keys defined as variables, and can
+The constants sub-package has all supported keys defined as variables, and can
 be used instead of plain strings to avoid both duplication and errors:
 
 ```go
-graph := dot.NewGraph()
-graph.SetAttributeString(attributes.KeyLabel, "a graph")
-node := graph.Node("n1")
-node.SetAttributeString(attributes.KeyLabel, "a node")
-edge := graph.Edge(graph.Node("n2"), graph.Node("n3"))
-edge.SetAttributeString(attributes.KeyLabel, "a edge")
+package main
+
+import (
+  "os"
+  "github.com/wwmoraes/dot"
+  "github.com/wwmoraes/dot/constants"
+)
+
+func main() {
+  graph := dot.NewGraph()
+  graph.SetAttributeString(constants.KeyLabel, "a graph")
+  node := graph.Node("n1")
+  node.SetAttributeString(constants.KeyLabel, "a node")
+  edge := graph.Edge(graph.Node("n2"), graph.Node("n3"))
+  edge.SetAttributeString(constants.KeyLabel, "a edge")
+
+  fd, _ := os.Create("sample.dot")
+  graph.WriteTo(fd)
+}
 ```
 
 You can also set literals and HTML values using the helper functions:
 
 ```go
-graph := dot.NewGraph()
-graph.Node("n1").SetAttributeLiteral(attributes.KeyLabel, `a left label\l`)
-graph.Node("n2").SetAttributeHTML(attributes.KeyLabel, `<b>a bold label</b>`)
+package main
+
+import (
+  "os"
+  "github.com/wwmoraes/dot"
+  "github.com/wwmoraes/dot/constants"
+)
+
+func main() {
+  graph := dot.NewGraph()
+  graph.Node("n1").SetAttributeLiteral(constants.KeyLabel, `a left label\l`)
+  graph.Node("n2").SetAttributeHTML(constants.KeyLabel, `<b>a bold label</b>`)
+  fd, _ := os.Create("sample.dot")
+  graph.WriteTo(fd)
+}
 ```
 
 ## ✍️ Authors <a name = "authors"></a>
