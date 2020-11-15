@@ -41,10 +41,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${GOCACHE}
-        key: ${{ runner.os }}-build-${{ matrix.go-version }}-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
+        key: ${{ runner.os }}-build-${{ matrix.go-version }}-${{ hashFiles('**/*.go') }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ matrix.go-version }}-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
-          ${{ runner.os }}-build-${{ matrix.go-version }}-${{ env.cache-name }}-
+          ${{ runner.os }}-build-${{ matrix.go-version }}-${{ hashFiles('**/*.go') }}
           ${{ runner.os }}-build-${{ matrix.go-version }}-
           ${{ runner.os }}-build-
     - name: initialize CodeQL
@@ -68,12 +67,10 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${HOME}/.cache/golangci-lint
-        key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
+        key: ${{ runner.os }}-lint-${{ hashFiles('.golangci.yaml') }}
         restore-keys: |
-          ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
-          ${{ runner.os }}-lint-${{ env.cache-name }}-
+          ${{ runner.os }}-lint-${{ hashFiles('.golangci.yaml') }}
           ${{ runner.os }}-lint-
-          ${{ runner.os }}-
     - name: lint
       run: >
         mkdir -p ${HOME}/.cache/golangci-lint;
@@ -100,13 +97,11 @@ jobs:
     - name: cache test
       uses: actions/cache@v2
       with:
-        path: ${HOME}/.cache/go-build
-        key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
+        path: ${GOCACHE}
+        key: ${{ runner.os }}-test-${{ hashFiles('**/*.go') }}
         restore-keys: |
-          ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('go.sum') }}
-          ${{ runner.os }}-test-${{ env.cache-name }}-
+          ${{ runner.os }}-test-${{ hashFiles('**/*.go') }}
           ${{ runner.os }}-test-
-          ${{ runner.os }}-
     - name: test
       run: |
         go test -race -cover -coverprofile=coverage.out -json -v ./... > test-report.json
