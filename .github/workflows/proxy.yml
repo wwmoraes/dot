@@ -1,0 +1,17 @@
+name:  Renew pkg.go.dev docs
+
+on:
+  release:
+    types:
+    - created
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'
+    - '**/v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  proxy-pull:
+    name: renew documentation
+    runs-on: ubuntu-latest
+    steps:
+    - name: pull new module version
+      uses: andrewslotin/go-proxy-pull-action@master
