@@ -1,9 +1,5 @@
 {
-	// See https://go.microsoft.com/fwlink/?LinkId=827846 to learn about workspace recommendations.
-	// Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
-
-	// List of extensions which should be recommended for users of this workspace.
-	"recommendations": [
+  "recommendations": [
     "golang.go",
     "hbenl.vscode-test-explorer",
     "ethan-reesor.vscode-go-test-adapter",
@@ -11,8 +7,7 @@
     "streetsidesoftware.code-spell-checker",
     "rbalet.code-spell-checker-fullstack"
   ],
-	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
-	"unwantedRecommendations": [
+  "unwantedRecommendations": [
     // Microsoft's global recommendations, FML
     "ms-vscode-remote.remote-containers",
     "hookyqr.beautify",
@@ -22,6 +17,6 @@
     "googlecloudtools.cloudcode",
     "msjsdiag.vscode-react-native",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
-    "mindaro.mindaro",
-	]
+    "mindaro.mindaro"
+  ]
 }
