@@ -33,13 +33,12 @@ type graphOptionsData struct {
 
 // NewGraphOptions creates a new GraphOptions value that has all values
 // initialized properly
-func NewGraphOptions(optionsFn ...GraphOptionFn) (GraphOptions, error) {
-	var options GraphOptions = &graphOptionsData{
+func NewGraphOptions(optionsFn ...GraphOptionFn) (options GraphOptions, err error) {
+	options = &graphOptionsData{
 		generator: generators.NewRandTimeIDGenerator(24),
 		graphType: GraphTypeDirected,
 	}
 
-	var err error
 	for _, graphOptionFn := range optionsFn {
 		err = graphOptionFn(options)
 		if err != nil {
@@ -47,11 +46,7 @@ func NewGraphOptions(optionsFn ...GraphOptionFn) (GraphOptions, error) {
 		}
 	}
 
-	if options.Generator() == nil {
-		return nil, ErrGraphWithoutGenerator
-	}
-
-	return options, nil
+	return options, err
 }
 
 // SetID changes the id

@@ -2,6 +2,7 @@ package dot
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -13,6 +14,7 @@ import (
 	"github.com/wwmoraes/dot/attributes"
 	"github.com/wwmoraes/dot/constants"
 	"github.com/wwmoraes/dot/dottest"
+	"github.com/wwmoraes/dot/generators"
 )
 
 // TestGraphBehavior tests all components with real use cases
@@ -239,6 +241,68 @@ func TestNew_invalid(t *testing.T) {
 		if err == nil {
 			t.Error("error is nil, an error was expected")
 		}
+	}
+}
+
+func TestNewWithOptions_invalid(t *testing.T) {
+	parentGraph, err := New()
+	generator := generators.NewRandTimeIDGenerator(24)
+	if err != nil {
+		t.Fatal("unable to test NewWithOptions", err)
+	}
+
+	tests := []struct {
+		name    string
+		options GraphOptions
+		want    error
+	}{
+		{
+			name:    "graph without generator",
+			options: &graphOptionsData{},
+			want:    ErrGraphWithoutGenerator,
+		},
+		{
+			name: "subgraph without parent",
+			options: &graphOptionsData{
+				generator: generator,
+				graphType: GraphTypeSub,
+				parent:    nil,
+			},
+			want: ErrSubgraphWithoutParent,
+		},
+		{
+			name: "root graph with parent",
+			options: &graphOptionsData{
+				generator: generator,
+				graphType: GraphTypeDirected,
+				parent:    parentGraph,
+			},
+			want: ErrRootWithParent,
+		},
+		{
+			name: "root as cluster",
+			options: &graphOptionsData{
+				generator: generator,
+				graphType: GraphTypeDirected,
+				cluster:   true,
+			},
+			want: ErrRootAsCluster,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			graph, err := NewWithOptions(tt.options)
+			if graph != nil {
+				t.Error("graph is not nil, a valid instance wasn't expected")
+			}
+			if err == nil {
+				t.Error("error is nil, an error was expected")
+			}
+			if !errors.Is(err, tt.want) {
+				t.Errorf("got [\n%v\n] want [\n%v\n]", err, tt.want)
+			}
+		})
 	}
 }
 

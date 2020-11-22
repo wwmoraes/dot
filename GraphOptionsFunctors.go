@@ -1,6 +1,8 @@
 package dot
 
-import "github.com/wwmoraes/dot/generators"
+import (
+	"github.com/wwmoraes/dot/generators"
+)
 
 // WithID sets the graph id, or generates one if id is "-"
 func WithID(id string) GraphOptionFn {
