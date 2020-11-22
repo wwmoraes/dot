@@ -35,6 +35,11 @@ func New(optionsFn ...GraphOptionFn) (Graph, error) {
 		return nil, err
 	}
 
+	return NewWithOptions(options), nil
+}
+
+// NewWithOptions returns a Graph using the options values
+func NewWithOptions(options GraphOptions) Graph {
 	return &graphData{
 		id:              options.ID(),
 		parent:          options.Parent(),
@@ -48,7 +53,7 @@ func New(optionsFn ...GraphOptionFn) (Graph, error) {
 		sameRank:        map[string][]Node{},
 		nodeInitializer: options.NodeInitializer(),
 		edgeInitializer: options.EdgeInitializer(),
-	}, nil
+	}
 }
 
 // ID returns the immutable id
