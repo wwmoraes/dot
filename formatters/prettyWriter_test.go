@@ -14,7 +14,7 @@ import (
 
 func TestPrettyWriter(t *testing.T) {
 	t.Run("invalid writer", func(t *testing.T) {
-		graph, err := dot.NewGraph()
+		graph, err := dot.New()
 		if err != nil {
 			t.Fatal("graph is nil, expected a valid instance")
 		}
@@ -37,7 +37,7 @@ func TestPrettyWriter(t *testing.T) {
 		}
 	})
 	t.Run("bytes writer", func(t *testing.T) {
-		graph, err := dot.NewGraph()
+		graph, err := dot.New()
 		if err != nil {
 			t.Fatal("graph is nil, expected a valid instance")
 		}
@@ -67,7 +67,7 @@ func TestPrettyWriter(t *testing.T) {
 		}
 	})
 	t.Run("file writer", func(t *testing.T) {
-		graph, err := dot.NewGraph()
+		graph, err := dot.New()
 		if err != nil {
 			t.Fatal("graph is nil, expected a valid instance")
 		}

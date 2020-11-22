@@ -32,7 +32,7 @@ func writeToWith(graph dot.Graph, fileName string, writerFunctors ...func(io.Wri
 
 func main() {
 	log.Println("creating graph instance...")
-	rootGraph, _ := dot.NewGraph()
+	rootGraph, _ := dot.New()
 
 	log.Println("creating outside node...")
 	outsideGraph := rootGraph.Node("Outside")

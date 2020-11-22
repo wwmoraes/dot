@@ -79,7 +79,7 @@ import (
 )
 
 func main() {
-  graph := dot.NewGraph()
+  graph := dot.New()
   graph.SetAttributeString("label", "an amazing graph")
   clusterA := graph.Subgraph(WithID("Cluster A"), WithCluster())
   clusterA.SetAttributeString("label", "Cluster A")
@@ -112,7 +112,7 @@ import (
 )
 
 func main() {
-  graph := dot.NewGraph()
+  graph := dot.New()
   graph.SetAttributeString(constants.KeyLabel, "a graph")
   node := graph.Node("n1")
   node.SetAttributeString(constants.KeyLabel, "a node")
@@ -136,7 +136,7 @@ import (
 )
 
 func main() {
-  graph := dot.NewGraph()
+  graph := dot.New()
   graph.Node("n1").SetAttributeLiteral(constants.KeyLabel, `a left label\l`)
   graph.Node("n2").SetAttributeHTML(constants.KeyLabel, `<b>a bold label</b>`)
   fd, _ := os.Create("sample.dot")

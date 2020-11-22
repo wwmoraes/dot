@@ -10,7 +10,7 @@ import (
 
 func TestEdge_String(t *testing.T) {
 	// TODO String needs to be implemented, and will break this test when done so
-	graph, err := NewGraph()
+	graph, err := New()
 	if err != nil {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
@@ -22,7 +22,7 @@ func TestEdge_String(t *testing.T) {
 }
 
 func TestEdge_ObjectInterface(t *testing.T) {
-	graph, err := NewGraph()
+	graph, err := New()
 	if err != nil {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
@@ -49,7 +49,7 @@ func TestEdge_StyleHelpers(t *testing.T) {
 
 	for _, tc := range tests {
 
-		di, err := NewGraph()
+		di, err := New()
 		if err != nil {
 			t.Fatal("graph is nil, expected a valid instance")
 		}
@@ -100,7 +100,7 @@ func TestEdge_WriteTo(t *testing.T) {
 		},
 	}
 
-	graph, err := NewGraph()
+	graph, err := New()
 	if err != nil {
 		t.Fatal("graph is nil, expected a valid instance")
 	}

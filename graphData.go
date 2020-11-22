@@ -27,8 +27,8 @@ type graphData struct {
 	edgeInitializer EdgeInitializerFn
 }
 
-// NewGraph return a Graph after all option functions are processed
-func NewGraph(optionsFn ...GraphOptionFn) (Graph, error) {
+// New return a Graph after all option functions are processed
+func New(optionsFn ...GraphOptionFn) (Graph, error) {
 	options, err := NewGraphOptions(optionsFn...)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (thisGraph *graphData) Subgraph(optionsFn ...GraphOptionFn) (Graph, error) 
 
 	newOptionsFn = append(newOptionsFn, optionsFn...)
 
-	graph, err := NewGraph(newOptionsFn...)
+	graph, err := New(newOptionsFn...)
 	if err != nil {
 		return nil, err
 	}

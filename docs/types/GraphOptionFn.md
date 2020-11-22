@@ -33,7 +33,7 @@ func WithMyOptions(id string) GraphOptionFn {
 then it can be used as
 
 ```go
-graph, _ := dot.NewGraph(WithMyOptions("some-id"))
+graph, _ := dot.New(WithMyOptions("some-id"))
 ```
 
 ## implementation

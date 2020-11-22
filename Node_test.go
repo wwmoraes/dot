@@ -8,7 +8,7 @@ import (
 )
 
 func TestNode_String(t *testing.T) {
-	graph, err := NewGraph()
+	graph, err := New()
 	if err != nil {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
@@ -47,7 +47,7 @@ func TestNode_WriteTo(t *testing.T) {
 		},
 	}
 
-	graph, err := NewGraph()
+	graph, err := New()
 	if err != nil {
 		t.Fatal("graph is nil, expected a valid instance")
 	}
