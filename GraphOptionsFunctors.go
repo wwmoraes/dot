@@ -23,7 +23,7 @@ func WithID(id string) GraphOptionFn {
 func WithParent(graph Graph) GraphOptionFn {
 	return func(options GraphOptions) error {
 		if graph == nil {
-			return ErrInvalidParent
+			return ErrNilParent
 		}
 
 		options.SetParent(graph)
@@ -47,7 +47,7 @@ func WithType(graphType GraphType) GraphOptionFn {
 		}
 
 		if options.Parent() != nil {
-			return ErrNonSubgraphWithParent
+			return ErrRootWithParent
 		}
 
 		options.SetType(graphType)
@@ -71,7 +71,7 @@ func WithStrict() GraphOptionFn {
 func WithCluster() GraphOptionFn {
 	return func(options GraphOptions) error {
 		if options.Type() != GraphTypeSub {
-			return ErrRootCluster
+			return ErrRootAsCluster
 		}
 
 		options.SetCluster(true)
