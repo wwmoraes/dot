@@ -143,3 +143,8 @@ func (options *graphOptionsData) SetCluster(cluster bool) {
 		options.id = fmt.Sprintf("cluster_%s", options.id)
 	}
 }
+
+// Cluster returns if the graph is a cluster
+func (options *graphOptionsData) Cluster() bool {
+	return options.cluster
+}

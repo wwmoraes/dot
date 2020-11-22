@@ -36,4 +36,6 @@ type GraphOptions interface {
 	EdgeInitializer() EdgeInitializerFn
 	// SetCluster changes the cluster flag
 	SetCluster(bool)
+	// Cluster returns if the graph is a cluster
+	Cluster() bool
 }
