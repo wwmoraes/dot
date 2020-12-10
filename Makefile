@@ -36,17 +36,16 @@ test-v: $(SOURCES)
 	go test -race -v ./...
 
 .PHONY: coverage
-coverage: coverage.html
-	@touch doc.go
-	@$(MAKE) $<
+coverage: coverage.out coverage.html
+	go tool cover -func=$<
+
+behavior: behavior.out behavior.html
+	go tool cover -func=$<
 
 coverage.out: $(SOURCES)
 	go test -race -cover -coverprofile=$@ ./...
 
-.PHONY: coverage-behavior
-coverage-behavior: coverage-behavior.html
-
-coverage-behavior.out: $(SOURCES)
+behavior.out: $(SOURCES)
 	go test -race -run ".*Behavior" -coverprofile=$@ ./...
 
 %.html: %.out
@@ -55,5 +54,5 @@ coverage-behavior.out: $(SOURCES)
 %.png: %.dot
 	dot -Tpng -o $@ $<
 
-%.dot: %.go
+sample/%.dot: sample/sample.go
 	cd $(shell dirname $<) && go run $(shell basename $<)
