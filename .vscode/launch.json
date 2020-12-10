@@ -2,11 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch",
+      "name": "Sample",
       "type": "go",
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/sample/sample.go",
+      "env": {},
+      "args": []
+    },
+    {
+      "name": "Tokenizer",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/sample/tokenizer/main.go",
       "env": {},
       "args": []
     }

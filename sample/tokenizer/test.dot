@@ -1,0 +1,21 @@
+digraph {
+  subgraph cluster_A {
+    graph [label="Cluster A"];
+    subgraph "" {
+      rank=same;
+      "one";
+      "two";
+    }
+  }
+  subgraph "cluster_B" {
+    graph [label="Cluster B",id=XPTO];
+    "four";
+    "three";
+  }
+  "Outside";
+  "Outside"->"four";
+  "four"->"one";
+  "one"->"two";
+  "two"->"three";
+  "three"->"Outside";
+}
