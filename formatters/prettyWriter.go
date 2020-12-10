@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// ErrNoWriter means the destination writer is invalid somehow
 var ErrNoWriter = errors.New("the underlying writer is not valid")
 
 type regexpRule struct {
