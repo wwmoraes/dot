@@ -5,6 +5,7 @@
 sample/*.dot
 sample/*.png
 site/
+bin/
 
 # SonarQube
 .scannerwork/
