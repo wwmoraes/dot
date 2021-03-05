@@ -45,7 +45,7 @@ jobs:
     - name: set golang environment variables
       uses: wwmoraes/actions/golang/env@master
     - name: cache build
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       with:
         path: ${GOCACHE}
         key: ${{ runner.os }}-build-${{ matrix.go-version }}-${{ hashFiles('**/*.go') }}
@@ -69,7 +69,7 @@ jobs:
     - name: set golang environment variables
       uses: wwmoraes/actions/golang/env@master
     - name: cache lint
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       with:
         path: ${{ env.HOME }}/.cache/golangci-lint
         key: ${{ runner.os }}-lint-${{ hashFiles('.golangci.yaml') }}
@@ -99,7 +99,7 @@ jobs:
     - name: set golang environment variables
       uses: wwmoraes/actions/golang/env@master
     - name: cache test
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       with:
         path: ${GOCACHE}
         key: ${{ runner.os }}-test-${{ hashFiles('**/*.go') }}
@@ -130,7 +130,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: cache sonar scanner
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       with:
         path: ${{ runner.temp }}/sonar-scanner/cache
         key: ${{ runner.os }}-sonar-scanner-cache-${{ hashFiles('**/sonar-project.properties') }}
