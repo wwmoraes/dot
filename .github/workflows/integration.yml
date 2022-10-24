@@ -45,7 +45,7 @@ jobs:
     - name: set golang environment variables
       uses: wwmoraes/actions/golang/env@master
     - name: cache build
-      uses: pat-s/always-upload-cache@v2.1.3
+      uses: pat-s/always-upload-cache@v3.0.11
       with:
         path: ${GOCACHE}
         key: ${{ runner.os }}-build-${{ matrix.go-version }}-${{ hashFiles('**/*.go') }}
@@ -69,7 +69,7 @@ jobs:
     - name: set golang environment variables
       uses: wwmoraes/actions/golang/env@master
     - name: cache lint
-      uses: pat-s/always-upload-cache@v2.1.3
+      uses: pat-s/always-upload-cache@v3.0.11
       with:
         path: ${{ env.HOME }}/.cache/golangci-lint
         key: ${{ runner.os }}-lint-${{ hashFiles('.golangci.yaml') }}
@@ -99,7 +99,7 @@ jobs:
     - name: set golang environment variables
       uses: wwmoraes/actions/golang/env@master
     - name: cache test
-      uses: pat-s/always-upload-cache@v2.1.3
+      uses: pat-s/always-upload-cache@v3.0.11
       with:
         path: ${GOCACHE}
         key: ${{ runner.os }}-test-${{ hashFiles('**/*.go') }}
@@ -130,7 +130,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: cache sonar scanner
-      uses: pat-s/always-upload-cache@v2.1.3
+      uses: pat-s/always-upload-cache@v3.0.11
       with:
         path: ${{ runner.temp }}/sonar-scanner/cache
         key: ${{ runner.os }}-sonar-scanner-cache-${{ hashFiles('**/sonar-project.properties') }}
