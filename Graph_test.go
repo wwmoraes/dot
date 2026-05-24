@@ -995,7 +995,7 @@ func TestCluster(t *testing.T) {
 	outside.Edge(insideFour).Edge(insideOne).Edge(insideTwo).Edge(insideThree).Edge(outside)
 	filePath := path.Join(t.TempDir(), "cluster.dot")
 	if err := ioutil.WriteFile(filePath, []byte(dottest.MustGetSerializableString(t, di)), os.ModePerm); err != nil {
-		t.Errorf("unable to write dot file: %w", err)
+		t.Errorf("unable to write dot file: %s", err)
 	}
 }
 

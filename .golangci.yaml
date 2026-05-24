@@ -1,13 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/golangci/golangci-lint/refs/tags/v2.10.1/jsonschema/golangci.jsonschema.json
+version: "2"
 output:
-  format: colored-line-number
-linters-settings:
+  formats:
+    text:
+      colors: true
+linters:
   enable:
-  - stylecheck
   - unconvert
   - gosec
   - errorlint
-  - maligned
-  - interfacer
   - unparam
   - whitespace
   - wrapcheck

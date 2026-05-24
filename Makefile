@@ -27,13 +27,9 @@ clean:
 clean-cache:
 	go clean -cache -testcache ./...
 
-.PHONY: test
-test: $(SOURCES)
+.PHONY: check
+check:: $(SOURCES)
 	go test -race ./...
-
-.PHONY: test-v
-test-v: $(SOURCES)
-	go test -race -v ./...
 
 .PHONY: coverage
 coverage: coverage.out coverage.html

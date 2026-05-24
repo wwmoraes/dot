@@ -1,0 +1,14 @@
+[default]
+binary = false
+
+[files]
+extend-exclude = [
+  "go.mod",
+  "go.sum",
+]
+
+[default.extend-identifiers]
+importas = "importas"
+
+[default.extend-words]
+Artero = "Artero"

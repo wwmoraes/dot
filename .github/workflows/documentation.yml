@@ -1,0 +1,34 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+    - master
+    paths:
+    - .github/workflows/documentation.yml
+    - mkdocs.yml
+    - 'docs/**'
+  pull_request:
+    branches:
+    - master
+    paths:
+    - .github/workflows/documentation.yml
+    - mkdocs.yml
+    - 'docs/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: direnv nix
+      uses: JRMurr/direnv-nix-action@v4.2.0
+      with:
+        install-nix: true
+        cache-store: false
+        extra_nix_config: |-
+          extra-substituters = https://wwmoraes.cachix.org
+          extra-trusted-public-keys = wwmoraes.cachix.org-1:N38Kgu19R66Jr62aX5rS466waVzT5p/Paq1g6uFFVyM=
+    - name: deploy github pages
+      run: mkdocs gh-deploy --force
