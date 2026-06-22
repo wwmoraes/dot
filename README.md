@@ -6,7 +6,8 @@ a lightweight, pure golang graphviz-compatible dot language implementation
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![Status](https://img.shields.io/badge/status-active-success.svg)][![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwwmoraes%2Fdot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwwmoraes%2Fdot?ref=badge_shield)
+()
 ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/wwmoraes/dot)
 [![GitHub Issues](https://img.shields.io/github/issues/wwmoraes/dot.svg)](https://github.com/wwmoraes/dot/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/wwmoraes/dot.svg)](https://github.com/wwmoraes/dot/pulls)
@@ -161,3 +162,7 @@ discussion about golang ways - my personal master Yoda!
 [dotlanguage]: http://www.graphviz.org/doc/info/lang.html
 [emicklei-dot]: https://github.com/emicklei/dot
 [goccy-go-graphviz]: https://github.com/goccy/go-graphviz
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwwmoraes%2Fdot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwwmoraes%2Fdot?ref=badge_large)
